@@ -1,4 +1,4 @@
-import { keccak256 } from 'viem'
+import { Hex, keccak256 } from 'viem'
 
 /**
  * Calculates the checksum for an Interoperable Address.
@@ -15,8 +15,8 @@ import { keccak256 } from 'viem'
  * @param addressData - The address data to calculate the checksum for (without version)
  * @returns The 4-byte checksum as an uppercase hex string
  */
-export function calculateChecksum(addressData: string): string {
-  const hash = keccak256(addressData as `0x${string}`)
+export function calculateChecksum(addressData: Hex): string {
+  const hash = keccak256(addressData)
 
   // Take first 4 bytes and convert to uppercase hex
   return hash.slice(2, 10).toUpperCase()

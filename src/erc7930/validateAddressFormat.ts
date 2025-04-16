@@ -1,4 +1,4 @@
-import { parseInteroperableAddress } from './formatInteropAddress'
+import { parseInteroperableAddress } from './parseInteropAddress'
 import { AddressFormatResult, AddressFormatType } from './types'
 
 /**
@@ -87,6 +87,15 @@ export function validateAddressFormat(address: string): AddressFormatResult {
         chainType: chainPart || '',
         addressLength: accountPart ? accountPart.length : 0
       }
+    }
+  }
+
+  // Try to detect EVM address format
+  if (/^0x[a-fA-F0-9]{40}$/.test(trimmedAddress) && trimmedAddress.slice(2, 6) === '0001') {
+    return {
+      data: trimmedAddress,
+      type: AddressFormatType.EVM,
+      isValid: true
     }
   }
 
