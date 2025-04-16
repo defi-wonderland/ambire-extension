@@ -33,14 +33,14 @@ function formatAddressForDisplay(address: string, namespace: string): string {
  *
  * @example
  * ```ts
- * import { addressToHumanInterop } from '@/erc7930'
+ * import { formatToHumanInterop } from '@/erc7930'
  *
  * // EVM address example
- * addressToHumanInterop('0x71C7656EC7ab88b098defB751B7401B5f6d8976F', { namespace: 'eip155', id: '1' })
+ * formatToHumanInterop('0x71C7656EC7ab88b098defB751B7401B5f6d8976F', { namespace: 'eip155', id: '1' })
  * // '0x71C7656EC7ab88b098defB751B7401B5f6d8976F@eip155:1#12345678'
  *
  * // Solana address example
- * addressToHumanInterop('AKp5u1QF3HA9hUTx5jcJbZupuiB7CVjZ2EANAQsaX2pm', { namespace: 'solana', id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ' })
+ * formatToHumanInterop('AKp5u1QF3HA9hUTx5jcJbZupuiB7CVjZ2EANAQsaX2pm', { namespace: 'solana', id: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ' })
  * // 'AKp5u1QF3HA9hUTx5jcJbZupuiB7CVjZ2EANAQsaX2pm@solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ#87654321'
  * ```
  *
@@ -48,7 +48,7 @@ function formatAddressForDisplay(address: string, namespace: string): string {
  * @param chainData - The chain data (namespace and id)
  * @returns Human-readable interoperable address
  */
-export function addressToHumanInterop(address: string, chainData: ChainData): string {
+export function formatToHumanInterop(address: string, chainData: ChainData): string {
   if (!address) {
     throw new Error('Address is required')
   }

@@ -1,4 +1,4 @@
-import { parseInteroperableAddress } from './formatInteropAddress'
+import { parseInteroperableAddress } from './parseInteropAddress'
 import { AddressFormat } from './types'
 
 /**

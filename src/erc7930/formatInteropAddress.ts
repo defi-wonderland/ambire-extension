@@ -56,9 +56,9 @@ function formatAddress(chainNamespace: string, address: string): string {
  *
  * @example
  * ```ts
- * import { formatInteroperableAddress } from '@/erc7930'
+ * import { fromPayloadToHumanInteropAddress } from '@/erc7930'
  *
- * formatInteroperableAddress('0x0001000001011234567890abcdef')
+ * fromPayloadToHumanInteropAddress('0x0001000001011234567890abcdef')
  * // '1234567890abcdef@eip155:1#8F7E6D5C'
  * ```
  *
@@ -66,7 +66,10 @@ function formatAddress(chainNamespace: string, address: string): string {
  * @param format - Format of the input address ('hex' or 'base58')
  * @returns Human-readable representation of the Interoperable Address
  */
-export function formatInteroperableAddress(address: string, format: AddressFormat = 'hex'): string {
+export function fromPayloadToHumanInteropAddress(
+  address: string,
+  format: AddressFormat = 'hex'
+): string {
   // 1. Parse the address based on the format
   const parsedAddress = parseInteroperableAddress(address, format)
 
