@@ -2,7 +2,7 @@ import bs58 from 'bs58'
 import { fromHex, Hex } from 'viem'
 import { calculateChecksum } from './calculateChecksum'
 import { AddressFormat } from './types'
-import { parseInteroperableAddress } from './parseInteropAddress'
+import { parseInteropAddress } from './parseInteropAddress'
 
 /**
  * Formats a chain for human readability.
@@ -71,7 +71,7 @@ export function fromPayloadToHumanInteropAddress(
   format: AddressFormat = 'hex'
 ): string {
   // 1. Parse the address based on the format
-  const parsedAddress = parseInteroperableAddress(address, format)
+  const parsedAddress = parseInteropAddress(address, format)
 
   // 2. Format the chain part
   const chainPart = formatChain(parsedAddress.chainNamespace, parsedAddress.chainId)

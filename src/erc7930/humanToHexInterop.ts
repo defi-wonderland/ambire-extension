@@ -89,7 +89,7 @@ export function humanToHexInteropAddress(humanAddress: string): string | null {
     // For other chains, use raw values
     addressHex = address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()
     // TODO: Add support for other chains
-    chainTypeHex = chainNamespace
+    chainTypeHex = '0000'
     chainIdHex = chainId || ''
   }
 
@@ -97,8 +97,9 @@ export function humanToHexInteropAddress(humanAddress: string): string | null {
   const chainIdLength = (chainIdHex.length / 2).toString(16).padStart(2, '0')
   const addressLength = (addressHex.length / 2).toString(16).padStart(2, '0')
 
+  const curatedChainIndex = chainIdLength === '00' ? '' : chainIdHex
   // Assemble the interoperable address
-  const interopAddress = `0x${version}${chainTypeHex}${chainIdLength}${chainIdHex}${addressLength}${addressHex}`
+  const interopAddress = `0x${version}${chainTypeHex}${chainIdLength}${curatedChainIndex}${addressLength}${addressHex}`
 
-  return interopAddress
+  return interopAddress.toLowerCase()
 }

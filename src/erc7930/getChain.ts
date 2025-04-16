@@ -1,4 +1,4 @@
-import { parseInteroperableAddress } from './parseInteropAddress'
+import { parseInteropAddress } from './parseInteropAddress'
 import { AddressFormat } from './types'
 
 /**
@@ -21,7 +21,7 @@ export function getChainFromInteropAddress(
   format: AddressFormat = 'hex'
 ): { namespace: string; id: string } | null {
   try {
-    const parsed = parseInteroperableAddress(address, format)
+    const parsed = parseInteropAddress(address, format)
     return {
       namespace: parsed.chainNamespace,
       id: parsed.chainId
