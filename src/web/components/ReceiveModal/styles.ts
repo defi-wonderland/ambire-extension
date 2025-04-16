@@ -24,6 +24,7 @@ interface Style {
   supportedNetworksTitle: TextStyle
   supportedNetworks: ViewStyle
   supportedNetwork: ViewStyle
+  networkSelectorContainer: ViewStyle
 }
 
 const { isTab } = getUiType()
@@ -74,6 +75,16 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       minWidth: 86,
       height: 50
+    },
+    networkSelectorContainer: {
+      ...flexbox.directionRow,
+      ...flexbox.justifyEnd,
+      ...flexbox.alignCenter,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.tertiaryBackground,
+      ...spacings.mbTy,
+      ...spacings.phSm,
+      ...spacings.pbTy
     }
   })
 

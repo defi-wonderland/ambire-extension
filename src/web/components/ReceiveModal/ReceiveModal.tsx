@@ -1,11 +1,10 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { FC, useRef, useState } from 'react'
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import { getIsViewOnly } from '@ambire-common/utils/accounts'
-import CopyIcon from '@common/assets/svg/CopyIcon'
 import Alert from '@common/components/Alert'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import BottomSheet from '@common/components/BottomSheet'
@@ -22,6 +21,12 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import { SelectValue } from '@common/components/Select/types'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
+import Select from '@common/components/Select'
+import { addressToHumanInterop } from '../../../erc7930'
 import getStyles from './styles'
 
 interface Props {
@@ -36,12 +41,57 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
   const isViewOnly = getIsViewOnly(keys, account?.associatedKeys || [])
+  const { supportedChainIds } = useSwapAndBridgeControllerState()
+
+  const fromNetworkOptions: SelectValue[] = useMemo(
+    () =>
+      networks.map((n) => {
+        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
+        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+
+        return {
+          value: String(n.chainId),
+          extraSearchProps: [n.name],
+          disabled: !isNetworkSupported,
+          label: (
+            <>
+              <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
+                {n.name}
+              </Text>
+              {!isNetworkSupported && (
+                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
+              )}
+            </>
+          ),
+          icon: (
+            <NetworkIcon
+              key={n.chainId.toString()}
+              id={n.chainId.toString()}
+              style={{ backgroundColor: theme.primaryBackground }}
+              size={28}
+            />
+          )
+        }
+      }),
+    [networks, supportedChainIds, theme.primaryBackground]
+  )
+
+  const [selectedChainId, setSelectedChainId] = useState<number>(
+    Number(fromNetworkOptions[0].value)
+  )
+
+  const interopAddress = useMemo(() => {
+    return addressToHumanInterop(account?.addr || '', {
+      namespace: 'eip155',
+      id: selectedChainId?.toString()
+    })
+  }, [account?.addr, selectedChainId])
 
   const handleCopyAddress = () => {
     if (!account) return
@@ -49,6 +99,17 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     Clipboard.setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
+
+  const handleSetToNetworkValue = useCallback((networkOption: SelectValue) => {
+    setSelectedChainId(Number(networkOption.value))
+  }, [])
+
+  const getFromNetworkSelectValue = useMemo(() => {
+    const network = networks.find((n) => Number(n.chainId) === selectedChainId)
+    if (!network) return fromNetworkOptions[0]
+
+    return fromNetworkOptions.filter((opt) => opt.value === String(network.chainId))[0]
+  }, [networks, selectedChainId, fromNetworkOptions])
 
   return (
     <BottomSheet
@@ -65,7 +126,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
           {!!account && !qrCodeError && (
             <View style={styles.qrCode}>
               <QRCode
-                value={account.addr}
+                value={interopAddress}
                 size={160}
                 quietZone={10}
                 getRef={qrCodeRef}
@@ -85,10 +146,9 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             onPress={handleCopyAddress}
             {...bindAnim}
           >
-            <Text selectable numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
-              {account?.addr}
+            <Text selectable numberOfLines={1} fontSize={12} ellipsizeMode="middle" weight="medium">
+              {interopAddress}
             </Text>
-            <CopyIcon style={spacings.mlTy} />
           </AnimatedPressable>
           {isViewOnly ? (
             <Alert
@@ -103,27 +163,23 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
         </View>
 
         <View style={styles.supportedNetworksContainer}>
-          <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
-            {t('Following networks supported on this address:')}
-          </Text>
-          <View style={styles.supportedNetworks}>
-            {networks.map(({ chainId, name }: any) => (
-              <View key={chainId.toString()} style={styles.supportedNetwork}>
-                <View style={spacings.mbMi}>
-                  <NetworkIcon id={chainId.toString()} size={22} scale={0.6} />
-                </View>
-                <Text
-                  style={spacings.plMi}
-                  fontSize={10}
-                  numberOfLines={1}
-                  appearance="secondaryText"
-                  weight="regular"
-                >
-                  {name}
-                </Text>
-              </View>
-            ))}
-          </View>
+          {/* <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
+            {t('Network')}
+          </Text> */}
+          <Select
+            setValue={handleSetToNetworkValue}
+            containerStyle={{ ...spacings.mb0, width: 215 }}
+            options={fromNetworkOptions}
+            size="sm"
+            value={getFromNetworkSelectValue}
+            selectStyle={{
+              backgroundColor: '#54597A14',
+              borderWidth: 0,
+              width: '100%',
+              ...spacings.pr,
+              ...spacings.plTy
+            }}
+          />
         </View>
       </View>
       <AmbireLogoHorizontal />
