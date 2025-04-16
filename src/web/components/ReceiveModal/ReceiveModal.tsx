@@ -28,6 +28,7 @@ import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/
 import Select from '@common/components/Select'
 import { addressToHumanInterop } from '../../../erc7930'
 import getStyles from './styles'
+import UseInteropAddress from './UseInteropAddress'
 
 interface Props {
   modalRef: any
@@ -48,68 +49,97 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
   const isViewOnly = getIsViewOnly(keys, account?.associatedKeys || [])
   const { supportedChainIds } = useSwapAndBridgeControllerState()
+  const [selectedChain, setSelectedChain] = useState<{
+    chainNamespace: 'eip155' | 'solana'
+    chainId: string
+  }>({ chainNamespace: 'eip155', chainId: '1' })
+  const [isInteropAddressAgreed, setIsInteropAddressAgreed] = useState(true)
 
-  const fromNetworkOptions: SelectValue[] = useMemo(
-    () =>
-      networks.map((n) => {
-        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+  const handleInteropAddressCheckboxClick = () => {
+    setIsInteropAddressAgreed(!isInteropAddressAgreed)
+  }
 
-        return {
-          value: String(n.chainId),
-          extraSearchProps: [n.name],
-          disabled: !isNetworkSupported,
-          label: (
-            <>
-              <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
-                {n.name}
-              </Text>
-              {!isNetworkSupported && (
-                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-              )}
-            </>
-          ),
-          icon: (
-            <NetworkIcon
-              key={n.chainId.toString()}
-              id={n.chainId.toString()}
-              style={{ backgroundColor: theme.primaryBackground }}
-              size={28}
-            />
-          )
-        }
-      }),
-    [networks, supportedChainIds, theme.primaryBackground]
-  )
+  // Temporary solution to display a valid interop address for Solana
+  const solanaAddress = 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2'
 
-  const [selectedChainId, setSelectedChainId] = useState<number>(
-    Number(fromNetworkOptions[0].value)
-  )
+  const fromNetworkOptions: SelectValue[] = useMemo(() => {
+    const availableOptions: SelectValue[] = networks.map((n) => {
+      const tooltipId = `network-${n.chainId}-not-supported-tooltip`
+      const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
-  const interopAddress = useMemo(() => {
-    return addressToHumanInterop(account?.addr || '', {
-      namespace: 'eip155',
-      id: selectedChainId?.toString()
+      return {
+        value: String(n.chainId),
+        extraSearchProps: [n.name],
+        disabled: !isNetworkSupported,
+        label: (
+          <>
+            <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
+              {n.name}
+            </Text>
+            {!isNetworkSupported && (
+              <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
+            )}
+          </>
+        ),
+        icon: (
+          <NetworkIcon
+            key={n.chainId.toString()}
+            id={n.chainId.toString()}
+            style={{ backgroundColor: theme.primaryBackground }}
+            size={28}
+          />
+        )
+      }
     })
-  }, [account?.addr, selectedChainId])
+
+    const solanaOption: SelectValue = {
+      value: 'solana',
+      label: 'Solana',
+      icon: (
+        <NetworkIcon id="solana" style={{ backgroundColor: theme.primaryBackground }} size={28} />
+      )
+    }
+
+    return [...availableOptions, solanaOption]
+  }, [networks, supportedChainIds, theme.primaryBackground])
+
+  const userAddress = useMemo(() => {
+    if (isInteropAddressAgreed) {
+      const address =
+        selectedChain.chainNamespace === 'solana' ? solanaAddress : account?.addr || ''
+      return addressToHumanInterop(address, {
+        namespace: selectedChain.chainNamespace,
+        id: selectedChain.chainId
+      })
+    }
+    return account?.addr || ''
+  }, [account?.addr, isInteropAddressAgreed, selectedChain])
 
   const handleCopyAddress = () => {
     if (!account) return
-
     Clipboard.setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
   const handleSetToNetworkValue = useCallback((networkOption: SelectValue) => {
-    setSelectedChainId(Number(networkOption.value))
+    if (networkOption.value === 'solana') {
+      setSelectedChain({
+        chainNamespace: 'solana',
+        chainId: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d'
+      })
+    } else {
+      setSelectedChain({
+        chainNamespace: 'eip155',
+        chainId: networkOption.value.toString()
+      })
+    }
   }, [])
 
   const getFromNetworkSelectValue = useMemo(() => {
-    const network = networks.find((n) => Number(n.chainId) === selectedChainId)
+    const network = networks.find((n) => Number(n.chainId) === Number(selectedChain.chainId))
     if (!network) return fromNetworkOptions[0]
-
     return fromNetworkOptions.filter((opt) => opt.value === String(network.chainId))[0]
-  }, [networks, selectedChainId, fromNetworkOptions])
+  }, [networks, selectedChain, fromNetworkOptions])
 
   return (
     <BottomSheet
@@ -126,7 +156,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
           {!!account && !qrCodeError && (
             <View style={styles.qrCode}>
               <QRCode
-                value={interopAddress}
+                value={userAddress}
                 size={160}
                 quietZone={10}
                 getRef={qrCodeRef}
@@ -147,7 +177,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             {...bindAnim}
           >
             <Text selectable numberOfLines={1} fontSize={12} ellipsizeMode="middle" weight="medium">
-              {interopAddress}
+              {userAddress}
             </Text>
           </AnimatedPressable>
           {isViewOnly ? (
@@ -162,10 +192,11 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
           ) : null}
         </View>
 
-        <View style={styles.supportedNetworksContainer}>
+        <View style={{ ...styles.supportedNetworksContainer, ...spacings.mb }}>
           {/* <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
             {t('Network')}
-          </Text> */}
+            </Text> */}
+
           <Select
             setValue={handleSetToNetworkValue}
             containerStyle={{ ...spacings.mb0, width: 215 }}
@@ -179,9 +210,17 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
               ...spacings.pr,
               ...spacings.plTy
             }}
+            disabled={!isInteropAddressAgreed}
+          />
+        </View>
+        <View style={{ ...styles.supportedNetworksContainer }}>
+          <UseInteropAddress
+            isInteropAddressAgreed={isInteropAddressAgreed}
+            onInteropAddressCheckboxClick={handleInteropAddressCheckboxClick}
           />
         </View>
       </View>
+
       <AmbireLogoHorizontal />
     </BottomSheet>
   )

@@ -54,7 +54,10 @@ const getStyles = (theme: ThemeProps) =>
       marginHorizontal: 'auto',
       marginBottom: isTab ? SPACING_XL : SPACING_MD
     },
-    supportedNetworksContainer: { ...flexbox.alignCenter, ...spacings.mb },
+    supportedNetworksContainer: {
+      ...flexbox.alignCenter,
+      ...flexbox.justifyCenter
+    },
     supportedNetworksTitle: { ...spacings.mbSm, ...text.center },
     supportedNetworks: {
       flexDirection: 'row',
