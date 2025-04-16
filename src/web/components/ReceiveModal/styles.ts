@@ -37,7 +37,8 @@ const getStyles = (theme: ThemeProps) =>
       paddingBottom: isTab ? SPACING : SPACING_TY,
       ...common.borderRadiusPrimary,
       marginBottom: isTab ? SPACING_LG : SPACING,
-      width: '100%'
+      width: '100%',
+      padding: SPACING_MD
     },
     qrCodeContainer: { ...flexbox.alignCenter, ...spacings.mb },
     qrCode: {
@@ -55,10 +56,12 @@ const getStyles = (theme: ThemeProps) =>
       marginBottom: isTab ? SPACING_XL : SPACING_MD
     },
     supportedNetworksContainer: {
-      ...flexbox.alignCenter,
-      ...flexbox.justifyCenter
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%'
     },
-    supportedNetworksTitle: { ...spacings.mbSm, ...text.center },
+    supportedNetworksTitle: { ...spacings.mbSm, ...text.center, marginRight: 'auto' },
     supportedNetworks: {
       flexDirection: 'row',
       flexWrap: 'wrap',

@@ -28,7 +28,7 @@ import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/
 import Select from '@common/components/Select'
 import { addressToHumanInterop } from '../../../erc7930'
 import getStyles from './styles'
-import UseInteropAddress from './UseInteropAddress'
+// import UseInteropAddress from './UseInteropAddress'
 
 interface Props {
   modalRef: any
@@ -53,11 +53,11 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     chainNamespace: 'eip155' | 'solana'
     chainId: string
   }>({ chainNamespace: 'eip155', chainId: '1' })
-  const [isInteropAddressAgreed, setIsInteropAddressAgreed] = useState(true)
+  const [isInteropAddressAgreed] = useState(true)
 
-  const handleInteropAddressCheckboxClick = () => {
-    setIsInteropAddressAgreed(!isInteropAddressAgreed)
-  }
+  // const handleInteropAddressCheckboxClick = () => {
+  //   setIsInteropAddressAgreed(!isInteropAddressAgreed)
+  // }
 
   // Temporary solution to display a valid interop address for Solana
   const solanaAddress = 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2'
@@ -92,15 +92,18 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
       }
     })
 
-    const solanaOption: SelectValue = {
-      value: 'solana',
-      label: 'Solana',
-      icon: (
-        <NetworkIcon id="solana" style={{ backgroundColor: theme.primaryBackground }} size={28} />
-      )
-    }
+    // TODO: Add Solana to the list of networks
+    // const solanaOption: SelectValue = {
+    //   value: 'solana',
+    //   label: 'Solana',
+    //   icon: (
+    //     <NetworkIcon id="solana" style={{ backgroundColor: theme.primaryBackground }} size={28} />
+    //   )
+    // }
 
-    return [...availableOptions, solanaOption]
+    // return [...availableOptions, solanaOption]
+
+    return availableOptions
   }, [networks, supportedChainIds, theme.primaryBackground])
 
   const userAddress = useMemo(() => {
@@ -116,8 +119,9 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   }, [account?.addr, isInteropAddressAgreed, selectedChain])
 
   const handleCopyAddress = () => {
-    if (!account) return
-    Clipboard.setStringAsync(account.addr)
+    if (!userAddress) return
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Clipboard.setStringAsync(userAddress)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
@@ -152,6 +156,38 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     >
       <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Receive Assets" />
       <View style={styles.content}>
+        {/* Network */}
+        <View style={{ ...styles.supportedNetworksContainer, ...spacings.mb }}>
+          <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
+            {t('Showing Interoperable Address for:')}
+          </Text>
+
+          <Select
+            setValue={handleSetToNetworkValue}
+            containerStyle={{ ...spacings.mb0, width: '100%' }}
+            options={fromNetworkOptions}
+            size="sm"
+            value={getFromNetworkSelectValue}
+            selectStyle={{
+              backgroundColor: '#54597A14',
+              borderWidth: 0,
+              width: '100%',
+              ...spacings.pr,
+              ...spacings.plTy
+            }}
+            disabled={!isInteropAddressAgreed}
+          />
+        </View>
+
+        {/* Temporarily hidden */}
+        {/* <View style={{ ...styles.supportedNetworksContainer }}>
+          <UseInteropAddress
+            isInteropAddressAgreed={isInteropAddressAgreed}
+            onInteropAddressCheckboxClick={handleInteropAddressCheckboxClick}
+          />
+        </View> */}
+
+        {/* QR Code */}
         <View style={styles.qrCodeContainer}>
           {!!account && !qrCodeError && (
             <View style={styles.qrCode}>
@@ -170,6 +206,8 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             </Text>
           )}
         </View>
+
+        {/* Address */}
         <View style={isPopup ? spacings.mb : spacings.mbXl}>
           <AnimatedPressable
             style={[styles.accountAddress, isViewOnly ? spacings.mbSm : spacings.mb0, animStyle]}
@@ -190,34 +228,6 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
               title={t('Selected account is view only.')}
             />
           ) : null}
-        </View>
-
-        <View style={{ ...styles.supportedNetworksContainer, ...spacings.mb }}>
-          {/* <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
-            {t('Network')}
-            </Text> */}
-
-          <Select
-            setValue={handleSetToNetworkValue}
-            containerStyle={{ ...spacings.mb0, width: 215 }}
-            options={fromNetworkOptions}
-            size="sm"
-            value={getFromNetworkSelectValue}
-            selectStyle={{
-              backgroundColor: '#54597A14',
-              borderWidth: 0,
-              width: '100%',
-              ...spacings.pr,
-              ...spacings.plTy
-            }}
-            disabled={!isInteropAddressAgreed}
-          />
-        </View>
-        <View style={{ ...styles.supportedNetworksContainer }}>
-          <UseInteropAddress
-            isInteropAddressAgreed={isInteropAddressAgreed}
-            onInteropAddressCheckboxClick={handleInteropAddressCheckboxClick}
-          />
         </View>
       </View>
 
