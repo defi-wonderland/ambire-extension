@@ -49,7 +49,7 @@ function convertToBytes(address: Uint8Array | string, format: AddressFormat): Ui
  * @param format - Format of the input address ('hex' or 'base58')
  * @returns Parsed components of the Interoperable Address
  */
-export function parseInteroperableAddress(
+export function parseInteropAddress(
   serializedAddress: Uint8Array | string,
   format: AddressFormat = 'hex'
 ): ParsedInteroperableAddress {

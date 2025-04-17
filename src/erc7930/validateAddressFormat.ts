@@ -1,4 +1,4 @@
-import { parseInteroperableAddress } from './parseInteropAddress'
+import { parseInteropAddress } from './parseInteropAddress'
 import { AddressFormatResult, AddressFormatType } from './types'
 
 /**
@@ -104,7 +104,7 @@ export function validateAddressFormat(address: string): AddressFormatResult {
   if (/^0x[a-fA-F0-9]+$/.test(trimmedAddress)) {
     // Try to parse as an interoperable address
     try {
-      const parsed = parseInteroperableAddress(trimmedAddress, 'hex')
+      const parsed = parseInteropAddress(trimmedAddress, 'hex')
       if (parsed && parsed.version) {
         return {
           data: trimmedAddress,
@@ -126,7 +126,7 @@ export function validateAddressFormat(address: string): AddressFormatResult {
   const BASE58_REGEX = /^[1-9A-HJ-NP-Za-km-z]+$/
   if (BASE58_REGEX.test(trimmedAddress)) {
     try {
-      const parsed = parseInteroperableAddress(trimmedAddress, 'base58')
+      const parsed = parseInteropAddress(trimmedAddress, 'base58')
       if (parsed && parsed.version) {
         return {
           data: trimmedAddress,
@@ -156,7 +156,7 @@ export function validateAddressFormat(address: string): AddressFormatResult {
       }
 
       // Parse the bytes directly
-      const parsed = parseInteroperableAddress(bytes, 'hex')
+      const parsed = parseInteropAddress(bytes, 'hex')
 
       if (parsed && parsed.version) {
         return {

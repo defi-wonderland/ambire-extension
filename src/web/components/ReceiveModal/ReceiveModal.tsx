@@ -26,7 +26,7 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import Select from '@common/components/Select'
-import { addressToHumanInterop } from '../../../erc7930'
+import { formatInteropAddress } from '../../../erc7930'
 import getStyles from './styles'
 // import UseInteropAddress from './UseInteropAddress'
 
@@ -110,10 +110,14 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     if (isInteropAddressAgreed) {
       const address =
         selectedChain.chainNamespace === 'solana' ? solanaAddress : account?.addr || ''
-      return addressToHumanInterop(address, {
+
+      const addressData = {
+        address,
         namespace: selectedChain.chainNamespace,
-        id: selectedChain.chainId
-      })
+        chainReference: selectedChain.chainId
+      }
+
+      return formatInteropAddress(addressData)
     }
     return account?.addr || ''
   }, [account?.addr, isInteropAddressAgreed, selectedChain])
