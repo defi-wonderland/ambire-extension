@@ -25,6 +25,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
+import InputSendToken from '@common/components/InputSendToken'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -307,30 +308,21 @@ const SendForm = ({
           maxAmountDisabled={!isMaxAmountEnabled}
         />
       )}
-      <View>
-        {!isTopUp && (
-          <Recipient
-            disabled={disableForm}
-            address={addressState.fieldValue}
-            setAddress={setAddressStateFieldValue}
-            validation={validation}
-            ensAddress={addressState.ensAddress}
-            addressValidationMsg={validation.message}
-            isRecipientHumanizerKnownTokenOrSmartContract={
-              isRecipientHumanizerKnownTokenOrSmartContract
-            }
-            isRecipientAddressUnknown={isRecipientAddressUnknown}
-            isRecipientDomainResolving={addressState.isDomainResolving}
-            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
-            isSWWarningVisible={isSWWarningVisible}
-            isSWWarningAgreed={isSWWarningAgreed}
-            selectedTokenSymbol={selectedToken?.symbol}
-            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
-            menuPosition={isPopup ? 'top' : undefined}
-          />
-        )}
-      </View>
+      <InputSendToken
+        amount={amount}
+        onAmountChange={setAmount}
+        selectedTokenSymbol={selectedToken?.symbol || ''}
+        errorMessage={amountErrorMessage}
+        setMaxAmount={setMaxAmount}
+        maxAmount={maxAmount}
+        amountInFiat={amountInFiat}
+        amountFieldMode={amountFieldMode}
+        maxAmountInFiat={maxAmountInFiat}
+        switchAmountFieldMode={switchAmountFieldMode}
+        disabled={disableForm || amountSelectDisabled}
+        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
+        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
+      />
     </ScrollableWrapper>
   )
 }
