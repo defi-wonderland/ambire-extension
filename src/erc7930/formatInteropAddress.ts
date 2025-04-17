@@ -86,7 +86,7 @@ export function formatInteropAddress(addressData: AddressData, options?: FormatO
   const displayAddress = address ? formatAddressForDisplay(address, namespace) : ''
 
   // Format the chain part
-  const chainPart = `${namespace}:${chainReference}`
+  const chainPart = chainReference ? `${namespace}:${chainReference}` : namespace
 
   // Create a temporary human interop address with a placeholder checksum
   const tempHumanInterop = `${displayAddress}@${chainPart}#00000000`
@@ -98,12 +98,10 @@ export function formatInteropAddress(addressData: AddressData, options?: FormatO
     throw new Error('Failed to generate interoperable address')
   }
 
-  // Calculate the correct checksum from the hex interop address
   const checksum = calculateChecksum(`0x${hexInterop.slice(6)}`)
 
   const hra = `${displayAddress}@${chainPart}#${checksum}`
   if (format === 'human') {
-    // Return the final human-readable interoperable address with the correct checksum
     return hra
   }
 

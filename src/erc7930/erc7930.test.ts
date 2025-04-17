@@ -33,6 +33,38 @@ describe('ERC-7930 Utilities', () => {
       expect(formatInteropAddress(addressData)).toBe(expected)
     })
 
+    it('should correctly format without address', () => {
+      const addressData: AddressData = {
+        address: '',
+        namespace: 'eip155',
+        chainReference: '1'
+      }
+      const expected = '@eip155:1#F54D4FBF'
+      expect(formatInteropAddress(addressData)).toBe(expected)
+    })
+
+    it('should correctly format without chain reference', () => {
+      const addressData: AddressData = {
+        address: 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2',
+        namespace: 'solana',
+        chainReference: ''
+      }
+      const expected = 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana#CDF6DDD5'
+
+      expect(formatInteropAddress(addressData)).toBe(expected)
+    })
+
+    it('should correctly format without chain reference and address', () => {
+      const addressData: AddressData = {
+        address: '',
+        namespace: 'solana',
+        chainReference: ''
+      }
+      const expected = '@solana#E8E77626'
+
+      expect(formatInteropAddress(addressData)).toBe(expected)
+    })
+
     it('should throw error if chain namespace is missing', () => {
       const addressData: AddressData = {
         address: '0x1234...',
