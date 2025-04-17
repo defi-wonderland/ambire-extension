@@ -2,16 +2,18 @@ name: Browser Extension
 
 on:
   push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   unit_tests:
-    name: Unit Tests (Disabled)
+    name: Unit Tests
     runs-on: ubuntu-latest
     # environment: testing
     steps:
-      - name: Checkout code 🛎️
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
       - name: Run Unit Tests
         run: yarn test
