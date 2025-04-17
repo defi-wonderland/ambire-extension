@@ -1,67 +1,45 @@
-import { formatToHumanInterop, ChainData } from './formatToHumanInterop'
-import { humanToHexInteropAddress } from './humanToHexInterop'
+import { AddressData, formatInteropAddress } from './formatInteropAddress'
+import { humanToInteropAddress } from './humanToInteropAddress'
 import { parseInteropAddress } from './parseInteropAddress'
+import { payloadToHuman } from './payloadToHuman'
 import { ParsedInteroperableAddress, AddressFormat } from './types'
-
-// Mock dependencies for formatToHumanInterop
-// We assume humanToHexInteropAddress converts the human format to a hex string
-// and calculateChecksum generates a fixed checksum for testing.
-// jest.mock('./humanToHexInterop', () => ({
-//   humanToHexInteropAddress: jest.fn((humanAddress: string) => {
-//     // Simple mock: return a fixed hex string based on input structure for checksum calculation
-//     if (humanAddress.includes('eip155:1')) return '0x000100000101...' // Mock hex for EVM
-//     if (humanAddress.includes('solana')) return '0x0001000201...' // Mock hex for Solana
-//     return '0x' // Default mock hex
-//   })
-// }))
-
-// jest.mock('./calculateChecksum', () => ({
-//   calculateChecksum: jest.fn((hexInterop: string) => {
-//     // Fixed checksum for predictable testing
-//     if (hexInterop.startsWith('0x00010000')) return 'fedcba98' // Checksum for mocked EVM
-//     if (hexInterop.startsWith('0x00010002')) return '12345678' // Checksum for mocked Solana
-//     return '00000000'
-//   })
-// }))
 
 describe('ERC-7930 Utilities', () => {
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  describe('formatToHumanInterop', () => {
+  describe('formatHumanInteropAddress', () => {
     it('should correctly format an EVM address with chain ID', () => {
-      const address = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
-      const chainData: ChainData = { namespace: 'eip155', id: '1' }
+      const addressData: AddressData = {
+        address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+        namespace: 'eip155',
+        chainReference: '1'
+      }
       const expected = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#4CA88C9C'
 
-      expect(formatToHumanInterop(address, chainData)).toBe(expected)
+      expect(formatInteropAddress(addressData)).toBe(expected)
     })
 
     it('should correctly format a non-EVM address', () => {
-      const address = 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2' // Example Solana address
-      const chainData: ChainData = { namespace: 'solana', id: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' } // Example Solana chain ID
+      const addressData: AddressData = {
+        address: 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2',
+        namespace: 'solana',
+        chainReference: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
+      }
       const expected =
         'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp#4A58ACC6'
 
-      expect(formatToHumanInterop(address, chainData)).toBe(expected)
-    })
-
-    it('should throw error if address is missing', () => {
-      const chainData: ChainData = { namespace: 'eip155', id: '1' }
-      expect(() => formatToHumanInterop('', chainData)).toThrow('Address is required')
+      expect(formatInteropAddress(addressData)).toBe(expected)
     })
 
     it('should throw error if chain namespace is missing', () => {
-      const address = '0x1234...'
-      const chainData = { namespace: '', id: '1' } as ChainData
-      expect(() => formatToHumanInterop(address, chainData)).toThrow('Chain namespace is required')
-    })
-
-    it('should throw error if chain ID is missing', () => {
-      const address = '0x1234...'
-      const chainData = { namespace: 'eip155', id: '' } as ChainData
-      expect(() => formatToHumanInterop(address, chainData)).toThrow('Chain ID is required')
+      const addressData: AddressData = {
+        address: '0x1234...',
+        namespace: '',
+        chainReference: '1'
+      }
+      expect(() => formatInteropAddress(addressData)).toThrow('Chain namespace is required')
     })
   })
 
@@ -136,31 +114,41 @@ describe('ERC-7930 Utilities', () => {
     })
   })
 
-  describe('humanToHexInteropAddress', () => {
-    it('should correctly convert a human-readable EVM address to hex', () => {
+  describe('humanToInteropAddress', () => {
+    it('should correctly convert a human-readable EVM address to and Interoperable Address', () => {
       const humanAddress = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#4CA88C9C'
       const expected = '0x00010000010114D8DA6BF26964AF9D7EED9E03E53415D37AA96045'.toLowerCase()
-      expect(humanToHexInteropAddress(humanAddress)).toBe(expected)
+      expect(humanToInteropAddress(humanAddress)).toBe(expected)
     })
 
-    it('should correctly convert EVM address without chainid', () => {
+    it('should correctly convert a human-readable EVM address without chainid to an Interoperable Address', () => {
       const humanAddress = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@#144A4B21'
       const expected = '0x000100000014D8DA6BF26964AF9D7EED9E03E53415D37AA96045'.toLowerCase()
-      expect(humanToHexInteropAddress(humanAddress)).toBe(expected)
+      expect(humanToInteropAddress(humanAddress)).toBe(expected)
     })
 
-    it('should correctly convert a human-readable Solana address to hex', () => {
+    it('should correctly convert a human-readable Solana address to an Interoperable Address', () => {
       const humanAddress =
         'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp#4A58ACC6'
       const expected =
         '0x0001000217e15de390a1bfea7ad6ed13c9898b4881b8aef9e705b31b2005333498d5aea4ae009585c43f7b8c30df8e70187d4a713d134f977fc8dfe0b5'
-      expect(humanToHexInteropAddress(humanAddress)).toBe(expected)
+      expect(humanToInteropAddress(humanAddress)).toBe(expected)
     })
 
-    it('should correctly convert a Solana mainnet network with no address', () => {
+    it('should correctly convert a human-readable Solana mainnet network with no address to an Interoperable Address', () => {
       const humanAddress = '@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp#DE9AAA3F'
       const expected = '0x0001000217e15de390a1bfea7ad6ed13c9898b4881b8aef9e705b31b00'
-      expect(humanToHexInteropAddress(humanAddress)).toBe(expected)
+      expect(humanToInteropAddress(humanAddress)).toBe(expected)
+    })
+  })
+
+  describe('payloadToHuman', () => {
+    it('should format a hex Interoperable Address to a human-readable format', () => {
+      const hexInput =
+        '0x0001000217e15de390a1bfea7ad6ed13c9898b4881b8aef9e705b31b2005333498d5aea4ae009585c43f7b8c30df8e70187d4a713d134f977fc8dfe0b5'
+      const expected =
+        'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp#4A58ACC6'
+      expect(payloadToHuman(hexInput)).toBe(expected)
     })
   })
 })

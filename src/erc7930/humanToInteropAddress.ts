@@ -11,18 +11,18 @@ import bs58 from 'bs58'
  *
  * @example
  * ```ts
- * import { humanToHexInteropAddress } from '@/erc7930'
+ * import { humanToInteropAddress } from '@/erc7930'
  *
- * humanToHexInteropAddress('0x71C7656EC7ab88b098defB751B7401B5f6d8976F@eip155:1#12345678')
+ * humanToInteropAddress('0x71C7656EC7ab88b098defB751B7401B5f6d8976F@eip155:1#12345678')
  * // '0x00010000010171c7656ec7ab88b098defb751b7401b5f6d8976f'
  * ```
  *
  * @param humanAddress - Human-readable interoperable address
  * @returns Hex interoperable address string or null if invalid
  */
-export function humanToHexInteropAddress(humanAddress: string): string | null {
+export function humanToInteropAddress(humanAddress: string, version: string = '1'): string {
   if (!humanAddress || typeof humanAddress !== 'string') {
-    return null
+    throw new Error('Invalid human address')
   }
 
   // Validate and parse the human-readable address
@@ -30,15 +30,12 @@ export function humanToHexInteropAddress(humanAddress: string): string | null {
   const interopHumanMatch = humanAddress.match(INTEROP_HUMAN_REGEX)
 
   if (!interopHumanMatch) {
-    return null
+    throw new Error('Invalid human address')
   }
   const [, address, chainPart] = interopHumanMatch
 
   const chainNamespace = chainPart && chainPart.includes(':') ? chainPart.split(':')[0] : ''
   const chainId = chainPart && chainPart.includes(':') ? chainPart.split(':')[1] : ''
-
-  // Use default values for simple cases
-  const version = '0001' // Standard version
 
   let addressHex: string
   let chainIdHex: string
@@ -98,8 +95,10 @@ export function humanToHexInteropAddress(humanAddress: string): string | null {
   const addressLength = (addressHex.length / 2).toString(16).padStart(2, '0')
 
   const curatedChainIndex = chainIdLength === '00' ? '' : chainIdHex
+
+  const versionHex = parseInt(version, 10).toString(16).padStart(4, '0')
   // Assemble the interoperable address
-  const interopAddress = `0x${version}${chainTypeHex}${chainIdLength}${curatedChainIndex}${addressLength}${addressHex}`
+  const interopAddress = `0x${versionHex}${chainTypeHex}${chainIdLength}${curatedChainIndex}${addressLength}${addressHex}`
 
   return interopAddress.toLowerCase()
 }
