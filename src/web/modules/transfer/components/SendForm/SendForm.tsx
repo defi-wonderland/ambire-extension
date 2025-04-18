@@ -10,6 +10,8 @@ import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatte
 import { useTranslation } from '@common/config/localization'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import { getTokenId } from '@web/utils/token'
+import { getChainFromHumanAddress } from '@erc7930/index'
+
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -24,7 +26,6 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
-import { getChainFromInteropAddress, humanToInteropAddress } from '@erc7930/index'
 
 import styles from './styles'
 
@@ -75,12 +76,11 @@ const SendForm = ({
 
   const tokensByChainId = useMemo(() => {
     if (addressState.interopAddress) {
-      const interopAddress = humanToInteropAddress(addressState.interopAddress)
-      const chain = getChainFromInteropAddress(interopAddress)
+      const chain = getChainFromHumanAddress(addressState.interopAddress)
 
-      if (chain?.id) {
+      if (chain?.chainReference) {
         const filteredTokensByChainId = tokens.filter(
-          (chainToken) => Number(chainToken.chainId) === Number(chain.id)
+          (chainToken) => Number(chainToken.chainId) === Number(chain.chainReference)
         )
 
         return filteredTokensByChainId

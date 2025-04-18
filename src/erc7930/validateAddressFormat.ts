@@ -69,11 +69,13 @@ export function validateAddressFormat(address: string): AddressFormatResult {
   // Both account and chain parts are optional
   const INTEROP_HUMAN_REGEX = /^([a-zA-Z0-9]*)@([a-zA-Z0-9]*:?[a-zA-Z0-9]*)?#([A-F0-9]{8})$/
   const interopHumanMatch = trimmedAddress.match(INTEROP_HUMAN_REGEX)
+
   if (interopHumanMatch) {
     const [, accountPart, chainPart] = interopHumanMatch
+
     // If chainPart has a colon, extract namespace, otherwise use empty string
     const chainNamespace = chainPart && chainPart.includes(':') ? chainPart.split(':')[0] : ''
-
+    const chainReference = chainPart && chainPart.includes(':') ? chainPart.split(':')[1] : ''
     return {
       data: trimmedAddress,
       type: AddressFormatType.INTEROP_HUMAN,
@@ -82,8 +84,8 @@ export function validateAddressFormat(address: string): AddressFormatResult {
         address: accountPart || '',
         chainNamespace,
         version: '1', // Assume version 1 for human-readable format
-        chainIdLength: 0,
-        chainId: '',
+        chainReferenceLength: 0,
+        chainReference,
         chainType: chainPart || '',
         addressLength: accountPart ? accountPart.length : 0
       }
