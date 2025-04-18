@@ -30,4 +30,5 @@ jobs:
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: "warn"
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: "trace"
           NFT_CDN_URL: "https://nftcdn.ambire.com"
+          BROWSER_EXTENSION_PUBLIC_KEY: "mhgmfehccfgfkblhplbmeilnigemnhbk"
         run: yarn build:web:webkit
