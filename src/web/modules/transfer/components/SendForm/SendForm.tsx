@@ -1,31 +1,30 @@
 import { formatUnits, ZeroAddress } from 'ethers'
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
-
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
 import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getRpcProvider } from '@ambire-common/services/provider'
+import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
+import { useTranslation } from '@common/config/localization'
+import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
+import { getTokenId } from '@web/utils/token'
+import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import SendToken from '@common/components/SendToken'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
-import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
-import { getTokenId } from '@web/utils/token'
-import { getUiType } from '@web/utils/uiType'
 
-import InputSendToken from '@common/components/InputSendToken'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -80,12 +79,36 @@ const SendForm = ({
 
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
 
+  const tokensByChainId = useMemo(() => {
+    if (addressState.interopAddress) {
+      const trimmedAddress = addressState.interopAddress
+      const chainAndChecksum = trimmedAddress.split('@')[1]
+      const raw = chainAndChecksum.split('#')[0]
+
+      // TODO: this is a hack
+      const chainIdMap = {
+        'eip155:1': 1,
+        'eip155:10': 10,
+        'eip155:11155111': 11155111
+      }
+
+      const chainId = chainIdMap[raw as keyof typeof chainIdMap]
+
+      const filteredTokensByChainId = tokens.filter(
+        (chainToken) => Number(chainToken.chainId) === chainId
+      )
+      return filteredTokensByChainId
+    }
+
+    return tokens
+  }, [addressState.interopAddress, tokens])
+
   const {
     value: tokenSelectValue,
     options,
     amountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens,
+    tokens: tokensByChainId,
     token: selectedToken ? getTokenId(selectedToken, networks) : '',
     networks,
     isToToken: false
