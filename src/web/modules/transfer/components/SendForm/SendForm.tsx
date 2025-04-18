@@ -24,6 +24,7 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import { getChainFromInteropAddress, humanToInteropAddress } from '@erc7930/index'
 
 import styles from './styles'
 
@@ -74,23 +75,16 @@ const SendForm = ({
 
   const tokensByChainId = useMemo(() => {
     if (addressState.interopAddress) {
-      const trimmedAddress = addressState.interopAddress
-      const chainAndChecksum = trimmedAddress.split('@')[1]
-      const raw = chainAndChecksum.split('#')[0]
+      const interopAddress = humanToInteropAddress(addressState.interopAddress)
+      const chain = getChainFromInteropAddress(interopAddress)
 
-      // TODO: this is a hack
-      const chainIdMap = {
-        'eip155:1': 1,
-        'eip155:10': 10,
-        'eip155:11155111': 11155111
+      if (chain?.id) {
+        const filteredTokensByChainId = tokens.filter(
+          (chainToken) => Number(chainToken.chainId) === Number(chain.id)
+        )
+
+        return filteredTokensByChainId
       }
-
-      const chainId = chainIdMap[raw as keyof typeof chainIdMap]
-
-      const filteredTokensByChainId = tokens.filter(
-        (chainToken) => Number(chainToken.chainId) === chainId
-      )
-      return filteredTokensByChainId
     }
 
     return tokens
