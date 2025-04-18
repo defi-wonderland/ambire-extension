@@ -141,10 +141,11 @@ const useAddressInput = ({
 
     // This logic should be refactored in the future
     // Interop address could have ens address
+    // Workaround to avoid breaking the transfer build => addy.split('@')[0]
     if (canBeInteropAddress(trimmedAddress)) {
       setAddressState({
         ensAddress: '',
-        interopAddress: trimmedAddress,
+        interopAddress: trimmedAddress.split('@')[0],
         isDomainResolving: false
       })
       return
