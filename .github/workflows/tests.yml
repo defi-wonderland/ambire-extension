@@ -24,4 +24,10 @@ jobs:
         run: yarn test
 
       - name: Build Extension
+        env:
+          RELAYER_URL: "https://relayer.ambire.com"
+          VELCRO_URL: "https://relayer.ambire.com/velcro-v3"
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: "warn"
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: "trace"
+          NFT_CDN_URL: "https://nftcdn.ambire.com"
         run: yarn build:web:webkit
