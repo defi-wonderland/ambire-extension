@@ -2,12 +2,13 @@ import { getAddress } from 'ethers'
 import { validateAddressFormat } from '@erc7930/index'
 
 import { isValidAddress } from '@ambire-common/services/address'
+import { isChainSupported } from '@web/utils/erc7930supportedChains'
 
 type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
   isValidEns: boolean
-  isValidInteropAddress: boolean
+  isInteropAddress: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
 }
@@ -16,7 +17,7 @@ const getAddressInputValidation = ({
   address,
   isRecipientDomainResolving,
   isValidEns,
-  isValidInteropAddress,
+  isInteropAddress,
   overwriteError,
   overwriteValidLabel
 }: AddressInputValidation): {
@@ -51,12 +52,21 @@ const getAddressInputValidation = ({
     }
   }
 
-  if (isValidInteropAddress) {
-    const { isValid } = validateAddressFormat(address)
+  if (isInteropAddress) {
+    const { isValid, details } = validateAddressFormat(address)
 
     if (!isValid) {
       return {
         message: 'Invalid Interop address format',
+        isError: true
+      }
+    }
+
+    const chainReference = Number(details?.chainReference || '0')
+
+    if (!isChainSupported(chainReference)) {
+      return {
+        message: 'Unsupported Interop chain',
         isError: true
       }
     }
