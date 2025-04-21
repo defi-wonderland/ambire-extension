@@ -1,4 +1,4 @@
-# Ambire Wallet
+# Experimental Interoperable Ambire Wallet
 
 <div align="center">
   <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
@@ -162,74 +162,11 @@ A Web3 app designed to test Ambire browser extensions through an on-chain advent
   ```
   Output directory: `build/legends-prod`
 
-## Testing
-
-### Browser Extensions E2E Tests
-
-End-to-end tests using Jest and Puppeteer.
-
-- **Configuration:**
-
-  - Ensure all necessary `.env` variables (marked for end-to-end tests) are set.
-  - Refer to `.github/workflows/tests.yml` for CI setup details, which are applicable locally.
-  - See PR [#1409](https://github.com/AmbireTech/ambire-app/pull/1409) for more context.
-
-- **Running against Production Build:**
-  Builds the webkit production version and runs tests against it.
-
-  ```bash
-  yarn run test:e2e:web
-  ```
-
-- **Running against Development Build:**
-  Uses the hot-reloaded development build, ideal for debugging and writing tests.
-
-  ```bash
-  yarn test:e2e:web:dev
-  ```
-
-  To run specific test files:
-
-  ```json
-  {
-    "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/path/to/your/test.test.js"
-  }
-  ```
-
-  (Update the command in `package.json` or run directly in the terminal)
-
-- **Mimicking CI Environment:**
-  To run tests headlessly like in CI, set up a virtual display (e.g., Xvfb):
-  ```bash
-  # Start virtual display (run once)
-  Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
-  # Set DISPLAY environment variable for the test command
-  export DISPLAY=:99.0
-  # Run your test command
-  yarn test:e2e:web:dev # or yarn run test:e2e:web
-  # To switch back to local display: export DISPLAY=:0
-  ```
-  See PR [#2438](https://github.com/AmbireTech/ambire-app/pull/2438) for more details.
-
-## Internationalization (i18n)
-
-### Update Translations (Beta)
-
-Scan the project for translation labels and update the JSON translation files:
-
-```bash
-yarn translations:scan
-```
-
-\_Note: Full support for secondary languages is currently in Beta and may not be fully implemented or tested.
-
 ## 🤝 Contributing
 
 Interoperable Wallet was built with ❤️ by [Wonderland](https://wonderland.xyz).
 
 Wonderland is a team of top Web3 researchers, developers, and operators who believe that the future needs to be open-source, permissionless, and decentralized.
-
-[DeFi sucks](https://wonderland.xyz), but Wonderland is here to make it better.
 
 ### How to Contribute
 
