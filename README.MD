@@ -66,39 +66,6 @@ Make sure your code editor has plugins that support the following configuration 
 
   Then follow the instructions to load an unpacked extension [here](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
 
-- Start the browser extension for gecko browsers (tested mostly on Firefox):
-
-  ```bash
-  yarn web:gecko
-  ```
-
-  Then follow the instructions to temporarily install an extension in Firefox [here](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
-
-- Start the browser extension for the Safari browser:
-
-  ```bash
-  yarn web:safari
-  ```
-
-  Two new folders will be created:
-
-  - build/safari-dev (dev build folder)
-  - safari-extension/wallet-dev (Xcode project)
-
-  then in the Safari browser:
-
-  - Developer -> Developer settings...
-  - Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
-  - Then the extension should be automatically added and pinned in the browser.
-
-  NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
-
-  NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
-
-  ```bash
-  brew install fswatch
-  ```
-
 ### Production-optimized Builds
 
 - For webkit browsers:
@@ -108,33 +75,6 @@ Make sure your code editor has plugins that support the following configuration 
   ```
 
   And find the resulting build in the "build/webkit-prod" folder.
-
-- For gecko browsers:
-
-  ```bash
-  yarn build:web:gecko
-  ```
-
-  And find the resulting build in the "build/gecko-prod" folder.
-
-- For the Safari browser:
-
-  ```bash
-  yarn build:web:safari
-  ```
-
-  Two new folders will be created:
-
-  - "build/safari-prod" (production build folder)
-  - "safari-extension/wallet" (the Xcode project)
-
-  Then, in xCode manually do (TODO: automate these steps, it turned out to be a huge challenge):
-
-  - Delete "walletTests" and "walletUITests" targets.
-  - For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
-  - For both targets (macOS and extension): General - Identity - Version: X.X (should match the version in the app.json file, example: `4.36`) and Build: X (integer, bump up on every next build submitted to the App Store Connect, example: `3`)
-  - For the macOS target: General - App Category: "Utilities"
-  - For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
 
 ### Extract Source Maps
 
@@ -147,18 +87,6 @@ The production-optimized builds come with source maps files included. When prepa
   ```
 
   As a result, build/webkit-prod will no longer include the source map files (as before). Instead, a new folder, build/webkit-prod-source-maps, will be created to hold only the source maps. This folder should also be included in the GitHub release tag we create.
-
-- For the gecko build:
-
-  ```bash
-  yarn export:web:gecko:sourcemaps
-  ```
-
-  Same as for the webkit build, but for the gecko build.
-
-- For the Safari build: not implemented yet.
-
-For more details, including how to trace /deminify a production reported error, see [#3191](https://github.com/AmbireTech/ambire-app/pull/3191).
 
 ### Store-prepared Builds
 
@@ -173,10 +101,6 @@ yarn build:extensions
 ```
 
 And find the resulting zips in the "build" folder as `ambire-extension-<VERSION>-<TYPE>.zip`
-
-## Mobile Apps
-
-The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
 
 ## Benzin
 
@@ -270,3 +194,96 @@ yarn translations:scan
 ```
 
 PS: Secondary languages not implemented / translated / fully tested yet.
+
+# ERC-7930 Interoperable Address Implementation
+
+### Overview
+
+This technical design document outlines the implementation of [ERC-7930](https://github.com/ethereum/ERCs/blob/28881f003d03890552a058e10e8e0db7919ccc9e/ERCS/erc-X.md) Interoperable Addresses into an existing wallet application (Ambire). The goal is to enhance cross-chain interoperability by implementing human-readable addresses that contain chain information, allowing for a more seamless user experience when sending assets across different chains.
+
+### [WIP] Terminology
+
+- [**ERC-7930**](https://github.com/ethereum/ERCs/blob/28881f003d03890552a058e10e8e0db7919ccc9e/ERCS/erc-X.md): Proposal for standardizing interoperable addresses
+- **Chain-specific Address or Interoperable Address**: Human-readable address format defined by [ERC-7930](https://github.com/ethereum/ERCs/blob/28881f003d03890552a058e10e8e0db7919ccc9e/ERCS/erc-X.md) that contains chain information
+
+### Objectives
+
+- Extend current wallet functionality to support [ERC-7930](https://github.com/ethereum/ERCs/blob/28881f003d03890552a058e10e8e0db7919ccc9e/ERCS/erc-X.md) interoperable addresses
+- Minimize UI changes while improving user experience for cross-chain transactions
+- Create a reusable implementation that can be shared with the broader ecosystem
+- Maintain backward compatibility with existing address formats (ENS, EVM addresses)
+
+# Implementation Roadmap
+
+## 1. Transfer Functionality Enhancements
+
+### Current Implementation
+
+The transfer function currently allows users to select a token-chain pair and the destination address for transfers.
+
+### Part 1: Interoperable Address Support in Transfer Page
+
+- Enhance the transfer function to accept interoperable addresses that contain embedded chain information
+- When an interoperable address is entered, automatically select the associated chain
+- Filter token selection to show only tokens available on the detected chain
+- Maintain existing address format support for backward compatibility
+
+### Part 2: Intent Standard and Adapter Contract in Transfer Page
+
+- Implement a toggle in the transfer page that enables advanced cross-chain interactions
+- Allow users to select any token from their portfolio across different chains
+- Process transfers to the destination token and chain specified by the interoperable address
+- Leverage the Intent Standard and Adapter Contract to facilitate cross-chain transfers
+
+## 2. Swap and Bridge Functionality Enhancements
+
+### Current Implementation
+
+The swap and bridge function allows users to select a token-chain pair from available balances, then choose the desired destination token and chain. Users cannot currently modify the recipient of the funds.
+
+### Part 1: Interoperable Address Support
+
+- Add a toggle enabling users to input an interoperable address for the recipient
+- When an interoperable address is entered, lock the destination chain to match the address
+- Users will still select the source token-chain and destination token
+- Maintain the current flow for users who prefer not to use interoperable addresses
+
+### Part 2: Intent Interface Integration
+
+- Replace current Li.Fi implementations with our intent interface and adapter contract
+- Create a unified transaction flow regardless of source or destination chains
+- Improve transaction transparency and tracking for cross-chain operations
+
+## 3. Account History Enhancements
+
+### Current Implementation
+
+Currently, the signTx, loadingTx, and successTx screens/modals are similar for send, swap, and bridge operations. There is no specific design for cross-chain operations, and only initial transaction data is displayed.
+
+### Part 1: UI Differentiation for Cross-chain Operations
+
+- Modify the current interface to visually differentiate cross-chain operations
+- Leverage transaction data stored in the wallet's localStorage to enhance the display
+- Add specific indicators and status trackers for cross-chain transactions
+
+## Technical Implementations
+
+- [[WIP] Interop SDK]()
+- [Receive Modal Changes]()
+- [Transfer Page (Part 1): Interop Addy Support]()
+- [[TBD] Swap & Bridge (Part 1): Interop Addy Support]()
+- [[TBD] Transfer Page (Part 2): Interop Transfer Functionality]()
+- [[TBD] Swap & Bridge (Part 2): Intent Interface Integration]()
+- [[TBD] Account History (Part 1)]()
+- [[TBD] Account History (Part 2)]()
+
+## Design Criteria [WIP]
+
+### Modular Architecture Approach
+
+The implementation will follow a modular architecture centered around a unified transaction hook system. This approach will offer:
+
+1. **Unified Interface**: A consistent API for different transaction types
+2. **Separation of Concerns**: Transaction logic is decoupled from UI components, making both easier to test and maintain
+3. **Extensibility**: New transaction types can be added without modifying existing functionality
+4. **Reusability**: Core utilities can be shared across different features of the application
