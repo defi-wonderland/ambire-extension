@@ -83,7 +83,7 @@ const SendForm = ({
 
   const tokensByChainId = useMemo(() => {
     if (addressState.interopAddress) {
-      const chain = getChainFromHumanAddress(addressState.interopAddress)
+      const chain = getChainFromHumanAddress(addressState.fieldValue)
 
       if (chain?.chainReference) {
         const filteredTokensByChainId = tokens.filter(
@@ -95,7 +95,7 @@ const SendForm = ({
     }
 
     return tokens
-  }, [addressState.interopAddress, tokens])
+  }, [addressState.interopAddress, addressState.fieldValue, tokens])
 
   const {
     value: tokenSelectValue,
