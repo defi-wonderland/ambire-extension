@@ -97,6 +97,19 @@ const SendForm = ({
     return tokens
   }, [addressState.interopAddress, addressState.fieldValue, tokens])
 
+  const selectedNetwork = useMemo(() => {
+    if (addressState.interopAddress) {
+      const chain = getChainFromHumanAddress(addressState.fieldValue)
+      if (!chain) {
+        return
+      }
+
+      return networks.find((network) => network.chainId === BigInt(chain.chainReference))
+    }
+
+    return null
+  }, [addressState.interopAddress, addressState.fieldValue, networks])
+
   const {
     value: tokenSelectValue,
     options,
@@ -294,6 +307,29 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
+      <View>
+        {!isTopUp && (
+          <Recipient
+            disabled={disableForm}
+            selectedNetwork={selectedNetwork}
+            address={addressState.fieldValue}
+            setAddress={setAddressStateFieldValue}
+            validation={validation}
+            ensAddress={addressState.ensAddress}
+            addressValidationMsg={validation.message}
+            isRecipientHumanizerKnownTokenOrSmartContract={
+              isRecipientHumanizerKnownTokenOrSmartContract
+            }
+            isRecipientAddressUnknown={isRecipientAddressUnknown}
+            isRecipientDomainResolving={addressState.isDomainResolving}
+            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+            isSWWarningVisible={isSWWarningVisible}
+            isSWWarningAgreed={isSWWarningAgreed}
+            selectedTokenSymbol={selectedToken?.symbol}
+          />
+        )}
+      </View>
       {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>

@@ -25,6 +25,7 @@ import useAddressBookControllerState from '@web/hooks/useAddressBookControllerSt
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+import { Network } from '@ambire-common/interfaces/network'
 
 import AddressBookContact from '../AddressBookContact'
 import { SectionedSelect } from '../Select'
@@ -49,7 +50,7 @@ interface Props extends InputProps {
   isSWWarningAgreed: boolean
   recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
   selectedTokenSymbol?: TokenResult['symbol']
-  menuPosition?: 'top' | 'bottom'
+  selectedNetwork?: Network | null
 }
 
 const ADDRESS_BOOK_VISIBLE_VALIDATION = {
@@ -69,7 +70,7 @@ const SelectedMenuOption: React.FC<{
   toggleMenu: () => void
   isAddressInAddressBook: boolean
   filteredContacts: Contact[]
-  recipientMenuClosedAutomaticallyRef: React.MutableRefObject<boolean>
+  selectedNetwork?: Network | null
 }> = ({
   selectRef,
   filteredContacts,
@@ -82,7 +83,7 @@ const SelectedMenuOption: React.FC<{
   disabled,
   toggleMenu,
   isAddressInAddressBook,
-  recipientMenuClosedAutomaticallyRef
+  selectedNetwork
 }) => {
   const { theme } = useTheme()
 
@@ -139,6 +140,7 @@ const SelectedMenuOption: React.FC<{
         onPress: toggleMenu
       }}
       buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
+      selectedNetwork={selectedNetwork}
     />
   )
 }
@@ -158,8 +160,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningVisible,
   isSWWarningAgreed,
   selectedTokenSymbol,
-  recipientMenuClosedAutomaticallyRef,
-  menuPosition
+  selectedNetwork
 }) => {
   const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || address
@@ -311,6 +312,7 @@ const Recipient: React.FC<Props> = ({
     ({ toggleMenu, isMenuOpen, selectRef }: RenderSelectedOptionParams) => {
       return (
         <SelectedMenuOption
+          selectedNetwork={selectedNetwork}
           toggleMenu={toggleMenu}
           selectRef={selectRef}
           filteredContacts={filteredContacts}
@@ -327,6 +329,7 @@ const Recipient: React.FC<Props> = ({
       )
     },
     [
+      selectedNetwork,
       filteredContacts,
       validation,
       ensAddress,
