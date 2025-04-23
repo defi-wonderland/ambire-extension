@@ -27,6 +27,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 
+import Select from '@common/components/Select'
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
@@ -340,25 +341,14 @@ const SendForm = ({
           <SkeletonLoader width="100%" height={120} style={spacings.mbLg} />
         </View>
       ) : (
-        <SendToken
-          fromTokenOptions={options}
-          fromTokenValue={tokenSelectValue}
-          fromAmountValue={amountFieldMode === 'token' ? amount : amountInFiat}
-          fromTokenAmountSelectDisabled={disableForm || amountSelectDisabled}
-          handleChangeFromToken={({ value }) => handleChangeToken(value as string)}
-          fromSelectedToken={selectedToken}
-          fromAmount={amount}
-          fromAmountInFiat={amountInFiat}
-          fromAmountFieldMode={amountFieldMode}
-          maxFromAmount={maxAmount}
-          validateFromAmount={{ success: !amountErrorMessage, message: amountErrorMessage }}
-          onFromAmountChange={setAmount}
-          handleSwitchFromAmountFieldMode={switchAmountFieldMode}
-          handleSetMaxFromAmount={setMaxAmount}
-          inputTestId="amount-field"
-          selectTestId="tokens-select"
-          title={formTitle}
-          maxAmountDisabled={!isMaxAmountEnabled}
+        <Select
+          setValue={({ value }) => handleChangeToken(value as string)}
+          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
+          options={options}
+          value={tokenSelectValue}
+          disabled={disableForm || validation.isError}
+          containerStyle={styles.tokenSelect}
+          testID="tokens-select"
         />
       )}
       <InputSendToken
@@ -372,7 +362,7 @@ const SendForm = ({
         amountFieldMode={amountFieldMode}
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
+        disabled={disableForm || amountSelectDisabled || validation.isError}
         isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
