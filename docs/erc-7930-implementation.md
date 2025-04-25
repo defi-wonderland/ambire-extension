@@ -72,8 +72,8 @@ Currently, the signTx, loadingTx, and successTx screens/modals are similar for s
 ## Technical Implementations
 
 - [Interop SDK]()
-- [Receive Modal Changes]()
-- [Transfer Page (Part 1): Interop Addy Support]()
+- [Receive Modal Changes](./tech-implementations/receive-modal.md)
+- [Transfer Page (Part 1): Interop Addy Support](./tech-implementations/transfer-part-1.md)
 - [Transfer Page (Part 2): Interop Transfer Functionality]()
 - [Swap & Bridge (Part 1): Interop Addy Support]()
 - [Swap & Bridge (Part 2): Intent Interface Integration]()
