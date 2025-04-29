@@ -238,7 +238,8 @@
     "viem": "2.27.0",
     "vm-browserify": "0.0.4",
     "web3": "^1.7.5",
-    "webextension-polyfill": "^0.10.0"
+    "webextension-polyfill": "^0.10.0",
+    "@ambire-common": "file:src/ambire-common"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
