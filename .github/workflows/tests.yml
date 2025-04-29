@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: testing
     steps:
-      - name: Checkout with submodules
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
@@ -24,46 +24,46 @@ jobs:
 
       - name: Build Extension
         env:
-          RELAYER_URL: "https://relayer.ambire.com"
-          VELCRO_URL: "https://relayer.ambire.com/velcro-v3"
-          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: "warn"
-          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: "trace"
-          NFT_CDN_URL: "https://nftcdn.ambire.com"
-          BROWSER_EXTENSION_PUBLIC_KEY: "mhgmfehccfgfkblhplbmeilnigemnhbk"
-          REACT_APP_PIMLICO_API_KEY: ""
-          REACT_APP_JIFFYSCAN_API_KEY: ""
-          DEFAULT_INVITATION_CODE_DEV: "7702bnb"
-          DEFAULT_KEYSTORE_PASSWORD_DEV: ""
-          LEGENDS_NFT_ADDRESS: ""
-          SOCKET_API_KEY: ""
-          LI_FI_API_KEY: ""
-          E2E_DEBUG: ""
-          IS_TESTING: ""
-          DISPLAY: ""
-          KEYSTORE_PASS: ""
-          BA_PRIVATE_KEY: ""
-          BA_PASSPHRASE: ""
-          BA_ACCOUNT_PREFERENCES: ""
-          BA_ACCOUNTS: ""
-          BA_IS_DEFAULT_WALLET: ""
-          BA_KEYSTORE_UID: ""
-          BA_KEYS: ""
-          BA_SECRETS: ""
-          BA_SEEDS: ""
-          BA_NETWORK_WITH_ASSETS: ""
-          BA_NETWORK_WITH_POSITIONS: ""
-          BA_ONBOARDING_STATE: ""
-          BA_PREVIOUSHINTS: ""
-          BA_SELECTED_ACCOUNT: ""
-          BA_TERMSTATE: ""
-          SA_ACCOUNT_PREFERENCES: ""
-          SA_ACCOUNTS: ""
-          SA_IS_DEFAULT_WALLET: ""
-          SA_IS_ONBOARDED: ""
-          SA_KEYSTORE_UID: ""
-          SA_KEYS: ""
-          SA_SECRETS: ""
-          SA_SEEDS: ""
-          SA_ONBOARDING_STATE: ""
-          SA_PREVIOUSHINTS: ""
+          RELAYER_URL: 'https://relayer.ambire.com'
+          VELCRO_URL: 'https://relayer.ambire.com/velcro-v3'
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: 'warn'
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: 'trace'
+          NFT_CDN_URL: 'https://nftcdn.ambire.com'
+          BROWSER_EXTENSION_PUBLIC_KEY: 'mhgmfehccfgfkblhplbmeilnigemnhbk'
+          REACT_APP_PIMLICO_API_KEY: ''
+          REACT_APP_JIFFYSCAN_API_KEY: ''
+          DEFAULT_INVITATION_CODE_DEV: '7702bnb'
+          DEFAULT_KEYSTORE_PASSWORD_DEV: ''
+          LEGENDS_NFT_ADDRESS: ''
+          SOCKET_API_KEY: ''
+          LI_FI_API_KEY: ''
+          E2E_DEBUG: ''
+          IS_TESTING: ''
+          DISPLAY: ''
+          KEYSTORE_PASS: ''
+          BA_PRIVATE_KEY: ''
+          BA_PASSPHRASE: ''
+          BA_ACCOUNT_PREFERENCES: ''
+          BA_ACCOUNTS: ''
+          BA_IS_DEFAULT_WALLET: ''
+          BA_KEYSTORE_UID: ''
+          BA_KEYS: ''
+          BA_SECRETS: ''
+          BA_SEEDS: ''
+          BA_NETWORK_WITH_ASSETS: ''
+          BA_NETWORK_WITH_POSITIONS: ''
+          BA_ONBOARDING_STATE: ''
+          BA_PREVIOUSHINTS: ''
+          BA_SELECTED_ACCOUNT: ''
+          BA_TERMSTATE: ''
+          SA_ACCOUNT_PREFERENCES: ''
+          SA_ACCOUNTS: ''
+          SA_IS_DEFAULT_WALLET: ''
+          SA_IS_ONBOARDED: ''
+          SA_KEYSTORE_UID: ''
+          SA_KEYS: ''
+          SA_SECRETS: ''
+          SA_SEEDS: ''
+          SA_ONBOARDING_STATE: ''
+          SA_PREVIOUSHINTS: ''
         run: yarn build:web:webkit
