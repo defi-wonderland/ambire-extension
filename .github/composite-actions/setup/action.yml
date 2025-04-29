@@ -3,14 +3,6 @@ description: 'Setup the environment for the project'
 runs:
   using: 'composite'
   steps:
-    - name: Git submodules init
-      run: git submodule init
-      shell: bash
-
-    - name: Git submodules update
-      run: git submodule update
-      shell: bash
-
     - name: Install Node.js ⚙️
       uses: actions/setup-node@v4
       with:
@@ -25,7 +17,9 @@ runs:
       uses: actions/cache/restore@v3
       id: restore-cache
       with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        path: |
+          node_modules
+        ${{ steps.yarn-cache-dir-path.outputs.dir }}
         key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
         restore-keys: ${{ runner.os }}-
 
