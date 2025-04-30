@@ -9,7 +9,7 @@
 
 ## Features
 
-- **ERC-7930 Support:** Implements interoperable addresses. See the [Technical Design Document](docs/erc-7930-implementation.md) for details.
+- **ERC-7930 Support:** Implements interoperable addresses. See the [Wallet Technical Design](docs/interop-implementations.md) for details.
 - **Smart Account Wallet:** Leverage the power of account abstraction for enhanced security and usability.
 - **Cross-Platform:** Built with React Native Web for cross-browser extensions, mobile apps (future), and web apps from a single codebase.
 - **EIP-7702 Ready:** Prepared for the next generation of Ethereum account standards.
