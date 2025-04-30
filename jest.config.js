@@ -1,8 +1,15 @@
 const path = require('path')
-const baseConfig = require('./src/ambire-common/jest.config.js')
 
 module.exports = {
-  ...baseConfig,
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testTimeout: 25000,
+  // For services/validate.ts https://stackoverflow.com/a/61785012/13840636
+  transform: {
+    'node_modules/validator/.+\\.(j|t)sx?$': 'ts-jest'
+  },
+  transformIgnorePatterns: ['node_modules/(?!validator/.*)'],
+  setupFiles: ['dotenv/config'],
   displayName: 'Ambire Extension Unit Tests',
   moduleNameMapper: {
     // Add fallbacks for all missing viem test action files

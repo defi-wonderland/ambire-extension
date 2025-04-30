@@ -106,7 +106,6 @@
     "@types/w3c-web-hid": "^1.0.3",
     "@yfi/sdk": "1.1.1",
     "aes-js": "^3.1.2",
-    "ambire-common": "file:src/ambire-common",
     "babel-jest": "^29.5.0",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
