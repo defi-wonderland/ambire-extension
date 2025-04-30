@@ -27,6 +27,8 @@
 
 - [Intent User Stories](./intent-user-stories.md)
 
+---
+
 ### **Milestones:**
 
 **Stage 0: Integrate 7930**
