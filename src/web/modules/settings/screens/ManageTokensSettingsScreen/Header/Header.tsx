@@ -39,7 +39,7 @@ const Header: FC<Props> = ({ openAddTokenBottomSheet }) => {
       <Button
         childrenPosition="left"
         style={{ width: 220 }}
-        text={t('Add Custom Token')}
+        text={t('Add custom token')}
         onPress={openAddTokenBottomSheet}
       >
         <AddIcon color={theme.primaryBackground} />

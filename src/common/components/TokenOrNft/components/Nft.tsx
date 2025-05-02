@@ -42,9 +42,9 @@ const Nft: FC<Props> = ({
   )
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.wrap, style]}>
+    <View style={[flexbox.directionRow, style]}>
       <Collectible
-        style={spacings.mhTy}
+        style={{ ...spacings.mrTy, marginTop: 2 }}
         size={20}
         id={tokenId}
         collectionData={{
@@ -61,7 +61,7 @@ const Nft: FC<Props> = ({
         selectedCollectible={collectibleData}
         hideSendNft={hideSendNft}
       />
-      <View style={[spacings.mrTy]}>
+      <View style={[spacings.mrTy, flexbox.flex1]}>
         <HumanizerAddress
           fontSize={textSize}
           address={address}

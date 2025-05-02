@@ -2,7 +2,7 @@ import HWIcon from '@common/assets/svg/HWIcon'
 import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
 import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
 import useNavigation from '@common/hooks/useNavigation'
-import { StepperFlow } from '@common/modules/auth/contexts/stepperContext/stepperContext'
+import { StepperFlow } from '@common/modules/auth/contexts/onboardingNavigationContext/onboardingNavigationContext'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
@@ -33,12 +33,12 @@ const getAddKeyOptions = ({
   }
 
   return [
-    {
-      key: 'hw',
-      text: t('Connect a Hardware Wallet'),
-      icon: HWIcon,
-      onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect, 'hw', false)
-    },
+    // {
+    //   key: 'hw',
+    //   text: t('Connect a Hardware Wallet'),
+    //   icon: HWIcon,
+    //   onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect, 'hw', false)
+    // },
     {
       key: 'private-key',
       text: t('Private Key'),

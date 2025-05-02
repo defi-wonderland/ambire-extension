@@ -12,7 +12,7 @@ const WEB_ROUTES = {
   ...COMMON_ROUTES,
   keyStoreUnlock: 'keystore-unlock',
   getStarted: 'get-started',
-  accountAdder: 'account-adder',
+  accountPicker: 'account-picker',
   dashboard: 'dashboard',
   earn: 'earn',
   transfer: 'transfer',
@@ -26,8 +26,6 @@ const WEB_ROUTES = {
   noConnection: 'no-connection',
   accounts: 'accounts',
   appCatalog: 'app-catalog',
-  inviteVerify: 'invite-verify',
-  terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
@@ -35,9 +33,6 @@ const WEB_ROUTES = {
   watchAsset: 'watch-asset',
   addChain: 'add-chain',
   switchAccount: 'switch-account',
-  hardwareWalletSelect: 'hardware-wallet/select',
-  hardwareWalletReconnect: 'hardware-wallet/reconnect',
-  hardwareWalletLedger: 'hardware-wallet/ledger',
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
   authEmailRegister: 'auth-email-register',
@@ -57,21 +52,36 @@ const WEB_ROUTES = {
   devicePasswordRecovery: 'settings/device-password-recovery',
   addressBook: 'settings/address-book',
   manageTokens: 'settings/manage-tokens',
-  importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
   importSmartAccountJson: 'import-smart-account-json',
-  importSeedPhrase: 'import-seed-phrase',
-  createHotWallet: 'create-hot-wallet',
-  createSeedPhrasePrepare: 'create-seed-phrase/prepare',
-  createSeedPhraseWrite: 'create-seed-phrase/write',
-  createSeedPhraseConfirm: 'create-seed-phrase/confirm',
+  importSeedPhrase: 'import-recovery-phrase',
+  importExistingAccount: 'import-existing-account',
+  createSeedPhrasePrepare: 'create-new-recovery-phrase',
+  createSeedPhraseWrite: 'backup-recovery-phrase',
+  ledgerConnect: 'ledger-connect',
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
   savedSeed: 'saved-seed',
   securityAndPrivacy: 'settings/security-and-privacy',
-  saveImportedSeed: 'save-imported-seed'
+  onboardingCompleted: 'wallet-setup-completed'
 }
 
 const ROUTES = { ...MOBILE_ROUTES, ...WEB_ROUTES }
 
-export { ROUTES, MOBILE_ROUTES, WEB_ROUTES }
+const ONBOARDING_WEB_ROUTES = [
+  WEB_ROUTES.getStarted,
+  WEB_ROUTES.createSeedPhrasePrepare,
+  WEB_ROUTES.createSeedPhraseWrite,
+  WEB_ROUTES.importExistingAccount,
+  WEB_ROUTES.importPrivateKey,
+  WEB_ROUTES.importSeedPhrase,
+  WEB_ROUTES.importSmartAccountJson,
+  WEB_ROUTES.viewOnlyAccountAdder,
+  WEB_ROUTES.ledgerConnect,
+  WEB_ROUTES.keyStoreSetup,
+  WEB_ROUTES.accountPersonalize,
+  WEB_ROUTES.accountPicker,
+  WEB_ROUTES.onboardingCompleted
+] as const
+
+export { ROUTES, MOBILE_ROUTES, WEB_ROUTES, ONBOARDING_WEB_ROUTES }

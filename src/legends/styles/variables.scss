@@ -5,32 +5,140 @@
   // @SCSS-VAR: $primaryText
   ... React code
 */
-// Make sure you update the hardcoded values in the React code as well.
-$primaryText: #292116;
-$secondaryText: #524634;
-$tertiaryText: #93897a;
+
+// Theme Colors
+$mainText:#f4f4f7;
+$secondaryText: #8d93ac;
+$icons: #6a6f86;
+$hover: #393C48;
+$interactiveElement: #292B34;
+$cardBg: #848486;
+$mainBg: #101114;
+
+// Neutrals
+$neutral-100: #F4F4F7;
+$neutral-200: #E8E8E9;
+$neutral-300: #CADBEB;
+$neutral-400: #8D93AC;
+$neutral-500: #7d84A4;
+$neutral-600: #6A6F86;
+$neutral-700: #191A1F;
+$neutral-800: #101114;
+$neutral-900: #23242B;
+
+// Purple Shades
+$purple-100: #f0ebff;
+$purple-200: #d0c0ff;
+$purple-300: #b9a2ff;
+$purple-400: #9978ff;
+$purple-500: #855dff;
+$purple-600: #6735ff;
+$purple-700: #5e30e8;
+$purple-800: #4926b5;
+$purple-850: #6C2B99;
+$purple-900: #391d8c;
+$purple-1000: #2b166b;
+
+$dark-purple: #350586;
+
+// Blue Shades
+// $blue-50: #f4f4f7;
+// $blue-100: #dcdee5;
+$blue-200: #cbcdd9;
+// $blue-300: #b3b7c7;
+// $blue-400: #a4a9bd;
+// $blue-500: #8d93ac;
+// $blue-600: #80869d;
+$blue-700: #005BA3;
+$blue-800: #0D6D86;
+// $blue-800: #4e515f;
+// $blue-900: #3b3e48;
+$teal: #1B709B;
+
+// Red Shades
+$red-50: #fbe6ef;
+$red-100: #f3b3cc;
+$red-200: #ee8eb3;
+$red-300: #e65a90;
+$red-400: #e13a7b;
+$red-500: #d9095a;
+$red-600: #c50852;
+$red-700: #9a0640;
+$red-800: #770532;
+$red-900: #5b0426;
+
+// Yellow Shades
+$yellow-50: #fef8ea;
+$yellow-100: #fdeabf;
+$yellow-200: #fbdf9f;
+$yellow-300: #fad174;
+$yellow-400: #f9c859;
+$yellow-500: #f7ba2f;
+$yellow-600: #e1a92b;
+$yellow-700: #af8421;
+$yellow-800: #88661a;
+$yellow-900: #684e14;
+
+// Green Shades
+$green-50: #e6f8f4;
+$green-100: #b0eadd;
+$green-200: #8ae0cd;
+$green-300: #54d1b6;
+$green-400: #33c9a8;
+$green-500: #00bb92;
+$green-600: #00aa85;
+$green-700: #008568;
+$green-800: #006750;
+$green-900: #004f3d;
+
+// Main variables
+$primaryText: $neutral-100;
+$secondaryText: $neutral-400;
+$tertiaryText: $neutral-600;
+$quaternaryText: $neutral-500;
+$quinaryText: $neutral-300;
+
+$primaryBackground: $neutral-800;
+$primaryBackground200: rgba($neutral-600, 0.2);
+$primaryBackground300: #26272C;
+$secondaryBackground: $neutral-700;
+$tertiaryBackground:$neutral-700;
+
+$whiteText: #FFFFFF;
+$purpleText: #A670FF;
+$blackText: #000000;
+
+$accent: $purple-600;
+$secondaryAccent: $green-500;
+$bronzeDecorative: $yellow-700;
+$silverDecorative: $neutral-400;
+$goldDecorative: $yellow-300;
+$backdrop: rgba($blackText, 0.5);
+
+// One time used colors
+$hover-dark: #373B43;
+$charcoal: #1E1F24;
+$blackText: #000000;
+$backdrop: rgba($blackText, 0.5);
+$midnightDark: #17191E;
+
+$primaryBorder: $hover-dark;
+
+// Old colors
 $alternativeText: #efefef;
-$primaryBorder: #ebdeca;
+// $primaryBorder: #ebdeca;
 $secondaryBorder: #c9c5be;
 $tertiaryBorder: #706048;
-$primaryBackground: #faf6f0;
-$secondaryBackground: #f5ede2;
-$tertiaryBackground: #efe3d3;
-$accent: #e75132;
-$secondaryAccent: #1c510b;
+// $tertiaryBackground: #efe3d3;
 $secondaryAccent200: #d8ebca;
 $bronzeBackground: #f5d4b5;
-$bronzeDecorative: #d08d4c;
 $bronzeText: #8a6037;
 $silverBackground: #e8e6e3;
-$silverDecorative: #b0aca4;
 $silverText: #686663;
 $goldBackground: #f8e3b7;
-$goldDecorative: #e7aa27;
 $goldText: #b67d02;
 $yellowText: #F7BA2F;
-$blackText: #000000;
-$backdrop: rgba($primaryText, 0.75);
+
 $primaryBadgeBackground: #2c567d;
 $primaryBadgeDecorative: #113a60;
 $secondaryBadgeBackground: #7d2c2d;
@@ -71,8 +179,8 @@ $primaryGradient: linear-gradient(
 $secondaryGradient: linear-gradient(90deg, #fee852 0%, #f6b92e 64%, #d19a3a 100%);
 
 // Typography
-$primaryFont: 'Sentient', serif;
-$secondaryFont: 'Sentient', serif;
+$primaryFont: 'FunnelDisplay', sans-serif;
+$secondaryFont: 'FunnelDisplay', sans-serif;
 
 // Other
 $primaryBorderRadius: 0.375rem;

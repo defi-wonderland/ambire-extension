@@ -7,6 +7,7 @@ import {
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
 import PayOption from './components/PayOption'
 import { NO_FEE_OPTIONS } from './consts'
 import { FeeOption } from './types'
@@ -56,15 +57,20 @@ const sortFeeOptions = (
 
   if (aCanCoverFee && !bCanCoverFee) return -1
   if (!aCanCoverFee && bCanCoverFee) return 1
+  if (!signAccountOpState) sortBasedOnUSDValue(a, b)
+
+  // native options should be on top for 7702 EOAs as they are the cheapest
+  // use a is7702 hack to do this but long term it should be refactored
+  if ('is7702' in signAccountOpState.baseAccount && signAccountOpState.baseAccount.is7702) {
+    if (a.token.address === ZERO_ADDRESS && b.token.address !== ZERO_ADDRESS) return -1
+    if (a.token.address !== ZERO_ADDRESS && b.token.address === ZERO_ADDRESS) return 1
+  }
+
+  // gas tank after native
   if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
   if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
-  if (a.token.flags.onGasTank && b.token.flags.onGasTank) {
-    return sortBasedOnUSDValue(a, b)
-  }
-  if (!a.token.flags.onGasTank && !b.token.flags.onGasTank) {
-    return sortBasedOnUSDValue(a, b)
-  }
-  return 0
+
+  return sortBasedOnUSDValue(a, b)
 }
 
 const mapFeeOptions = (
@@ -84,7 +90,7 @@ const mapFeeOptions = (
     if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
   })
 
-  const feeSpeed = signAccountOpState.feeSpeeds[id].find(
+  const feeSpeed = signAccountOpState.feeSpeeds[id]?.find(
     (speed) => speed.type === signAccountOpState.selectedFeeSpeed
   )
   const feeSpeedAmount = feeSpeed?.amount || 0n

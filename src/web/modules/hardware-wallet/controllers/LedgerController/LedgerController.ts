@@ -5,9 +5,11 @@ import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import { ledgerUSBVendorId } from '@ledgerhq/devices'
+import { DeviceModelId as LedgerDeviceModels, ledgerUSBVendorId } from '@ledgerhq/devices'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+
+export { LedgerDeviceModels }
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
@@ -24,7 +26,7 @@ class LedgerController implements ExternalSignerController {
 
   type = 'ledger'
 
-  deviceModel = 'unknown'
+  deviceModel: LedgerDeviceModels | 'unknown' = 'unknown'
 
   deviceId = ''
 

@@ -1,6 +1,16 @@
-import React, { createContext, FC, useCallback, useContext, useMemo, useState } from 'react'
+import React, {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
+import { createPortal } from 'react-dom'
 
 import Modal from '@legends/components/Modal'
+import MobileDisclaimerModal from '@legends/modules/Home/components/MobileDisclaimerModal'
 import CardActionComponent from '@legends/modules/legends/components/Card/CardAction'
 import { CardActionComponentProps } from '@legends/modules/legends/components/Card/CardAction/CardAction'
 import Rewards from '@legends/modules/legends/components/Card/CardContent/Rewards'
@@ -42,24 +52,36 @@ type ActionModalProps = {
   Partial<CardActionComponentProps> &
   Pick<
     CardFromResponse,
-    'meta' | 'xp' | 'contentImage' | 'contentSteps' | 'contentVideo' | 'title' | 'action'
+    'meta' | 'xp' | 'contentImageV2' | 'contentSteps' | 'contentVideoV2' | 'title' | 'action'
   >
 
 const ActionModal: FC<ActionModalProps> = ({
   isOpen,
   title,
   xp,
-  contentImage,
+  contentImageV2,
   buttonText,
   onLegendCompleteWrapped,
   closeActionModal,
   contentSteps,
-  contentVideo,
+  contentVideoV2,
   meta,
   action,
   predefinedId
 }) => {
   const [activeStep, setActiveStep] = useState<null | number>(null)
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
 
   const closeActionModalWrapped = useCallback(() => {
     closeActionModal()
@@ -75,6 +97,17 @@ const ActionModal: FC<ActionModalProps> = ({
     }),
     [activeStep, closeActionModalWrapped, onLegendCompleteWrapped]
   )
+
+  if (isMobile) {
+    return createPortal(
+      <MobileDisclaimerModal
+        shouldClose
+        modalOpened={isOpen}
+        closeModal={closeActionModalWrapped}
+      />,
+      document.getElementById('modal-root') as HTMLElement
+    )
+  }
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
     return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModalWrapped} />
@@ -95,9 +128,9 @@ const ActionModal: FC<ActionModalProps> = ({
         <HowTo
           steps={contentSteps}
           activeStep={activeStep}
-          image={contentImage}
+          image={contentImageV2}
           imageAlt={title}
-          video={contentVideo}
+          video={contentVideoV2}
         >
           {(predefinedId === CARD_PREDEFINED_ID.referral && <Referral meta={meta} />) ||
             (predefinedId === CARD_PREDEFINED_ID.inviteAccount && <InviteAccount meta={meta} />)}

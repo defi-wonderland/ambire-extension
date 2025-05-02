@@ -8,6 +8,7 @@
   width: 100%;
   height: 100%;
   background-color: $backdrop;
+  backdrop-filter: blur(0.5rem);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,15 +17,36 @@
 }
 
 .wrapper {
-  width: 80em;
-  height: 50em;
-  background-size: cover;
+  position: relative;
+  width: 47em;
+  height: 47em;
 
+  background-size: cover;
+  background-color: $neutral-700;
+  border-radius: $tertiaryBorderRadius;
+  border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                    linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
+
+  .backgroundEffect {
+    position: absolute;
+    right: -11em;
+    top: 2em;
+    z-index: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 64.375em;
+    height: 42.8125em;
+  }
   .content {
     position: relative;
     display: flex;
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 
     .confetti {
       position: absolute;
@@ -35,20 +57,19 @@
     }
 
     .title {
-      position: absolute;
-      font-size: 3.5em;
+      font-size: 2.5rem;
+      font-weight: 400;
       line-height: 1;
-      color: $primaryBackground;
-      top: 0.5em;
-      left: 50%;
-      transform: translateX(-50%);
+      margin: 0 auto;
+      color: $mainText;
     }
 
     .closeButton {
       font-size: inherit;
-      position: absolute;
-      top: 1em;
-      right: 1em;
+      align-self: end;
+      margin-right: 0.813em;
+      margin-top: 0.813em;
+      display: block;
       width: 2em;
       height: 2em;
 
@@ -60,10 +81,10 @@
     .spinner {
       position: absolute;
       transition: transform 10s ease-out;
-      top: 14em;
-      left: 27.6875em;
-      width: 24.125em;
-      height: 24.125em;
+      top: 10em;
+      left: 10.6875em;
+      width: 25em;
+      height: 25em;
       object-fit: contain;
       animation: tease 5s infinite;
       animation-delay: 2s;
@@ -71,11 +92,12 @@
 
     .chain {
       position: absolute;
-      left: 25.125em;
+      left: 6.7em;
       bottom: 15.75em;
-      width: 29.75em;
+      width: 32.9em;
+      
       height: 9.75em;
-      z-index: 3;
+      z-index: 4;
 
       &.unlocked {
         animation: unlock 1s forwards;
@@ -84,46 +106,25 @@
 
     .pointer {
       position: absolute;
-      top: 11.6875em;
-      left: 37.625em;
-      width: 4.375em;
-      height: 4.375em;
+      top: 8.5em;
+      left: 22em;
+      width: 2.5rem;
+      height: 2.5rem;
       object-fit: contain;
     }
+
     .spinButton {
       @include primary-button;
       position: absolute;
       bottom: 2.5em;
       left: 50%;
       transform: translateX(-50%);
-      width: 16em;
-      height: 3.5em;
-      font-size: 1.25em;
-      color: $secondaryAccent;
-
-      &:not(:disabled) {
-        &:hover {
-          background-color: $secondaryBackground;
-          opacity: 1;
-        }
-        &:active {
-          transform: translate(-50%, 0.125em);
-          box-shadow: none;
-        }
-      }
-
-      &:disabled {
-        background-color: $tertiaryBackground;
-        opacity: 1;
-      }
-
-      &.unlocked {
-        background: $secondaryGradient;
-        border-color: $primaryBackground;
-        border-width: 0.125rem;
-        box-shadow: 0 0.125em $primaryBackground;
-        color: $primaryText;
-      }
+      min-width: 18.25em;
+      width: max-content;
+      max-width: 37.625rem;
+      height: 3.25em;
+      font-size: 1.25em; 
+      font-weight: 400;
     }
   }
 }

@@ -22,6 +22,7 @@ type ButtonTypes =
   | 'info'
   | 'info2'
   | 'success'
+  | 'gray'
 
 type ButtonSizes = 'regular' | 'small' | 'large' | 'tiny'
 export interface Props extends PressableProps {
@@ -104,9 +105,32 @@ const Button = ({
       warning: [OPACITY_ANIMATION],
       info: [OPACITY_ANIMATION],
       info2: [OPACITY_ANIMATION],
-      success: [OPACITY_ANIMATION]
+      success: [OPACITY_ANIMATION],
+      gray: [
+        {
+          property: 'backgroundColor',
+          from: theme.quaternaryBackground,
+          to: `${String(theme.primaryLight)}10`
+        },
+        {
+          property: 'borderWidth',
+          from: 0,
+          to: 1
+        },
+        {
+          property: 'borderColor',
+          from: theme.quaternaryBackground,
+          to: theme.primaryLight
+        }
+      ]
     }),
-    [theme.errorBackground, theme.primary, theme.primaryLight, theme.infoBackground]
+    [
+      theme.primary,
+      theme.primaryLight,
+      theme.infoBackground,
+      theme.errorBackground,
+      theme.quaternaryBackground
+    ]
   )
 
   const [bind, animatedStyle] = useMultiHover({
@@ -139,6 +163,10 @@ const Button = ({
     success: {
       backgroundColor: theme.successText,
       borderWidth: 0
+    },
+    gray: {
+      backgroundColor: theme.quaternaryBackground,
+      borderWidth: 0
     }
   }
 
@@ -159,7 +187,8 @@ const Button = ({
     warning: styles.buttonTextPrimary,
     info: styles.buttonTextPrimary,
     info2: styles.buttonTextPrimary,
-    success: styles.buttonTextPrimary
+    success: styles.buttonTextPrimary,
+    gray: styles.buttonTextGray
   }
 
   const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {

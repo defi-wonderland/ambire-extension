@@ -87,6 +87,7 @@ const Estimation = ({
   hasEstimation,
   isSponsored,
   sponsor,
+  updateType,
   slowRequest
 }: Props) => {
   const { dispatch } = useBackgroundService()
@@ -136,8 +137,9 @@ const Estimation = ({
       setSelectedFeeOption(localPayValue.value)
 
       dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        type: 'SIGN_ACCOUNT_OP_UPDATE',
         params: {
+          updateType,
           feeToken: localPayValue.token,
           paidBy: localPayValue.paidBy,
           speed: localPayValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
@@ -146,7 +148,7 @@ const Estimation = ({
         }
       })
     },
-    [dispatch, signAccountOpState?.selectedFeeSpeed]
+    [dispatch, signAccountOpState?.selectedFeeSpeed, updateType]
   )
 
   useEffect(() => {
@@ -259,13 +261,14 @@ const Estimation = ({
       }
 
       dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        type: 'SIGN_ACCOUNT_OP_UPDATE',
         params: {
+          updateType,
           speed: value as FeeSpeed
         }
       })
     },
-    [dispatch]
+    [dispatch, updateType]
   )
 
   const feeOptionSelectSections = useMemo(() => {

@@ -58,9 +58,9 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} />
-          <View>
-            <View style={[flexbox.directionRow]}>
-              <Text fontSize={16} weight="medium">
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.flex1, flexbox.directionRow]}>
+              <Text fontSize={16} weight="medium" numberOfLines={1}>
                 {account.preferences.label}
               </Text>
 

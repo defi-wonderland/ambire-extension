@@ -14,12 +14,15 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import { getUiType } from '@web/utils/uiType'
 
 interface Props {
   sheetRef: any
   closeBottomSheet: () => void
   address: string
 }
+
+const { isPopup } = getUiType()
 
 const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address }) => {
   const { t } = useTranslation()
@@ -51,7 +54,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
         ...spacings.pv0,
         ...spacings.ph0,
         overflow: 'hidden',
-        width: 640
+        width: isPopup ? '100%' : 640
       }}
       backgroundColor="primaryBackground"
     >
@@ -66,7 +69,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
         ]}
       >
         <Text fontSize={20} weight="medium">
-          {t('Add new Contact')}
+          {t('Add new contact')}
         </Text>
         <AnimatedPressable
           style={[
@@ -88,7 +91,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
           label={t('Name')}
           placeholder={t('Contact name')}
           onChangeText={setName}
-          value={name}
+          defaultValue={name}
           maxLength={32}
           onSubmitEditing={handleAddContact}
         />

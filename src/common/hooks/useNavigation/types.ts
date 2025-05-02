@@ -1,4 +1,4 @@
-import { NavigateOptions } from 'react-router-dom'
+import { NavigateOptions, useSearchParams } from 'react-router-dom'
 import { Subject } from 'rxjs'
 
 import { NavigationProp } from '@react-navigation/native'
@@ -6,7 +6,8 @@ import { NavigationProp } from '@react-navigation/native'
 interface UseNavigationReturnTypeCommon {
   navigate: (to: string, options?: NavigateOptions) => void
   goBack: NavigationProp<ReactNavigation.RootParamList>['goBack']
-  setParams: NavigationProp<ReactNavigation.RootParamList>['setParams']
+  searchParams: ReturnType<typeof useSearchParams>[0]
+  setSearchParams: ReturnType<typeof useSearchParams>[1]
   setOptions: NavigationProp<ReactNavigation.RootParamList>['setOptions']
   canGoBack: boolean
 }

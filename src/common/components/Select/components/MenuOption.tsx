@@ -64,7 +64,8 @@ const MenuOption = React.memo(
     onHoverIn,
     onHoverOut,
     disabled,
-    size
+    size,
+    mode
   }: {
     index: number
     item: SelectValue
@@ -76,6 +77,7 @@ const MenuOption = React.memo(
     onHoverOut: () => void
     disabled?: boolean
     size: SelectProps['size']
+    mode: SelectProps['mode']
   }) => {
     const { theme, styles } = useTheme(getStyles)
 
@@ -94,6 +96,7 @@ const MenuOption = React.memo(
         style={[
           styles.menuOption,
           size && styles[`${size}MenuOption`],
+          mode === 'bottomSheet' && styles.sheetMenuOption,
           !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
           isHighlighted && !disabled && { backgroundColor: theme.secondaryBackground },

@@ -15,21 +15,15 @@ const AccountOption = ({ acc }: { acc: Account }) => {
   const { ens, isLoading } = useReverseLookup({ address: acc.addr })
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+    <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
       <Avatar
         pfp={acc.preferences.pfp}
         size={32}
         style={spacings.prTy}
         isSmart={isSmartAccount(acc)}
       />
-      <View>
-        <Text
-          fontSize={14}
-          weight="medium"
-          style={{
-            lineHeight: 20
-          }}
-        >
+      <View style={flexbox.flex1}>
+        <Text fontSize={14} weight="medium" style={{ lineHeight: 20 }} numberOfLines={1}>
           {acc.preferences.label}
         </Text>
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>

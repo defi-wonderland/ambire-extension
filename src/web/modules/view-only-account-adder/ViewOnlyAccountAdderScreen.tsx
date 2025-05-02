@@ -1,24 +1,21 @@
 import { getAddress } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { AddressState } from '@ambire-common/interfaces/domains'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
-import { getIdentity } from '@ambire-common/libs/accountAdder/accountAdder'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import BackButton from '@common/components/BackButton'
+import { getIdentity } from '@ambire-common/libs/accountPicker/accountPicker'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
@@ -52,12 +49,12 @@ const DEFAULT_ADDRESS_FIELD_VALUE = {
 }
 
 const ViewOnlyScreen = () => {
-  const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -122,10 +119,11 @@ const ViewOnlyScreen = () => {
     try {
       const accountsToAdd = await Promise.all(accountsToAddPromises)
       setIsLoading(true)
-      return dispatch({
+      dispatch({
         type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
         params: { accounts: accountsToAdd }
       })
+      goToNextRoute()
     } catch (e: any) {
       setIsLoading(false)
       addToast(
@@ -139,88 +137,64 @@ const ViewOnlyScreen = () => {
 
       throw e
     }
-  }, [accounts, accountsState.accounts, addToast, dispatch, t])
-
-  useEffect(() => {
-    // Prevents navigating when user is in the middle of adding accounts,
-    // user adds account that is not valid and clicks "+ add one more address".
-    // This use effect gets triggered, because the `accounts` change.
-    if (!isValid) return
-    if (duplicateAccountsIndexes.length > 0) return
-
-    const newAccountsAddresses = accounts.map((account) =>
-      getAddressFromAddressState(account).toLowerCase()
-    )
-    const newAccountsAdded = accountsState.accounts.filter((account) =>
-      newAccountsAddresses.includes(account.addr.toLowerCase())
-    )
-
-    // Navigate when the new accounts are imported, indicating the final step for the view-only account adding flow completes.
-    if (newAccountsAdded.length) navigate(WEB_ROUTES.accountPersonalize)
-  }, [
-    accounts,
-    dispatch,
-    duplicateAccountsIndexes.length,
-    errors,
-    isValid,
-    accountsState.accounts,
-    navigate
-  ])
+  }, [accounts, accountsState.accounts, goToNextRoute, addToast, dispatch, t])
 
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="md"
-      header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton fallbackBackRoute={ROUTES.dashboard} />
-          <Button
-            testID="view-only-button-import"
-            textStyle={{ fontSize: 14 }}
-            size="large"
-            disabled={disabled}
-            hasBottomSpacing={false}
-            text={isLoading ? t('Importing...') : t('Import')}
-            onPress={handleSubmit(handleFormSubmit)}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import a view-only address')}>
-          {fields.map((field, index) => (
-            <AddressField
-              duplicateAccountsIndexes={duplicateAccountsIndexes}
-              key={field.id}
-              control={control}
-              index={index}
-              remove={remove}
-              isLoading={isLoading || isSubmitting}
-              handleSubmit={handleSubmit(handleFormSubmit)}
+        <Panel
+          type="onboarding"
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+          title={t('Import a view-only address')}
+          step={1}
+          totalSteps={2}
+        >
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
+            <ScrollView style={spacings.mbLg}>
+              <View>
+                {fields.map((field, index) => (
+                  <AddressField
+                    duplicateAccountsIndexes={duplicateAccountsIndexes}
+                    key={field.id}
+                    control={control}
+                    index={index}
+                    remove={remove}
+                    isLoading={isLoading || isSubmitting}
+                    handleSubmit={handleSubmit(handleFormSubmit)}
+                    disabled={disabled}
+                    field={field}
+                    watch={watch}
+                    setValue={setValue}
+                    trigger={trigger}
+                  />
+                ))}
+
+                <AnimatedPressable
+                  testID="add-one-more-address"
+                  disabled={isSubmitting}
+                  onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
+                  style={[spacings.ptTy, animStyle]}
+                  {...bindAnim}
+                >
+                  <Text fontSize={14} underline>
+                    {t('+ Add another address')}
+                  </Text>
+                </AnimatedPressable>
+              </View>
+            </ScrollView>
+            <Button
+              testID="view-only-button-import"
+              size="large"
               disabled={disabled}
-              field={field}
-              watch={watch}
-              setValue={setValue}
-              trigger={trigger}
+              hasBottomSpacing={false}
+              text={isLoading ? t('Importing...') : t('Import')}
+              onPress={handleSubmit(handleFormSubmit)}
             />
-          ))}
-          <View>
-            <AnimatedPressable
-              testID="add-one-more-address"
-              disabled={isSubmitting}
-              onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
-              style={[spacings.ptTy, animStyle]}
-              {...bindAnim}
-            >
-              <Text fontSize={14} underline>
-                {t('+ Add another address')}
-              </Text>
-            </AnimatedPressable>
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>

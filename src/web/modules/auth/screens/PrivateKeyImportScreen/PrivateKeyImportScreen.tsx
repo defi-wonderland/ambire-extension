@@ -1,79 +1,71 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import Alert from '@common/components/Alert'
-import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import Checkbox from '@common/components/Checkbox'
+import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
-import TextArea from '@common/components/TextArea'
+import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import storage from '@web/extension-services/background/webapi/storage'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+
+export const CARD_WIDTH = 400
 
 const PrivateKeyImportScreen = () => {
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors, isValid }
   } = useForm({
     mode: 'all',
-    defaultValues: {
-      privateKey: ''
-    }
+    defaultValues: { privateKey: '' }
   })
-  const { updateStepperState } = useStepper()
+  const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const accountAdderCtrlState = useAccountAdderControllerState()
-
-  useEffect(() => {
-    updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
-  }, [updateStepperState])
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'private-key'
-    )
-      navigate(WEB_ROUTES.accountAdder)
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
+  const { initParams, subType } = useAccountPickerControllerState()
+  const [agreedToBackupWarning, setAgreedToBackupWarning] = useState(false)
+  const [importButtonPressed, setImportButtonPressed] = useState(false)
 
   const handleFormSubmit = useCallback(async () => {
+    await storage.set('agreedToBackupWarning', { acceptedAt: Date.now() })
+
     await handleSubmit(({ privateKey }) => {
+      setImportButtonPressed(true)
       const trimmedPrivateKey = privateKey.trim()
       const noPrefixPrivateKey =
         trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
         params: { privKeyOrSeed: noPrefixPrivateKey }
       })
     })()
   }, [dispatch, handleSubmit])
+
+  useEffect(() => {
+    if (!getValues('privateKey')) return
+    if (!!importButtonPressed && initParams && subType === 'private-key') {
+      setImportButtonPressed(false)
+      goToNextRoute()
+    }
+  }, [goToNextRoute, dispatch, getValues, initParams, importButtonPressed, subType])
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
@@ -90,58 +82,62 @@ const PrivateKeyImportScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="md"
-      header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton fallbackBackRoute={ROUTES.dashboard} />
-          <Button
-            testID="import-button"
-            size="large"
-            text={t('Import')}
-            hasBottomSpacing={false}
-            onPress={handleFormSubmit}
-            disabled={!isValid}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Enter your private key')}>
-          <Controller
-            control={control}
-            rules={{ validate: (value) => handleValidation(value), required: true }}
-            name="privateKey"
-            render={({ field: { onChange, onBlur, value } }) => {
-              return (
-                <TextArea
-                  testID="enter-seed-phrase-field"
-                  value={value}
-                  editable
-                  multiline
-                  numberOfLines={3}
-                  autoFocus
-                  containerStyle={spacings.mb0}
-                  placeholder={t('Enter a private key')}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  isValid={!handleValidation(value) && !!value.length}
-                  error={errors?.privateKey?.message || ' '}
-                  placeholderTextColor={theme.secondaryText}
-                  onSubmitEditing={handleFormSubmit}
-                />
-              )
-            }}
-          />
-          <Alert
-            title="Basic Accounts (EOAs) only"
-            text="You can import only Basic Accounts (EOAs) with private keys. To import Smart Accounts, you must create or import a seed phrase or connect a hardware wallet."
-            type="warning"
-          />
+        <Panel
+          type="onboarding"
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+          title={t('Import private key')}
+          step={1}
+          totalSteps={2}
+        >
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
+            <View>
+              <Controller
+                control={control}
+                rules={{ validate: (value) => handleValidation(value), required: true }}
+                name="privateKey"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    testID="enter-seed-phrase-field"
+                    onBlur={onBlur}
+                    autoFocus
+                    placeholder={t('Input private key')}
+                    onChangeText={onChange}
+                    value={value}
+                    isValid={!handleValidation(value) && !!value.length}
+                    validLabel={t('✅ Valid private key')}
+                    secureTextEntry
+                    error={value.length ? errors?.privateKey?.message : ''}
+                    autoCorrect={false}
+                    onSubmitEditing={handleFormSubmit}
+                  />
+                )}
+              />
+              <Checkbox
+                value={agreedToBackupWarning}
+                onValueChange={() => setAgreedToBackupWarning((prev) => !prev)}
+                testID="backup-warning-checkbox"
+                uncheckedBorderColor={theme.primaryText}
+                style={spacings.mlTy}
+                label={
+                  <Text fontSize={14}>{t('I know I must keep a secure backup of my key.')}</Text>
+                }
+              />
+            </View>
+
+            <Button
+              testID="import-button"
+              size="large"
+              text={t('Confirm')}
+              hasBottomSpacing={false}
+              onPress={handleFormSubmit}
+              disabled={!isValid || !agreedToBackupWarning}
+            />
+          </View>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

@@ -22,7 +22,7 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
-import { ActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import { getAccountKeysCount } from '@ambire-common/libs/keys/keys'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
@@ -36,8 +36,9 @@ import wait from '@ambire-common/utils/wait'
 import { isProd } from '@common/config/env'
 import {
   BROWSER_EXTENSION_LOG_UPDATED_CONTROLLER_STATE_ONLY,
+  LI_FI_API_KEY,
   RELAYER_URL,
-  SOCKET_API_KEY,
+  USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
 import { browser } from '@web/constants/browserapi'
@@ -278,7 +279,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    socketApiKey: SOCKET_API_KEY,
+    swapApiKey: USE_SWAP_KEY ? LI_FI_API_KEY : undefined,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal
@@ -433,7 +434,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     backgroundState.accountsOpsStatusesInterval = setTimeout(updateStatuses, updateInterval)
   }
 
-  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: ActiveRoute[]) {
+  function initActiveRoutesContinuousUpdate(activeRoutesInProgress?: SwapAndBridgeActiveRoute[]) {
     if (!activeRoutesInProgress || !activeRoutesInProgress.length) {
       !!backgroundState.updateActiveRoutesInterval &&
         clearTimeout(backgroundState.updateActiveRoutesInterval)
@@ -909,9 +910,6 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
               pm,
               port,
               mainCtrl,
-              ledgerCtrl,
-              trezorCtrl,
-              latticeCtrl,
               walletStateCtrl,
               autoLockCtrl,
               extensionUpdateCtrl
@@ -948,6 +946,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         pm.removePort(port.id)
         initPortfolioContinuousUpdate()
         initDefiPositionsContinuousUpdate()
+
         handleCleanUpOnPortDisconnect({ port, mainCtrl })
 
         // The selectedAccount portfolio is reset onLoad of the popup

@@ -1,28 +1,32 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
+import { hasPersistedState } from '@ambire-common/controllers/transfer/transfer'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import Spinner from '@common/components/Spinner'
+import { APP_VERSION } from '@common/config/env'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
-  const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
+  const swapAndBridgeState = useSwapAndBridgeControllerState()
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
+  const { accounts } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -36,12 +40,8 @@ const SortHat = () => {
       return navigate(ROUTES.keyStoreUnlock)
     }
 
-    if (inviteStatus !== INVITE_STATUS.VERIFIED) {
-      return navigate(ROUTES.inviteVerify)
-    }
-
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
-      return navigate(ROUTES.getStarted)
+      return navigate(WEB_ROUTES.getStarted)
     }
 
     if (isActionWindow && actionsState.currentAction) {
@@ -71,6 +71,8 @@ const SortHat = () => {
 
       if (actionType === 'signMessage') return navigate(ROUTES.signMessage)
 
+      if (actionType === 'swapAndBridge') return navigate(ROUTES.swapAndBridge)
+
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
         const link =
@@ -86,18 +88,36 @@ const SortHat = () => {
 
       if (actionType === 'switchAccount') return navigate(WEB_ROUTES.switchAccount)
     } else if (!isActionWindow) {
+      if (accounts.some((a) => a.newlyAdded)) {
+        navigate(ROUTES.accountPersonalize)
+        return
+      }
+
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
-      navigate(ROUTES.dashboard)
+      const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
+        (id) => id === 'popup' || id === 'action-window'
+      )
+      if (hasSwapAndBridgePersistentSession) {
+        navigate(ROUTES.swapAndBridge)
+      } else if (await hasPersistedState(storage, APP_VERSION)) {
+        navigate(ROUTES.transfer, {
+          state: { backTo: WEB_ROUTES.dashboard }
+        })
+      } else {
+        navigate(ROUTES.dashboard)
+      }
     }
   }, [
+    accounts,
+    keystoreState.isReadyToStoreKeys,
+    keystoreState.isUnlocked,
+    authStatus,
     isActionWindow,
     actionsState.currentAction,
-    authStatus,
-    keystoreState,
-    inviteStatus,
     navigate,
-    dispatch
+    dispatch,
+    swapAndBridgeState.sessionIds
   ])
 
   useEffect(() => {

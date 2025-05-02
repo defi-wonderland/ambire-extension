@@ -12,7 +12,7 @@ import { iconColors } from '@common/styles/themeConfig'
 import getStyles from './styles'
 
 export interface Props {
-  title: string | ReactNode
+  title?: string | ReactNode
   description: string | ReactNode
   Icon?: React.FC<SvgProps>
   onPrimaryButtonPress: () => void
@@ -23,6 +23,7 @@ export interface Props {
   primaryButtonTestID?: string
   secondaryButtonTestID?: string
   buttonsContainerStyle?: ViewStyle
+  hideHeader?: boolean
 }
 
 const DualChoiceModal: FC<Props> = ({
@@ -36,22 +37,25 @@ const DualChoiceModal: FC<Props> = ({
   secondaryButtonText,
   secondaryButtonTestID,
   primaryButtonTestID,
-  buttonsContainerStyle
+  buttonsContainerStyle,
+  hideHeader
 }) => {
   const { styles } = useTheme(getStyles)
 
   return (
     <View>
-      <View style={styles.modalHeader}>
-        <Text weight="medium" fontSize={20}>
-          {title}
-        </Text>
-        {!!onCloseIconPress && (
-          <Pressable onPress={onCloseIconPress}>
-            <CloseIcon />
-          </Pressable>
-        )}
-      </View>
+      {!hideHeader && (
+        <View style={styles.modalHeader}>
+          <Text weight="medium" fontSize={20}>
+            {title}
+          </Text>
+          {!!onCloseIconPress && (
+            <Pressable onPress={onCloseIconPress}>
+              <CloseIcon />
+            </Pressable>
+          )}
+        </View>
+      )}
       <View style={styles.modalInnerContainer}>
         {!!Icon && (
           <View>

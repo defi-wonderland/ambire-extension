@@ -17,6 +17,7 @@ import { APP_VERSION } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
+import { canBecomeSmarterOnChain } from '@ambire-common/libs/account/account'
 import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -376,7 +377,16 @@ export class ProviderController {
         return
       }
 
-      const isSmart = !accountState.isEOA || accountState.isSmarterEoa
+      const accout = this.mainCtrl.accounts.accounts.find((acc) => acc.addr === accountAddr)!
+      const isSmart =
+        !accountState.isEOA ||
+        accountState.isSmarterEoa ||
+        canBecomeSmarterOnChain(
+          network,
+          accout,
+          accountState,
+          this.mainCtrl.keystore.keys.filter((key) => accout.associatedKeys.includes(key.addr))
+        )
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
           supported: true

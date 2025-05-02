@@ -15,6 +15,7 @@ declare module '@env' {
     DEFAULT_KEYSTORE_PASSWORD_DEV: string
     NFT_CDN_URL: string
     LEGENDS_NFT_ADDRESS: string
+    USE_SWAP_KEY: string
   }
 
   /**
@@ -109,4 +110,9 @@ declare module '@env' {
    * The address of the Legends NFT contract (same on PROD and STAGING)
    */
   export const LEGENDS_NFT_ADDRESS: EnvTypes['LEGENDS_NFT_ADDRESS']
+
+  /**
+   * Should we use the swap key for dev purposes to avoid the rate limit
+   */
+  export const USE_SWAP_KEY: EnvTypes['USE_SWAP_KEY']
 }

@@ -2,6 +2,7 @@ import { BrowserProvider } from 'ethers'
 import React, { FC, useCallback, useState } from 'react'
 
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
@@ -24,8 +25,7 @@ const SendAccOp: FC<Props> = ({ action }) => {
 
   const onButtonClick = useCallback(async () => {
     setIsInProgress(true)
-
-    await switchNetwork()
+    await switchNetwork(action.chainId || BASE_CHAIN_ID)
 
     try {
       const provider = new BrowserProvider(window.ambire)

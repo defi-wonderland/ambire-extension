@@ -5,15 +5,18 @@ import { isWeb } from '@common/config/env'
 interface Styles {
   shadowPrimary: ViewStyle
   shadowSecondary: ViewStyle
+  shadowTertiary: ViewStyle
   borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
+  borderRadiusTertiary: ViewStyle
   hidden: ViewStyle
   fullWidth: ViewStyle
   visibilityHidden: ViewStyle
 }
 
 export const BORDER_RADIUS_PRIMARY = 6
-export const BORDER_RADIUS_SECONDARY = 2
+export const BORDER_RADIUS_SECONDARY = 12
+export const BORDER_RADIUS_TERTIARY = 2
 
 const commonStyles: Styles = {
   shadowPrimary: {
@@ -36,11 +39,23 @@ const commonStyles: Styles = {
     shadowRadius: 4.65,
     elevation: 7
   },
+  shadowTertiary: {
+    shadowColor: '#767DAD4D',
+    shadowOffset: {
+      width: 0,
+      height: 12
+    },
+    shadowRadius: 24,
+    elevation: 7
+  },
   borderRadiusPrimary: {
     borderRadius: BORDER_RADIUS_PRIMARY
   },
   borderRadiusSecondary: {
     borderRadius: BORDER_RADIUS_SECONDARY
+  },
+  borderRadiusTertiary: {
+    borderRadius: BORDER_RADIUS_TERTIARY
   },
   hidden: {
     overflow: 'hidden'

@@ -94,13 +94,6 @@ const useErc5792 = () => {
         }
       )
 
-    const is4337 = callsId.includes('UserOperation')
-
-    if (!is4337 && is4337Required)
-      throw new HumanReadableError(ERROR_MESSAGES.transactionCostsCoveredWithEOA, {
-        cause: ERRORS.not4337
-      })
-
     return receipt
   }
 

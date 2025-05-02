@@ -1,0 +1,78 @@
+@import '@legends/styles/base.scss';
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $backdrop;
+  backdrop-filter: blur(0.5rem);
+  z-index: 100;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+
+  transition: opacity 0.4s;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+
+    .modal {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+  }
+
+  .modal {
+    width: 100%;
+    position: relative;
+    padding: 3.25rem 2.5rem;
+    background-color: $primaryBackground;
+    border-radius: 0.5rem;
+    border: inset 0.125rem solid $landingAccent;
+    z-index: 3;
+    transition: opacity 0.25s ease, transform 0.3s ease;
+
+    border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                    linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
+
+
+ 
+    
+    .text {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+      margin-bottom: 3rem;
+
+      strong {
+        font-weight: 700;
+      }
+    }
+    .button {
+      @include primary-button;
+      height: 3.25rem;
+      width: 17.625rem;
+      padding: 0;
+      border-radius: 0.5rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+
+  @include on-mobile {
+    display: flex;
+  }
+}

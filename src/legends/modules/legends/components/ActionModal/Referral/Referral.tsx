@@ -14,9 +14,9 @@ const Referral: FC<Props> = ({ meta }) => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(
-        `🤑Join the biggest airdrop a WALLET has ever done! 🚀 \n \nAmbire Wallet is giving away 195M $WALLET tokens through the Ambire Legends campaign. All activity with a Smart Account on 5 of the hottest EVM chains is rewarded. Start strong with the first 4 transactions free! \n \nHere’s what you need to do: \n1. Download the Ambire extension: https://www.ambire.com/get-extension \n2. Use my referral code so we both get XP: ${
+        `🤑Join the biggest airdrop a WALLET has ever done! 🚀 \n \nAmbire Wallet is giving away 195M $WALLET tokens through the Ambire Rewards campaign. All activity with a Smart Account on 5 of the hottest EVM chains is rewarded. Start strong with the first 4 transactions free! \n \nHere’s what you need to do: \n1. Download the Ambire extension: https://www.ambire.com/get-extension \n2. Use my referral code so we both get XP: ${
           meta?.invitationKey || ''
-        }\n3. Create a Smart Account in the extension and join Ambire Legends at https://legends.ambire.com/`
+        }\n3. Create a Smart Account in the extension and join Ambire Rewards at https://rewards.ambire.com/`
       )
       addToast('Text with referral code copied to clipboard', { type: 'success' })
     } catch (e: any) {
@@ -43,11 +43,11 @@ const Referral: FC<Props> = ({ meta }) => {
                 has ever done! 🚀{' '}
               </div>
               <button type="button" onClick={copyToClipboard}>
-                <CopyIcon className={styles.copyIcon} />
+                <CopyIcon className={styles.copyIcon} color="currentColor" />
               </button>
             </div>
             <br />
-            Ambire Wallet is giving away 195M $WALLET tokens through the Ambire Legends campaign.
+            Ambire Wallet is giving away 195M $WALLET tokens through the Ambire Rewards campaign.
             All activity with a Smart Account on 5 of the hottest EVM chains is rewarded. Start
             strong with the first 4 transactions free! <br /> <br />
             Here’s what you need to do:
@@ -65,11 +65,11 @@ const Referral: FC<Props> = ({ meta }) => {
             <br /> 3. Create a Smart Account in the extension and join{' '}
             <a
               target="_blank"
-              href="https://legends.ambire.com/"
+              href="https://rewards.ambire.com/"
               rel="noreferrer"
               className={styles.link}
             >
-              Ambire Legends
+              Ambire Rewards
             </a>
           </div>
         </div>

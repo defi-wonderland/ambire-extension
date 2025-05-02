@@ -1,16 +1,12 @@
 import React from 'react'
 import { ColorValue, View } from 'react-native'
-import Text from '@common/components/Text'
-import flexboxStyles from '@common/styles/utils/flexbox'
-import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import { useTranslation } from '@common/config/localization'
 import { SvgProps } from 'react-native-svg'
 
-interface IconProps extends SvgProps {
-  width?: number
-  height?: number
-}
+import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
+import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexboxStyles from '@common/styles/utils/flexbox'
 
 const PendingBadge = ({
   amount,
@@ -23,7 +19,7 @@ const PendingBadge = ({
   amount: bigint
   amountFormatted: string
   label: string
-  Icon: React.ComponentType<IconProps>
+  Icon: React.ComponentType<SvgProps>
   backgroundColor: ColorValue
   textColor: ColorValue
 }) => {

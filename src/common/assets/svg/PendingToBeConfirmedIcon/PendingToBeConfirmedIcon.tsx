@@ -3,12 +3,7 @@ import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const PendingToBeConfirmedIcon: React.FC<Props> = ({ width = 24, height = 24 }) => (
+const PendingToBeConfirmedIcon: React.FC<SvgProps> = ({ width = 24, height = 24 }) => (
   <Svg width={width} height={height} viewBox="0 0 20 20">
     <G transform="translate(-2 -2)">
       <G fill="none" strokeLinecap="round" strokeLinejoin="round">

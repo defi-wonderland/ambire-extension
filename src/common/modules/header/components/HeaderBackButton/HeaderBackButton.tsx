@@ -13,12 +13,14 @@ import { getUiType } from '@web/utils/uiType'
 
 const { isPopup, isTab, isActionWindow } = getUiType()
 
+export type DisplayIn = 'popup' | 'tab' | 'action-window' | 'always' | 'never'
+
 const HeaderBackButton = ({
   displayIn = 'popup',
   onGoBackPress,
   forceBack
 }: {
-  displayIn?: 'popup' | 'tab' | 'always' | 'never'
+  displayIn?: DisplayIn | DisplayIn[]
   onGoBackPress?: () => void
   forceBack?: boolean
 }) => {
@@ -36,12 +38,17 @@ const HeaderBackButton = ({
     navigationEnabled
 
   const shouldBeDisplayed = useMemo(() => {
-    if (displayIn === 'never') return false
-    if (displayIn === 'always') return true
+    if (displayIn.includes('always')) return true
+    if (displayIn.includes('never')) return false
 
-    if (displayIn === 'popup') return isPopup
+    const displayInArray = Array.isArray(displayIn) ? displayIn : [displayIn]
 
-    return isTab
+    return displayInArray.some((display) => {
+      if (display === 'popup') return isPopup
+      if (display === 'action-window') return isActionWindow
+
+      return isTab
+    })
   }, [displayIn])
 
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])

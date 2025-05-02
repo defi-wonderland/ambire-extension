@@ -5,7 +5,6 @@ import { Animated, Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { PortfolioGasTankResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -29,6 +28,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useHasGasTank from '@web/hooks/useHasGasTank'
 import { useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -63,6 +63,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
+  const { hasGasTank } = useHasGasTank({ account })
 
   const [bindAnim, , isHovered] = useCustomHover({
     property: 'borderColor',
@@ -72,26 +73,24 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
     }
   })
 
-  const isSA = useMemo(() => isSmartAccount(account), [account])
-
   const savedInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'saved'),
-    [account, isSA, portfolio]
+    () => calculateGasTankBalance(portfolio, account, hasGasTank, 'saved'),
+    [account, hasGasTank, portfolio]
   )
   const cashbackInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
-    [account, isSA, portfolio]
+    () => calculateGasTankBalance(portfolio, account, hasGasTank, 'cashback'),
+    [account, hasGasTank, portfolio]
   )
 
   const token = useMemo(() => {
     const result = portfolio?.latest?.gasTank?.result as PortfolioGasTankResult
 
-    if (!isSA || !result) {
+    if (!hasGasTank || !result) {
       return null
     }
 
     return result.gasTankTokens ? result.gasTankTokens[0] : null
-  }, [isSA, portfolio?.latest?.gasTank?.result])
+  }, [hasGasTank, portfolio?.latest?.gasTank?.result])
 
   const balanceFormatted = useMemo(
     () => (token ? getAndFormatTokenDetails(token, networks)?.balanceFormatted ?? 0 : 0),
@@ -170,7 +169,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       style={{ maxWidth: 600 }}
       onOpen={handleOpen}
     >
-      {isSA ? (
+      {hasGasTank ? (
         <View style={styles.content}>
           <Text fontSize={20} weight="medium" style={[spacings.mb]}>
             Gas Tank
@@ -223,7 +222,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="successText">
-                    {formatDecimals(savedInUsd, 'price')}
+                    {formatDecimals(savedInUsd, 'value')}
                   </Text>
                 </View>
                 <View style={styles.rightPartInnerWrapper}>
@@ -246,7 +245,7 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
                     />
                   </View>
                   <Text fontSize={14} appearance="primary">
-                    {formatDecimals(cashbackInUsd, 'price')}
+                    {formatDecimals(cashbackInUsd, 'value')}
                   </Text>
                 </View>
               </View>
@@ -339,20 +338,22 @@ const GasTankModal = ({ modalRef, handleClose, portfolio, account }: Props) => {
       <View style={styles.buttonWrapper}>
         <Button
           testID={
-            isSA ? 'top-up-gas-tank-modal-button' : 'create-smart-account-gas-tank-modal-button'
+            hasGasTank
+              ? 'top-up-gas-tank-modal-button'
+              : 'create-smart-account-gas-tank-modal-button'
           }
           type="primary"
-          text={isSA ? t('Top Up') : t('Ok, create a Smart Account')}
+          text={hasGasTank ? t('Top Up') : t('Ok, create a Smart Account')}
           size="large"
           hasBottomSpacing={false}
           textStyle={[spacings.prTy]}
           onPress={() =>
-            isSA
+            hasGasTank
               ? navigate('top-up-gas-tank')
               : navigate('account-select?triggerAddAccountBottomSheet=true')
           }
         >
-          {isSA && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
+          {hasGasTank && <TopUpIcon color="white" strokeWidth={1} width={20} height={20} />}
         </Button>
       </View>
     </BottomSheet>

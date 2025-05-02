@@ -1,19 +1,21 @@
 @import '@legends/styles/base.scss';
 
 .wrapper {
-  background-color: $tertiaryBackground;
+  background-color: $neutral-900;
   border-radius: 0.5rem;
-
   padding-top: 0.75rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 1rem 2rem;
+
   margin-top: 1rem;
+  border: .0625rem solid rgba($neutral-600, 0.2);
+
 
   .heading {
     .title {
-      font-weight: 500;
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 1.25rem;
+      color: $mainText;
     }
     &.nonExpandable {
       cursor: default;
@@ -36,7 +38,9 @@
     max-height: 0;
     overflow: hidden;
     transition: all 0.3s ease-in-out;
+    color: $secondaryText;
     &.open {
+      margin-top: .5rem;
       max-height: 32rem;
     }
   }

@@ -1,5 +1,6 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
+import { getRecordingName } from '../common-helpers/utils'
 import { clickOnElement } from '../common-helpers/clickOnElement'
 import { typeText } from '../common-helpers/typeText'
 import { selectUSDCTokenOnBase } from '../common-helpers/selectUSDCTokenOnBase'
@@ -66,10 +67,10 @@ export async function prepareTransaction(
   if (!shouldUseAddressBookRecipient) {
     await typeText(page, SELECTORS.addressEnsField, recipient)
     await page.waitForXPath(
-      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
 
-    // Check the checkbox "Confirm sending to a previously unknown address"
+    // Check the checkbox "Confirm sending to this address."
     await clickOnElement(page, SELECTORS.recipientAddressUnknownCheckbox)
 
     // Check the checkbox "I confirm this address is not a Binance wallets...."
@@ -396,7 +397,7 @@ export async function makeSwap(
   const actionWindowDapReqRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
     followNewTab: true
   })
-  await actionWindowDapReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+  await actionWindowDapReqRecorder.start(getRecordingName('action_window_dap_req'))
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
@@ -553,7 +554,7 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   const actionWindowDappReqRecorder = new PuppeteerScreenRecorder(newPage, {
     followNewTab: true
   })
-  await actionWindowDappReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+  await actionWindowDappReqRecorder.start(getRecordingName('action_window_dap_req'))
 
   await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
@@ -575,7 +576,7 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
   const actionWindowSignMsgRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
     followNewTab: true
   })
-  await actionWindowSignMsgRecorder.start(`./recorder/action_window_sign_msg_${Date.now()}.mp4`)
+  await actionWindowSignMsgRecorder.start(getRecordingName('action_window_sign_msg'))
 
   actionWindowPage.setDefaultTimeout(120000)
 

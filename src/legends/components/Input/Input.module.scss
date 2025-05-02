@@ -8,7 +8,7 @@
 .label,
 .input {
   font-family: $primaryFont;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .label {
@@ -18,18 +18,18 @@
   margin-bottom: 0.25rem;
 }
 .input {
-  height: 2.75rem;
-  padding: 0.75rem 1rem;
+  height: 3.4375rem;
+  padding: 1rem 2rem;
   font-size: 0.875rem;
   border: 1px solid $primaryBorder;
   border-radius: $primaryBorderRadius;
   color: $secondaryText;
-  background-color: $tertiaryBackground;
-  font-weight: 400;
+  background-color: $neutral-900;
+  font-weight: 300;
 
   &::placeholder {
     color: $tertiaryText;
-    font-weight: 300;
+    font-weight: 200;
   }
 
   &:focus::placeholder {

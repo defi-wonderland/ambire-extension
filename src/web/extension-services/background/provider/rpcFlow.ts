@@ -84,6 +84,8 @@ const flowContext = flow
                 { resolve, reject, session: request.session }
               )
             })
+          } else if (mainCtrl.actions.currentAction) {
+            await mainCtrl.actions.focusActionWindow()
           }
           await connectOrigins[origin]
 

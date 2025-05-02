@@ -39,4 +39,4 @@ const AccountBadges: FC<Props> = ({ accountData }) => {
   )
 }
 
-export default AccountBadges
+export default React.memo(AccountBadges)

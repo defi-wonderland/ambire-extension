@@ -11,6 +11,7 @@ interface Style {
 const getStyles = () =>
   StyleSheet.create<Style>({
     accountContainer: {
+      ...flexbox.flex1,
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...spacings.phTy,

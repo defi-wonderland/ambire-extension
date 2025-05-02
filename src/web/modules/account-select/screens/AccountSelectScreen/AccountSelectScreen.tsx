@@ -24,6 +24,7 @@ import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWr
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -50,14 +51,9 @@ const extractTriggerAddAccountSheetParam = (search: string | undefined): boolean
 const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
   const flatlistRef = useRef(null)
-  const {
-    accounts,
-    control,
-    onContentSizeChange,
-    keyExtractor,
-    getItemLayout,
-    isReadyToScrollToSelectedAccount
-  } = useAccountsList({ flatlistRef })
+  const { accounts, control, keyExtractor, getItemLayout, shouldDisplayAccounts } = useAccountsList(
+    { flatlistRef }
+  )
   const { search: routeParams } = useRoute()
   const { navigate } = useNavigation()
   const { account } = useSelectedAccountControllerState()
@@ -118,21 +114,20 @@ const AccountSelectScreen = () => {
           style={[
             styles.container,
             {
-              opacity: isReadyToScrollToSelectedAccount ? 1 : 0
+              opacity: shouldDisplayAccounts ? 1 : 0
             }
           ]}
           wrapperRef={flatlistRef}
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
-          onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
         <View style={[spacings.ptSm, { width: '100%' }]}>
           <Button
             testID="button-add-account"
-            text={t('Add Account')}
+            text={t('Add account')}
             type="secondary"
             hasBottomSpacing={false}
             onPress={openBottomSheet as any}
@@ -146,9 +141,11 @@ const AccountSelectScreen = () => {
       <BottomSheet
         id="account-select-add-account"
         sheetRef={sheetRef}
+        adjustToContentHeight={!getUiType().isPopup}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>
     </TabLayoutContainer>
   ) : (

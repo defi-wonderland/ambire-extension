@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Network } from '@ambire-common/interfaces/network'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
@@ -18,7 +19,6 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 
-import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
@@ -260,7 +260,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
             </View>
           )}
           {(!!pendingReceiveTokens.length || !!pendingReceiveCollection.length) && (
-            <View style={styles.simulationContainer}>
+            <View style={[styles.simulationContainer, spacings.mlTy]}>
               <View style={styles.simulationContainerHeader}>
                 <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
                   {t('Assets in')}

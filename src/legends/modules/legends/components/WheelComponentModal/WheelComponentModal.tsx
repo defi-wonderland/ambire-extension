@@ -20,8 +20,8 @@ import { checkTransactionStatus } from '@legends/modules/legends/helpers'
 
 import { humanizeError } from '../../utils/errors/humanizeError'
 import chainImage from './assets/chain.png'
-import mainImage from './assets/main.png'
 import pointerImage from './assets/pointer.png'
+import smokeAndLights from './assets/smoke-and-lights-background.png'
 import spinnerImage from './assets/spinner.png'
 import styles from './WheelComponentModal.module.scss'
 import WHEEL_PRIZE_DATA from './wheelData'
@@ -37,16 +37,19 @@ const POST_UNLOCK_STATES = ['unlocked', 'spinning', 'spun', 'error']
 
 const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClose }) => {
   const switchNetwork = useSwitchNetwork()
-  const [prizeNumber, setPrizeNumber] = useState<null | number>(null)
+  const [prizeNumber, setPrizeNumber] = useState<null | number>(30)
   const [wheelState, setWheelState] = useState<
     'locked' | 'unlocking' | 'unlocked' | 'spinning' | 'spun' | 'error'
   >('locked')
-  const { connectedAccount } = useAccountContext()
+
+  const { connectedAccount, v1Account } = useAccountContext()
+
   const { onLegendComplete } = useLegendsContext()
   const { addToast } = useToast()
   const { sendCalls, getCallsStatus } = useErc5792()
   const spinnerRef = React.useRef<HTMLImageElement>(null)
   const chainRef = React.useRef<HTMLImageElement>(null)
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
 
   const stopSpinnerTeaseAnimation = useCallback(() => {
     if (!spinnerRef.current) return
@@ -186,7 +189,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
       case 'unlocking':
         return 'Unlocking...'
       case 'unlocked':
-        return 'Spin the Wheel'
+        return 'Spin The Wheel'
       case 'error':
         return 'Close'
       case 'spinning':
@@ -195,7 +198,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
         if (!prizeNumber) return 'We are unable to retrieve your prize at the moment'
         return 'Close'
       default:
-        return 'Unlock the Wheel'
+        return 'Unlock The Wheel'
     }
   }, [wheelState, prizeNumber])
 
@@ -203,12 +206,13 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   return createPortal(
     <div className={styles.backdrop}>
-      <div
-        className={styles.wrapper}
-        style={{
-          backgroundImage: `url(${mainImage})`
-        }}
-      >
+      <div className={styles.wrapper}>
+        <div
+          className={styles.backgroundEffect}
+          style={{
+            backgroundImage: `url(${smokeAndLights})`
+          }}
+        />
         <div className={styles.content}>
           {wheelState === 'spun' ? (
             <ConfettiAnimation width={650} height={500} autoPlay loop className={styles.confetti} />
@@ -221,14 +225,14 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
           <img src={spinnerImage} alt="spinner" className={styles.spinner} ref={spinnerRef} />
           <img src={pointerImage} alt="pointer" className={styles.pointer} />
           <button
-            disabled={wheelState === 'spinning' || wheelState === 'unlocking'}
+            disabled={nonConnectedAcc || wheelState === 'spinning' || wheelState === 'unlocking'}
             type="button"
             className={`${styles.spinButton} ${
               POST_UNLOCK_STATES.includes(wheelState) ? styles.unlocked : ''
             }`}
             onClick={onButtonClick}
           >
-            {buttonLabel}
+            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
           </button>
         </div>
       </div>

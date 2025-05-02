@@ -36,7 +36,7 @@ const getStyles = (theme: ThemeProps) =>
       top: 0,
       left: 0,
       backgroundColor: theme.backdrop,
-      zIndex: 0
+      zIndex: 7
     },
     title: {
       ...spacings.pvTy,

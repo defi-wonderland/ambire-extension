@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
@@ -16,7 +17,7 @@ import Backdrop from './Backdrop'
 import getStyles from './styles'
 
 interface Props {
-  id: string
+  id?: string
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
@@ -35,6 +36,7 @@ interface Props {
   autoOpen?: boolean
   shouldBeClosableOnDrag?: boolean
   customZIndex?: number
+  isScrollEnabled?: boolean
   withBackdropBlur?: boolean
 }
 
@@ -43,8 +45,7 @@ const ANIMATION_DURATION: number = 250
 const { isPopup } = getUiType()
 
 const BottomSheet: React.FC<Props> = ({
-  // Unique identifier for the bottom sheet
-  id,
+  id: _id,
   type: _type,
   sheetRef,
   children,
@@ -62,7 +63,8 @@ const BottomSheet: React.FC<Props> = ({
   autoOpen = false,
   shouldBeClosableOnDrag = true,
   withBackdropBlur,
-  customZIndex
+  customZIndex,
+  isScrollEnabled = true
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
@@ -71,6 +73,9 @@ const BottomSheet: React.FC<Props> = ({
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
   const { isScrollable, checkIsScrollable, scrollViewRef } = useIsScrollable()
+
+  // Ensures ID is unique per component to avoid duplicates when multiple bottom sheets are rendered
+  const id = useMemo(() => `${_id || 'bottom-sheet'}-${nanoid(6)}`, [_id])
 
   const autoOpened: React.MutableRefObject<boolean> = useRef(false)
   const setRef = useCallback(
@@ -125,105 +130,116 @@ const BottomSheet: React.FC<Props> = ({
 
   return (
     <Portal hostName="global">
-      {!!isBackdropVisible && (
-        <Backdrop
-          isVisible={isBackdropVisible}
-          isBottomSheetVisible={isOpen}
-          customZIndex={customZIndex ? customZIndex - 1 : undefined}
-          onPress={() => {
-            closeBottomSheet()
-            !!onBackdropPress && onBackdropPress()
-          }}
-          withBlur={withBackdropBlur}
-        />
-      )}
-      <Modalize
-        // The key is used to force the re-render of the component when there is an opened
-        // bottom sheet and the user navigates to a route that also has a bottom sheet. Without
-        // this key or without a unique key, the bottom sheet will not close when navigating
-        key={id}
-        ref={setRef}
-        contentRef={scrollViewRef}
-        modalStyle={[
-          styles.bottomSheet,
-          isModal
-            ? { ...styles.modal, ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {}) }
-            : {},
-          { backgroundColor: theme[backgroundColor] },
-          isPopup && isModal ? { height: '100%' } : {},
-          style
-        ]}
-        rootStyle={[
-          styles.root,
-          isPopup && isModal ? spacings.phSm : {},
-          {
-            zIndex: customZIndex || styles.root.zIndex
-          }
-        ]}
-        handleStyle={[
-          styles.dragger,
-          isModal
-            ? {
-                display: 'none'
-              }
-            : {}
-        ]}
-        handlePosition="inside"
-        useNativeDriver={!isWeb}
-        avoidKeyboardLikeIOS
-        modalTopOffset={modalTopOffset}
-        threshold={90}
-        adjustToContentHeight={adjustToContentHeight}
-        disableScrollIfPossible={false}
-        withOverlay={false}
-        onBackButtonPress={() => true}
-        panGestureEnabled={shouldBeClosableOnDrag}
-        {...(!flatListProps
-          ? {
-              scrollViewProps: {
-                bounces: false,
-                keyboardShouldPersistTaps: 'handled',
-                ...(scrollViewProps || {})
-              }
-            }
-          : {})}
-        {...(flatListProps
-          ? {
-              flatListProps: {
-                bounces: false,
-                keyboardShouldPersistTaps: 'handled',
-                ...(flatListProps || {})
-              }
-            }
-          : {})}
-        openAnimationConfig={{
-          timing: { duration: ANIMATION_DURATION, delay: 0 }
-        }}
-        closeAnimationConfig={{
-          timing: { duration: ANIMATION_DURATION, delay: 0 }
-        }}
-        onLayout={checkIsScrollable}
-        onOpen={() => {
-          setIsOpen(true)
-          setIsBackdropVisible(true)
-          !!onOpen && onOpen()
-        }}
-        onClose={() => setIsOpen(false)}
-        onClosed={() => !!onClosed && onClosed()}
-      >
-        {!flatListProps && (
-          <View
-            testID={isOpen ? 'bottom-sheet' : undefined}
-            style={[
-              isScrollable ? spacings.prTy : {},
-              common.fullWidth,
-              containerInnerWrapperStyles
-            ]}
-          >
-            {children}
-          </View>
+      {/* Wrapping the content in a View with a stable `key` prevents Portal */}
+      {/* from losing track of its subtree during React reconciliation and re-renders. */}
+      {/* Without this, the backdrop stays, but Modalize could disappear */}
+      {/* without even triggering `onClose` or (this) component unmount */}
+      <View key={`portal-host-${id}`} style={styles.portalHost}>
+        {!!isBackdropVisible && (
+          <Backdrop
+            isVisible={isBackdropVisible}
+            isBottomSheetVisible={isOpen}
+            customZIndex={customZIndex ? customZIndex - 1 : undefined}
+            onPress={() => {
+              closeBottomSheet()
+              !!onBackdropPress && onBackdropPress()
+            }}
+            withBlur={withBackdropBlur}
+          />
         )}
-      </Modalize>
+        <Modalize
+          // The key is used to force the re-render of the component when there is an opened
+          // bottom sheet and the user navigates to a route that also has a bottom sheet. Without
+          // this key or without a unique key, the bottom sheet will not close when navigating
+          key={id}
+          ref={setRef}
+          contentRef={scrollViewRef}
+          modalStyle={[
+            styles.bottomSheet,
+            isModal
+              ? { ...styles.modal, ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {}) }
+              : {},
+            { backgroundColor: theme[backgroundColor] },
+            isPopup && isModal ? { height: '100%' } : {},
+            style
+          ]}
+          rootStyle={[
+            styles.root,
+            isPopup && isModal ? spacings.phSm : {},
+            {
+              zIndex: customZIndex || styles.root.zIndex
+            }
+          ]}
+          handleStyle={[
+            styles.dragger,
+            isModal
+              ? {
+                  display: 'none'
+                }
+              : {}
+          ]}
+          handlePosition="inside"
+          useNativeDriver={!isWeb}
+          avoidKeyboardLikeIOS
+          modalTopOffset={modalTopOffset}
+          threshold={90}
+          adjustToContentHeight={adjustToContentHeight}
+          disableScrollIfPossible={false}
+          withOverlay={false}
+          onBackButtonPress={() => true}
+          panGestureEnabled={shouldBeClosableOnDrag}
+          {...(!flatListProps
+            ? {
+                scrollViewProps: {
+                  bounces: false,
+                  keyboardShouldPersistTaps: 'handled',
+                  ...(!isScrollEnabled && {
+                    scrollEnabled: false,
+                    nestedScrollEnabled: true,
+                    contentContainerStyle: { flex: 1 }
+                  }),
+                  ...(scrollViewProps || {})
+                }
+              }
+            : {})}
+          {...(flatListProps
+            ? {
+                flatListProps: {
+                  bounces: false,
+                  keyboardShouldPersistTaps: 'handled',
+                  ...(flatListProps || {})
+                }
+              }
+            : {})}
+          openAnimationConfig={{
+            timing: { duration: ANIMATION_DURATION, delay: 0 }
+          }}
+          closeAnimationConfig={{
+            timing: { duration: ANIMATION_DURATION, delay: 0 }
+          }}
+          onLayout={checkIsScrollable}
+          onOpen={() => {
+            setIsOpen(true)
+            setIsBackdropVisible(true)
+            !!onOpen && onOpen()
+          }}
+          onClose={() => setIsOpen(false)}
+          onClosed={() => !!onClosed && onClosed()}
+        >
+          {!flatListProps && (
+            <View
+              testID={isOpen ? 'bottom-sheet' : undefined}
+              style={[
+                isScrollEnabled && isScrollable ? spacings.prTy : {},
+                common.fullWidth,
+                containerInnerWrapperStyles
+              ]}
+            >
+              {children}
+            </View>
+          )}
+        </Modalize>
+      </View>
     </Portal>
   )
 }

@@ -27,8 +27,9 @@ const Feedback = () => {
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const { onComplete, handleClose } = useCardActionContext()
   const { addToast } = useToast()
-  const { connectedAccount } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
+  const { connectedAccount, v1Account } = useAccountContext()
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const openForm = useCallback(() => {
     if (!connectedAccount) return addToast('No account connected')
@@ -102,8 +103,14 @@ const Feedback = () => {
       onButtonClick={onButtonClick}
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={isFeedbackFormOpen && !surveyCode}
-      buttonText={isFeedbackFormOpen ? 'Claim xp' : 'Open feedback form'}
+      disabled={disabledButton || (isFeedbackFormOpen && !surveyCode)}
+      buttonText={
+        disabledButton
+          ? 'Switch to a smart account to unlock Rewards quests'
+          : isFeedbackFormOpen
+          ? 'Claim xp'
+          : 'Open feedback form'
+      }
     >
       <div className={styles.wrapper}>
         {isFeedbackFormOpen && (

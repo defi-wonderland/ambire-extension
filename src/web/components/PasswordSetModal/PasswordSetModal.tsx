@@ -30,11 +30,11 @@ const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
       style={{ paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
     >
       <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
-        {t('Device Password')}
+        {t('Extension password')}
       </Text>
       <KeyStoreLogo width={112} height={112} style={[flexbox.alignSelfCenter, spacings.mbXl]} />
       <Text fontSize={16} style={[spacings.mb2Xl, text.center]}>
-        {t('Your Device Password is set!')}
+        {t('Your extension password is set!')}
       </Text>
       <Button
         text={t('Continue')}

@@ -79,7 +79,8 @@ const useBenzin = ({ onOpenExplorer, extensionAccOp }: Props = {}) => {
     setActiveStep,
     provider,
     bundler: userOpBundler,
-    extensionAccOp
+    extensionAccOp,
+    networks: actualNetworks
   })
 
   const identifiedBy: AccountOpIdentifiedBy = useMemo(() => {

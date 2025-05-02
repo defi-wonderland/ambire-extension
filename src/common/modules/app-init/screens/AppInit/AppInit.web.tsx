@@ -17,9 +17,10 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
+import { OnboardingNavigationProvider } from '@common/modules/auth/contexts/onboardingNavigationContext'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
-import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
+import { AccountPickerControllerStateProvider } from '@web/contexts/accountPickerControllerStateContext'
 import { AccountsControllerStateProvider } from '@web/contexts/accountsControllerStateContext'
 import { ActionsControllerStateProvider } from '@web/contexts/actionsControllerStateContext'
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
@@ -69,7 +70,7 @@ const AppInit = () => {
                                 <FeatureFlagsControllerStateProvider>
                                   <InviteControllerStateProvider>
                                     <WalletStateControllerProvider>
-                                      <AccountAdderControllerStateProvider>
+                                      <AccountPickerControllerStateProvider>
                                         <KeystoreControllerStateProvider>
                                           <SignMessageControllerStateProvider>
                                             <ActivityControllerStateProvider>
@@ -87,12 +88,14 @@ const AppInit = () => {
                                                                     <KeyboardProvider>
                                                                       <NetInfoProvider>
                                                                         <AuthProvider>
-                                                                          <BiometricsProvider>
-                                                                            <PrivateModeProvider>
-                                                                              <AppRouter />
-                                                                            </PrivateModeProvider>
-                                                                            <PortalHost name="global" />
-                                                                          </BiometricsProvider>
+                                                                          <OnboardingNavigationProvider>
+                                                                            <BiometricsProvider>
+                                                                              <PrivateModeProvider>
+                                                                                <AppRouter />
+                                                                              </PrivateModeProvider>
+                                                                              <PortalHost name="global" />
+                                                                            </BiometricsProvider>
+                                                                          </OnboardingNavigationProvider>
                                                                         </AuthProvider>
                                                                       </NetInfoProvider>
                                                                     </KeyboardProvider>
@@ -110,7 +113,7 @@ const AppInit = () => {
                                             </ActivityControllerStateProvider>
                                           </SignMessageControllerStateProvider>
                                         </KeystoreControllerStateProvider>
-                                      </AccountAdderControllerStateProvider>
+                                      </AccountPickerControllerStateProvider>
                                     </WalletStateControllerProvider>
                                   </InviteControllerStateProvider>
                                 </FeatureFlagsControllerStateProvider>

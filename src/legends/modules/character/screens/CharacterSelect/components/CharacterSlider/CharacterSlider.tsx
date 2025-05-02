@@ -4,11 +4,11 @@ import 'swiper/css/virtual'
 import 'swiper/css/effect-coverflow'
 import 'swiper/css/free-mode'
 
-import React, { useRef, useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { CHARACTERS, Character } from '../../constants/characters'
 
+import { Character, CHARACTERS } from '../../constants/characters'
 import styles from './CharacterSlider.module.scss'
 import Left from './Left'
 import Right from './Right'
@@ -90,6 +90,7 @@ const CharacterSlider = ({
           {characters.map((character, index) => (
             <SwiperSlide className={`${styles.slide} ${getClass(index)}`} key={character.reactKey}>
               <img src={character.image} alt={character.name} className={styles.image} />
+              <span className={styles.extraBorder} />
             </SwiperSlide>
           ))}
         </Swiper>

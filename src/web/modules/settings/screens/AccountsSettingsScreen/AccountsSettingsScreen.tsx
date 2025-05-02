@@ -16,13 +16,14 @@ import flexbox from '@common/styles/utils/flexbox'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+import { getUiType } from '@web/utils/uiType'
 
 import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { accounts, control, onContentSizeChange, keyExtractor, getItemLayout } = useAccountsList()
+  const { accounts, control, keyExtractor, getItemLayout } = useAccountsList()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
@@ -58,6 +59,7 @@ const AccountsSettingsScreen = () => {
           account={account}
           maxAccountAddrLength={shortenAccountAddr()}
           showExportImport
+          isSelectable={false}
           openAddAccountBottomSheet={openBottomSheet}
         />
       )
@@ -77,7 +79,6 @@ const AccountsSettingsScreen = () => {
           data={accounts}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
-          onContentSizeChange={onContentSizeChange}
           keyExtractor={keyExtractor}
           ListEmptyComponent={<Text>{t('No accounts found')}</Text>}
         />
@@ -85,15 +86,17 @@ const AccountsSettingsScreen = () => {
       <Button
         type="secondary"
         onPress={openBottomSheet as any}
-        text="Add account"
+        text="+ Add account"
         hasBottomSpacing={false}
       />
       <BottomSheet
         id="account-settings-add-account"
         sheetRef={sheetRef}
+        adjustToContentHeight={!getUiType().isPopup}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeBottomSheet as any} />
       </BottomSheet>
     </>
   )

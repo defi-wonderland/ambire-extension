@@ -73,6 +73,8 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
           }
           return
         }
+        if (!routeItem.route) return
+
         navigate(routeItem.route)
       }}
       {...bindAccountBtnAnim}

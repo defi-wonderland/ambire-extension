@@ -95,7 +95,12 @@ const handleProviderRequests = async (
   }
 
   if (method === 'open-wallet-route') {
-    const ORIGINS_WHITELIST = ['https://legends.ambire.com', 'https://legends-staging.ambire.com']
+    const ORIGINS_WHITELIST = [
+      'https://legends.ambire.com',
+      'https://rewards.ambire.com',
+      'https://legends-staging.ambire.com',
+      'https://rewards-staging.ambire.com'
+    ]
 
     if (isDev) {
       ORIGINS_WHITELIST.push('http://localhost:19006')

@@ -102,7 +102,6 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
             userOpHash={userOpHash}
             stepsState={stepsState}
             summary={summary}
-            chainId={network.chainId}
           />
           {!isRenderedInternally && (
             <Buttons

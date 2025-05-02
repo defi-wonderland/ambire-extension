@@ -46,9 +46,7 @@ const SavedSeedScreen = () => {
 
   const onPasswordConfirmed = () => {
     setPasswordConfirmed(true)
-    dispatch({
-      type: 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL'
-    })
+    dispatch({ type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI' })
   }
 
   useEffect(() => {
@@ -122,7 +120,7 @@ const SavedSeedScreen = () => {
       {!passwordConfirmed && (
         <PasswordConfirmation
           onPasswordConfirmed={onPasswordConfirmed}
-          text={t('Please enter your device password to view your seed')}
+          text={t('Please enter your extension password to view your seed')}
         />
       )}
       {passwordConfirmed && (

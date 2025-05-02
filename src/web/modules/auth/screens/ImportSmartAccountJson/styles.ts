@@ -13,31 +13,32 @@ interface Styles {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     dropAreaContainer: {
-      width: '100%',
-      height: '100%',
-      ...flexbox.justifySpaceBetween,
-      backgroundColor: theme.secondaryBackground,
       ...common.borderRadiusPrimary,
-      ...spacings.ph,
-      ...spacings.pv,
-      ...common.shadowPrimary,
       borderWidth: 1,
-      borderColor: theme.featureBackground,
+      borderColor: theme.tertiaryBackground,
+      ...spacings.phMi,
+      ...spacings.pvMi,
+      shadowColor: '#767DAD29',
+      shadowOpacity: 1,
+      shadowOffset: {
+        width: 0,
+        height: 3
+      },
+      shadowRadius: 6,
       // @ts-ignore
       cursor: 'pointer',
-      ...spacings.mbMd
+      ...flexbox.flex1,
+      ...spacings.mbLg
     },
     dropArea: {
       borderRadius: BORDER_RADIUS_PRIMARY,
-      width: '100%',
-      minHeight: 186,
+      ...flexbox.flex1,
       borderWidth: 1,
       borderStyle: 'dashed',
-      borderColor: theme.primary,
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      ...spacings.ptLg,
-      ...spacings.pb
+      borderColor: theme.tertiaryBackground,
+      ...flexbox.alignCenter,
+      ...flexbox.justifyCenter,
+      ...spacings.phTy
     }
   })
 

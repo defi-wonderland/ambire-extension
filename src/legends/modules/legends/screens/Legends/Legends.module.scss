@@ -1,9 +1,32 @@
 @import '@legends/styles/base.scss';
 
+
+.group {
+  margin-bottom: 2.75rem;
+}
+.groupName {
+  color: $secondaryText;
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+}
 .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: 1500px) {
+    grid-template-columns: repeat(3, min-content);
+  }
+
+  @media (max-width: 1130px) {
+    grid-template-columns: repeat(2, min-content);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+
 }
 .spinnerContainer {
   padding-top: 3rem;

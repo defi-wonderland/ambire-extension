@@ -1,9 +1,16 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { Path } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
+import { LegendsSvgProps } from '@legends/types/svg'
 
-const LeftArrowIcon: React.FC<SvgProps> = ({
+interface Props extends LegendsSvgProps {
+  width?: number
+  height?: number
+  weight?: string
+}
+
+const LeftArrowIcon: React.FC<Props> = ({
   width = 8,
   height = 15,
   color = iconColors.primary,

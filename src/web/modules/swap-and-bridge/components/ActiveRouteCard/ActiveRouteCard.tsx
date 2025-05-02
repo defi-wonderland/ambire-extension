@@ -4,7 +4,6 @@ import { Pressable, View } from 'react-native'
 
 import { SwapAndBridgeActiveRoute } from '@ambire-common/interfaces/swapAndBridge'
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import Button, { Props as ButtonProps } from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -13,7 +12,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 
 import getStyles from './styles'
@@ -22,7 +20,6 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { statuses } = useMainControllerState()
 
   const activeTransaction = useMemo(() => {
     const isInProgress = activeRoute.routeStatus === 'in-progress'
@@ -46,46 +43,6 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
     })
   }, [activeRoute.activeRouteId, dispatch])
 
-  const handleProceedToNextStep = useCallback(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST',
-      params: { activeRouteId: activeRoute.activeRouteId }
-    })
-  }, [activeRoute.activeRouteId, dispatch])
-
-  const rejectBtn = useMemo<{ text: string; type: ButtonProps['type'] }>(() => {
-    // You can't really cancel ongoing txn, only closing it (it might got stuck)
-    if (
-      activeRoute.routeStatus === 'in-progress' ||
-      activeRoute.routeStatus === 'waiting-approval-to-resolve'
-    )
-      return { text: t('Close'), type: 'ghost' }
-
-    // In all other scenarios, you can cancel the process
-    return { text: t('Cancel'), type: 'danger' }
-  }, [activeRoute.routeStatus, t])
-
-  const proceedBtnText = useMemo(() => {
-    if (statuses.buildSwapAndBridgeUserRequest !== 'INITIAL') return t('Building Transaction...')
-
-    const isFirstTxn = activeRoute.route?.currentUserTxIndex === 0
-    if (
-      isFirstTxn &&
-      activeRoute.routeStatus !== 'in-progress' &&
-      activeRoute.routeStatus !== 'waiting-approval-to-resolve'
-    )
-      return t('Proceed')
-
-    if (activeRoute.routeStatus === 'in-progress') return t('Pending...')
-
-    return t('Proceed to Next Step')
-  }, [
-    activeRoute.route?.currentUserTxIndex,
-    activeRoute.routeStatus,
-    statuses.buildSwapAndBridgeUserRequest,
-    t
-  ])
-
   const getPanelContainerStyle = useCallback(() => {
     let panelStyles = {}
     if (activeRoute.error)
@@ -105,7 +62,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
   }, [activeRoute.error, activeRoute.routeStatus, theme])
 
   return (
-    <Panel forceContainerSmallSpacings style={getPanelContainerStyle()}>
+    <Panel spacingsSize="small" style={getPanelContainerStyle()}>
       {activeRoute.routeStatus === 'completed' && (
         <Pressable style={styles.closeIcon} onPress={handleRejectActiveRoute}>
           <CloseIcon />
@@ -198,32 +155,6 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
             >
               {activeRoute.error}
             </Text>
-          )}
-          <Button
-            text={rejectBtn.text}
-            onPress={handleRejectActiveRoute}
-            type={rejectBtn.type}
-            size="small"
-            style={
-              activeRoute.routeStatus !== 'failed'
-                ? { height: 40, ...spacings.mrTy }
-                : { height: 40 }
-            }
-            hasBottomSpacing={false}
-            disabled={statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'}
-          />
-          {activeRoute.routeStatus !== 'failed' && (
-            <Button
-              text={proceedBtnText}
-              onPress={handleProceedToNextStep}
-              size="small"
-              style={{ height: 40 }}
-              hasBottomSpacing={false}
-              disabled={
-                activeRoute.routeStatus !== 'ready' ||
-                statuses.buildSwapAndBridgeUserRequest !== 'INITIAL'
-              }
-            />
           )}
         </View>
       )}

@@ -17,7 +17,7 @@ const calculateTokenBalance = (token: GasTankTokenResult, type: keyof GasTankTok
 export const calculateGasTankBalance = (
   portfolio: SelectedAccountPortfolio,
   account: Account | null,
-  isSA: boolean,
+  hasGasTank: boolean,
   key: 'usd' | 'cashback' | 'saved'
 ) => {
   const gasTankResult = portfolio?.latest?.gasTank?.result
@@ -28,7 +28,7 @@ export const calculateGasTankBalance = (
     !('gasTankTokens' in gasTankResult) ||
     !Array.isArray(gasTankResult.gasTankTokens) ||
     gasTankResult.gasTankTokens.length === 0 ||
-    !isSA
+    !hasGasTank
   ) {
     return 0
   }

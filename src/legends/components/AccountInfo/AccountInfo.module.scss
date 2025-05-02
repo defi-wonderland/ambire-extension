@@ -1,0 +1,63 @@
+@import '@legends/styles/base.scss';
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  cursor: default;
+  padding: 0.5rem 1rem;
+
+  .avatarWrapper {
+    width: 3rem;
+    height: 3rem;
+    border-radius: $primaryBorderRadius;
+    background-color: $secondaryBackground;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: $primaryBorderRadius;
+    }
+  }
+  .account {
+    transition: 0.2s opacity ease-in-out;
+    margin-right: 1rem;
+
+    .accountAndArrowWrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.125rem;
+
+
+      .disconnectIcon {
+        cursor: pointer;
+      }
+
+      .infoIcon {
+        cursor: pointer;
+        vertical-align: top;
+      }
+    }
+
+    .address {
+      text-align: left;
+      font-family: $primaryFont;
+      color: $whiteText;
+      font-size: 1.25rem;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+    .addressSkeleton {
+      height: 19.6px;
+      width: 5.25rem;
+    }
+    .levelAndRank {
+      text-align: left;
+      font-size: 0.8125rem;
+      color: $neutral-400;
+      font-weight: 400;
+    }
+  }
+}

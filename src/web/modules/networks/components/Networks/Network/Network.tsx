@@ -111,7 +111,7 @@ const Network: FC<Props> = ({ chainId, openBlockExplorer, openSettingsBottomShee
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
         <Text fontSize={dashboardNetworkFilter === chainId ? 20 : 16} weight="semiBold">
-          {`$${formatDecimals(Number(networkBalance?.usd || 0))}` || '$-'}
+          {`${formatDecimals(Number(networkBalance?.usd || 0), 'value')}` || '$-'}
         </Text>
         {!isInternalNetwork && (
           <Pressable

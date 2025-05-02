@@ -15,7 +15,6 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...spacings.phTy,
       ...spacings.pvTy,
-      ...spacings.mbTy,
       ...common.borderRadiusPrimary,
       backgroundColor: theme.primaryBackground,
       borderWidth: 1

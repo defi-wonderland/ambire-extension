@@ -289,7 +289,7 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker, extensi
   expect(isKeyStoreUidKeyPresent).toBe(true)
 
   // Wait until create seed phrase loaded
-  await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/prepare'))
+  await page.waitForFunction(() => window.location.href.includes('/create-new-recovery-phrase'))
 
   // Check all the checkboxes
   await clickOnElement(page, buildSelector(TEST_IDS.createSeedPrepareCheckboxDyn, 0))
@@ -302,7 +302,7 @@ export async function createHotWalletWithSeedPhrase(page, serviceWorker, extensi
   })
   // Click on "Review seed phrase" button
   await clickOnElement(page, SELECTORS.reviewSeedPhraseBtn)
-  await page.waitForFunction(() => window.location.href.includes('/create-seed-phrase/write'))
+  await page.waitForFunction(() => window.location.href.includes('/backup-recovery-phrase'))
 
   // Get seed values from all the input fields
   const storedSeed = await getInputValuesFromFields(page)

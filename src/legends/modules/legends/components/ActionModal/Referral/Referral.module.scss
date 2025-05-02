@@ -1,7 +1,7 @@
 @import '@legends/styles/base.scss';
 
 .link {
-  color: $success;
+  color: $accent;
   text-decoration: none;
   cursor: pointer;
   &:hover {
@@ -13,14 +13,16 @@
   font-size: 1rem;
 }
 .copyField {
-  background-color: $primaryBackground;
-  border: 1px solid $primaryBorder;
+  background-color: $charcoal;
+  border: .0625rem solid $primaryBorder;
   border-radius: 0.5rem;
   padding: 0.5rem;
+  font-size: 0.8rem;
 }
 
 .copyIcon {
   cursor: pointer;
+  color: $whiteText;
 }
 
 .copyHeader {
@@ -37,7 +39,7 @@
 }
 
 .boldText {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 @include breakpoint-down-from(medium-desktop) {

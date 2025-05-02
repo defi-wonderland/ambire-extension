@@ -16,7 +16,7 @@ const GeneralSettingsScreen = () => {
 
   return (
     <>
-      <SettingsPageHeader title="General Settings" />
+      <SettingsPageHeader title="General settings" />
       <View>
         <LockAmbireControlOption />
         <AutoLockDeviceControlOption />

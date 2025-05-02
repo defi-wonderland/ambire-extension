@@ -18,7 +18,6 @@ import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
 import CongratsFirstCashbackModal from '../components/DashboardOverview/CongratsFirstCashbackModal'
 import DashboardPages from '../components/DashboardPages'
-import PinExtension from '../components/PinExtension'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
@@ -131,7 +130,6 @@ const DashboardScreen = () => {
         </View>
         <DAppFooter />
       </View>
-      <PinExtension />
       {hasUnseenFirstCashback && (
         <CongratsFirstCashbackModal
           onPress={handleCongratsModalBtnPressed}

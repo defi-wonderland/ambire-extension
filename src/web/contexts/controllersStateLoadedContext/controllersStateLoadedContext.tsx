@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
@@ -38,7 +38,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
   const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
   const { dispatch } = useBackgroundService()
-  const accountAdderState = useAccountAdderControllerState()
+  const accountPickerState = useAccountPickerControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
   const networksState = useNetworksControllerState()
@@ -84,9 +84,9 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
     [walletState]
   )
-  const hasAccountAdderState: boolean = useMemo(
-    () => !!Object.keys(accountAdderState).length,
-    [accountAdderState]
+  const hasAccountPickerState: boolean = useMemo(
+    () => !!Object.keys(accountPickerState).length,
+    [accountPickerState]
   )
   const hasKeystoreState: boolean = useMemo(
     () => !!Object.keys(keystoreState).length,
@@ -157,7 +157,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasAccountsState &&
       hasSelectedAccountState &&
       hasWalletState &&
-      hasAccountAdderState &&
+      hasAccountPickerState &&
       hasKeystoreState &&
       hasSignMessageState &&
       hasActionsState &&
@@ -186,7 +186,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasAccountsState,
     hasSelectedAccountState,
     hasWalletState,
-    hasAccountAdderState,
+    hasAccountPickerState,
     hasKeystoreState,
     hasSignMessageState,
     hasActionsState,

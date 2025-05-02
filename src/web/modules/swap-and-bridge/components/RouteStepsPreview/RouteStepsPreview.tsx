@@ -3,13 +3,15 @@ import React, { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SocketAPIStep } from '@ambire-common/interfaces/swapAndBridge'
+import { SwapAndBridgeStep } from '@ambire-common/interfaces/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 
@@ -22,14 +24,19 @@ const RouteStepsPreview = ({
   totalGasFeesInUsd,
   estimationInSeconds,
   currentStep = 0,
-  loadingEnabled
+  loadingEnabled,
+  isSelected,
+  isDisabled
 }: {
-  steps: SocketAPIStep[]
+  steps: SwapAndBridgeStep[]
   totalGasFeesInUsd?: number
   estimationInSeconds?: number
   currentStep?: number
   loadingEnabled?: boolean
+  isSelected?: boolean
+  isDisabled?: boolean
 }) => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
 
   const shouldWarnForLongEstimation = useMemo(() => {
@@ -59,7 +66,7 @@ const RouteStepsPreview = ({
 
     const toAmount = `${formatDecimals(
       Number(formatUnits(toStep.toAmount, toStep.toAsset.decimals)),
-      'precise'
+      'amount'
     )}`
 
     if (toAmount.length > 10) {
@@ -70,7 +77,7 @@ const RouteStepsPreview = ({
   }, [steps])
 
   return (
-    <View style={flexbox.flex1}>
+    <View style={[flexbox.flex1, common.fullWidth]}>
       <View style={[styles.container, spacings.mb]}>
         {steps.map((step, i) => {
           const isFirst = i === 0
@@ -171,38 +178,48 @@ const RouteStepsPreview = ({
         })}
       </View>
       {(!!totalGasFeesInUsd || !!estimationInSeconds) && (
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Text fontSize={12} weight="medium">
-            {t('Total gas fees: {{fees}}', {
-              fees: formatDecimals(totalGasFeesInUsd, 'value')
-            })}
-          </Text>
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
           {!!estimationInSeconds && (
-            <>
-              <Text fontSize={12} weight="medium" appearance="secondaryText">
-                {'  |  '}
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              {!!shouldWarnForLongEstimation && (
+                <WarningIcon
+                  color={iconColors.warning}
+                  width={14}
+                  height={14}
+                  style={spacings.mrMi}
+                  strokeWidth={2.2}
+                />
+              )}
+              <Text
+                fontSize={12}
+                weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
+                appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
+              >
+                {t('Estimation: around {{time}}', {
+                  time: formatTime(estimationInSeconds)
+                })}
               </Text>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                {!!shouldWarnForLongEstimation && (
-                  <WarningIcon
-                    color={iconColors.warning}
-                    width={14}
-                    height={14}
-                    style={spacings.mrMi}
-                    strokeWidth={2.2}
-                  />
-                )}
-                <Text
-                  fontSize={12}
-                  weight={shouldWarnForLongEstimation ? 'semiBold' : 'medium'}
-                  appearance={shouldWarnForLongEstimation ? 'warningText' : 'primaryText'}
-                >
-                  {t('Estimation: around {{time}}', {
-                    time: formatTime(estimationInSeconds)
-                  })}
-                </Text>
-              </View>
-            </>
+            </View>
+          )}
+
+          {(isSelected || isDisabled) && (
+            <Text
+              fontSize={12}
+              weight="medium"
+              appearance={!isDisabled ? 'primary' : 'warningText'}
+              style={[
+                spacings.phTy,
+                {
+                  paddingVertical: 1,
+                  backgroundColor: !isDisabled ? '#6000FF14' : theme.warningBackground,
+                  borderRadius: 12
+                }
+              ]}
+            >
+              {isSelected && isDisabled && t('Route failed. Please select another')}
+              {isSelected && !isDisabled && t('Selected')}
+              {!isSelected && isDisabled && t('Failed')}
+            </Text>
           )}
         </View>
       )}

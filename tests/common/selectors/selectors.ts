@@ -1,3 +1,5 @@
+import { Settings } from 'react-native'
+
 import { buildSelector } from '../../common-helpers/buildSelector'
 
 export const TEST_IDS = {
@@ -68,6 +70,7 @@ export const TEST_IDS = {
   addressBookMyWalletContactDyn: 'address-book-my-wallet-contact',
   dashboardButtonSend: 'dashboard-button-send',
   dashboardButtonSwapAndBridge: 'dashboard-button-swap-and-bridge',
+  dashboardHumburgerBtn: 'dashboard-hamburger-btn',
   continueAnywayCheckboxSaB: 'checkbox',
   amountField: 'amount-field',
   recipientAddressUnknownCheckbox: 'recipient-address-unknown-checkbox',
@@ -112,7 +115,12 @@ export const TEST_IDS = {
   switchCurrencySab: 'switch-currency-sab',
   routePrioritySab: 'route-priority-sab',
   highPriceImpactSab: 'high-price-impact-sab',
-  signButtonSab: 'button-sign'
+  signButtonSab: 'button-sign',
+  processButtonSab: 'proceed-btn',
+  settingsAddNetworkManually: 'add-network-manually',
+  settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
+  removeNetworkButton: 'remove-network-btn',
+  removeNetworkConfirmButton: 'remove-network-confirm-btn'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

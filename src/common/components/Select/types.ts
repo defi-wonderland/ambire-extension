@@ -16,13 +16,17 @@ export type RenderSelectedOptionParams = {
 }
 
 export type CommonSelectProps = {
+  id?: string
   value?: SelectValue | null
   setValue?: (value: SelectValue) => void
   handleSearch?: (search: string) => void
   defaultValue?: {}
   placeholder?: string
   label?: string | ReactNode
+  bottomSheetTitle?: string
   size?: 'sm' | 'md'
+  mode?: 'select' | 'bottomSheet'
+  menuPosition?: 'top' | 'bottom'
   containerStyle?: ViewStyle
   selectStyle?: ViewStyle
   labelStyle?: TextStyle

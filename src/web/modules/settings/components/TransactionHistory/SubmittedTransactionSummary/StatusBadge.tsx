@@ -23,8 +23,8 @@ const StatusBadge: FC<Props> = ({ status, textSize }) => {
 
     case AccountOpStatus.BroadcastButStuck:
       return (
-        <View style={spacings.mrTy}>
-          <Text fontSize={textSize} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+        <View style={spacings.mrMd}>
+          <Text fontSize={textSize} appearance="errorText" weight="semiBold">
             {maxWidthSize(1000)
               ? t('Dropped or stuck in mempool with fee too low')
               : t('Dropped or stuck in\nmempool with fee too low')}
@@ -34,8 +34,8 @@ const StatusBadge: FC<Props> = ({ status, textSize }) => {
 
     case AccountOpStatus.UnknownButPastNonce:
       return (
-        <View style={spacings.mrTy}>
-          <Text fontSize={textSize} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+        <View style={spacings.mrMd}>
+          <Text fontSize={textSize} appearance="errorText" weight="semiBold">
             {t('Replaced by fee (RBF)')}
           </Text>
         </View>
@@ -43,8 +43,8 @@ const StatusBadge: FC<Props> = ({ status, textSize }) => {
 
     case AccountOpStatus.Rejected:
       return (
-        <View style={spacings.mrTy}>
-          <Text fontSize={textSize} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+        <View style={spacings.mrMd}>
+          <Text fontSize={textSize} appearance="errorText" weight="semiBold">
             {t('Failed to send')}
           </Text>
         </View>

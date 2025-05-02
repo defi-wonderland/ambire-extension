@@ -1,6 +1,6 @@
+import { nanoid } from 'nanoid'
 import React, { FC } from 'react'
 import { View } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
 
 import BADGE_PRESETS from '@common/components/BadgeWithPreset/presets'
 import Text from '@common/components/Text'
@@ -17,7 +17,7 @@ interface Props {
 const TypeBadge: FC<Props> = ({ isSmart, size, showTooltip = false }) => {
   const { theme } = useTheme()
   const badgePreset = isSmart ? BADGE_PRESETS['smart-account'] : BADGE_PRESETS['basic-account']
-  const tooltipId = uuidv4()
+  const tooltipId = nanoid(6)
 
   return (
     <>

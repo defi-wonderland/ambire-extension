@@ -23,28 +23,28 @@ const WHEEL_PRIZE_DATA: {
       to: -211
     },
     {
-      from: -249,
+      from: -247,
       to: -279
     }
   ],
   20: [
-    { from: -114, to: -144 },
+    { from: -110, to: -146 },
     {
-      from: -317,
+      from: -315,
       to: -347
     }
   ],
   50: [
     {
-      from: -11,
+      from: -13,
       to: -43
     },
     {
-      from: -79,
-      to: -111
+      from: -77,
+      to: -109
     },
     {
-      from: -147,
+      from: -148,
       to: -178
     },
     {

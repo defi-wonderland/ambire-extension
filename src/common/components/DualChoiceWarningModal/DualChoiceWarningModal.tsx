@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import { View, ViewStyle } from 'react-native'
 
+import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Button, { Props as ButtonProps } from '@common/components/Button'
 import { Props as DualChoiceModalProps } from '@common/components/DualChoiceModal/DualChoiceModal'
@@ -10,21 +11,34 @@ import spacings from '@common/styles/spacings'
 
 import getStyles from './styles'
 
+type Type = 'error' | 'warning'
+
+const DEFAULT_TYPE = 'warning'
+
 const Wrapper: FC<{ children: React.ReactNode | React.ReactNode[] }> = ({ children }) => {
   const { styles } = useTheme(getStyles)
 
   return <View style={styles.container}>{children}</View>
 }
 
-const TitleAndIcon = ({ title, style }: { title: string; style?: ViewStyle }) => {
+const TitleAndIcon = ({
+  title,
+  style,
+  type = DEFAULT_TYPE
+}: {
+  title: string
+  type?: Type
+  style?: ViewStyle
+}) => {
   const { styles, theme } = useTheme(getStyles)
+  const Icon = type === 'error' ? ErrorIcon : WarningIcon
 
   return (
     <View style={[styles.titleAndIcon, style]}>
       <View style={spacings.mbTy}>
-        <WarningIcon width={32} height={32} color={theme.warningDecorative} />
+        <Icon width={32} height={32} color={theme[`${type}Decorative`]} />
       </View>
-      <CommonText appearance="warningText" weight="medium" fontSize={20}>
+      <CommonText appearance={`${type}Text`} weight="medium" fontSize={20}>
         {title}
       </CommonText>
     </View>
@@ -39,10 +53,10 @@ const Text = ({ text, ...rest }: { text: string } & Props) => {
   )
 }
 
-const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
+const ContentWrapper = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => {
   const { styles } = useTheme(getStyles)
 
-  return <View style={styles.content}>{children}</View>
+  return <View style={[styles.content, style]}>{children}</View>
 }
 
 const ButtonWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -60,19 +74,21 @@ const DualChoiceWarningModal = ({
   children,
   secondaryButtonText,
   primaryButtonProps,
-  secondaryButtonProps
+  secondaryButtonProps,
+  type = DEFAULT_TYPE
 }: Omit<DualChoiceModalProps, 'description' | 'primaryButtonTestID' | 'secondaryButtonTestID'> & {
   title: string
   description?: string
   children?: React.ReactNode | React.ReactNode[]
   primaryButtonProps?: ButtonProps
   secondaryButtonProps?: ButtonProps
+  type?: Type
 }) => {
   const { theme } = useTheme()
   return (
     <Wrapper>
-      <ContentWrapper>
-        <TitleAndIcon title={title} />
+      <ContentWrapper style={{ backgroundColor: theme[`${type}Background`] }}>
+        <TitleAndIcon type={type} title={title} />
         {!!description && <Text text={description} />}
         {children}
       </ContentWrapper>
@@ -80,7 +96,7 @@ const DualChoiceWarningModal = ({
         <Button
           text={primaryButtonText}
           onPress={onPrimaryButtonPress}
-          type="warning"
+          type={type}
           hasBottomSpacing={false}
           style={spacings.ph2Xl}
           {...primaryButtonProps}

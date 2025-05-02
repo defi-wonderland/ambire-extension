@@ -222,6 +222,7 @@ const NetworkDetails = ({
             <Button
               style={{ maxHeight: 32 }}
               text={t('Remove')}
+              testID="remove-network-btn"
               type="danger"
               onPress={() => {
                 if (!chainId || !allowRemoveNetwork) return
@@ -258,6 +259,7 @@ const NetworkDetails = ({
           <DialogButton
             style={spacings.ml}
             text={t('Remove')}
+            testID="remove-network-confirm-btn"
             type="danger"
             onPress={removeCustomNetwork}
           />

@@ -74,11 +74,11 @@ describe('sa_features', () => {
     // Type the address of the recipient
     await typeText(page, SELECTORS.addressEnsField, SMART_ACC_VIEW_ONLY_ADDRESS)
     await page.waitForXPath(
-      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+      '//div[contains(text(), "This address isn\'t in your Address Book. Double-check the details before confirming.")]'
     )
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
-    // Check the checkbox "Confirm sending to a previously unknown address"
+    // Check the checkbox "Confirm sending to this address."
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 

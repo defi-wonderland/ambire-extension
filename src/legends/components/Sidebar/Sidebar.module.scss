@@ -14,15 +14,15 @@
 
 .wrapper {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
   background-color: $secondaryBackground;
-  border-right: 1px solid $primaryBorder;
-  width: 18.875rem;
-  padding: 1rem 1.25rem;
+  width: 20rem;
+  padding: 2rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
+  overflow: hidden;
   transition: left 0.3s, opacity 0.2s;
 
   &:not(.open) {
@@ -42,9 +42,9 @@
   }
 
   .top {
-    position: relative;
+    position: static;
     .bannerText {
-      font-size: .75rem;
+      font-size: 0.75rem;
       margin-bottom: 0.75rem;
       color: $primaryBackground;
     }
@@ -72,7 +72,7 @@
     .closeButton {
       position: absolute;
       top: 1rem;
-      left: 0;
+      left: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -89,103 +89,56 @@
     .logo {
       display: block;
       margin: 0 auto;
-      margin-bottom: 2rem;
-      width: 10rem;
+      margin-bottom: 3.125rem;
+      width: 12.5rem;
       height: auto;
     }
 
     .links {
       padding-top: 2rem;
-    }
-  }
-
-  .treasureChestWrapper {
-    position: relative;
-    margin: 0 auto;
-    padding: none;
-    padding-top: 1.875rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    
-    button:hover {
-      opacity: 1;
-    }
-
-    .chestAvailableLabel {
-      position: absolute;
-      border: 1px solid $primaryBorder;
-      background-color: $primaryBackground;
-      padding: .5rem;
-      border-radius: .5rem;
-      font-size: .875rem;
-      font-weight: 500;
-      color: $secondaryText; 
+      padding-left: 1rem;
     }
   }
 
   .leaderSection {
     padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding-bottom: 3.75rem;
+
     .leaderHeader {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.35rem;
-    
+
       .inviteTitle {
         font-size: 1rem;
-        font-weight: 500;
+        font-weight: 400;
         line-height: 1.5rem;
-        color: $secondaryText;
+        color: $quaternaryText;
       }
     }
 
     .leaderCopyButton {
       cursor: pointer;
+      color: $neutral-600;
     }
 
     .leaderInvitationKey {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: .5rem;
+      padding: 0.5rem;
       background: $primaryBackground;
-      padding: 4px 10px 4px 10px;
+      padding: 0.25rem 0.625rem;
       gap: 10px;
       border-radius: 0.5rem;
       border-radius: $primaryBorderRadius;
-      border: 1px solid $primaryBorder;
-
-      font-size: 1.1875rem;
-      font-weight: 500;
-      line-height: 2.0625rem;
-
+      background: $primaryBackground200;
+      font-size: 1rem;
+      font-weight: 400;
     }
-
-    .gradientBorder {
-      position: relative;
-      border-radius: 10px;
-      height: 100%;
-      width: 100%;
-      
-      .gradientBorderInner {
-        border: none;
-        &::after {
-          position: absolute;
-          top: -4px; bottom: -4px;
-          left: -4px; right: -4px;
-          background: linear-gradient(90deg, #D8B98C 0%, #FFE8C6 27%, #FFFFFF 46%, #F7D7A7 65%, #7F643D 100%);
-          content: '';
-          z-index: -1;
-          border-radius: .625rem;
-        }
-      }
-    }
-
   }
-  
+
 
   @include breakpoint-from(large-tablet) {
     position: static;
@@ -212,25 +165,30 @@
       .links {
         padding-top: 1rem;
       }
-      .treasureChestWrapper {
-        padding-top: 0.5rem;
-      }
+    }
+
+    .leaderSection {
+      padding-bottom: 1rem;
     }
   }
 
   @media screen and (max-height: 900px) {
     .top {
       .links {
-        padding-top: 1rem;
-      }
-      .treasureChestWrapper {
-        padding-top: 1rem;
+        padding-top: 2.9375rem;
       }
     }
 
     .leaderSection {
       padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
+    }
+  }
+
+  @include on-mobile {
+    .top {
+      .links {
+        padding-top: 0;
+      }
     }
   }
 }

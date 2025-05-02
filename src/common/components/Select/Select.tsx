@@ -23,7 +23,8 @@ const Select = ({
     // we wrap non-sectioned list data in a default single section
     data: [{ data: options, title: '', key: 'default' }] as SectionedSelectProps['sections'],
     menuOptionHeight,
-    attemptToFetchMoreOptions
+    attemptToFetchMoreOptions,
+    mode: props.mode
   })
   const {
     listRef,
@@ -36,7 +37,14 @@ const Select = ({
   } = selectData
 
   return (
-    <SelectContainer value={value} setValue={setValue} {...selectData} {...props} testID={testID}>
+    <SelectContainer
+      value={value}
+      setValue={setValue}
+      {...selectData}
+      {...props}
+      id={testID}
+      testID={testID}
+    >
       <FlatList
         ref={listRef}
         // get the data (the options) from the default section

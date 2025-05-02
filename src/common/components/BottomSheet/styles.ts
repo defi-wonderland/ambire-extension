@@ -10,7 +10,7 @@ interface Style {
   root: ViewStyle
   bottomSheet: ViewStyle
   modal: ViewStyle
-
+  portalHost: ViewStyle
   dragger: ViewStyle
   backDrop: ViewStyle
 }
@@ -51,6 +51,11 @@ const getStyles = (theme: ThemeProps) =>
       position: 'absolute',
       backgroundColor: 'transparent',
       zIndex: BOTTOM_SHEET_Z_INDEX - 1
+    },
+    portalHost: {
+      ...StyleSheet.absoluteFillObject,
+      // @ts-ignore prop is supported by react-native-web, but missing in types
+      pointerEvents: 'none'
     }
   })
 

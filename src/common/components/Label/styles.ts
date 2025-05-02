@@ -14,7 +14,7 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
-      ...common.borderRadiusSecondary
+      ...common.borderRadiusTertiary
     },
     warningText: {
       color: theme.warningText

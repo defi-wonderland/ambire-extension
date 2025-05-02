@@ -1,0 +1,3 @@
+import AddFromCurrentRecoveryPhraseIcon from './AddFromCurrentRecoveryPhraseIcon'
+
+export default AddFromCurrentRecoveryPhraseIcon

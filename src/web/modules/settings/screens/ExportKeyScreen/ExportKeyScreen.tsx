@@ -80,8 +80,8 @@ const ExportKeyScreen = () => {
           onPasswordConfirmed={onPasswordConfirmed}
           text={
             isExportingV2SA
-              ? 'Please enter your device password to export your smart account details'
-              : 'Please enter your device password to see your private key'
+              ? 'Please enter your extension password to export your smart account details'
+              : 'Please enter your extension password to see your private key'
           }
         />
       )}

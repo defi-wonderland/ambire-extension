@@ -4,29 +4,32 @@
   .leftLabel {
     margin-left: auto;
   }
+
+  .label {
+    color: $whiteText;
+  }
   .inputWrapper {
-    background-color: $tertiaryBackground;
+    position: relative;
+    background-color: $neutral-900;
     display: flex;
     align-items: stretch;
-    border-radius: $primaryBorderRadius;
-    border: 0.0625rem solid $primaryBorder;
+    border-radius: .5rem;
 
     .input {
-      background-color: transparent;
       flex: 1;
       border: none;
-      border-radius: $primaryBorderRadius 0 0 $primaryBorderRadius;
+      border-radius: .5rem;
     }
 
     .domainsIcons {
+      position: absolute;
+      right: 2rem;
+      top: .9375rem;
       display: flex;
       align-items: center;
-      padding-left: 0.5rem;
-      padding-right: 1rem;
 
       .ensIcon {
-        color: $tertiaryBorder;
-        margin-right: 0.5rem;
+        color: $secondaryText;
       }
     }
   }

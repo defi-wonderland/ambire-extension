@@ -3,7 +3,7 @@
 .wrapper {
   display: flex;
   gap: 1.875rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
 
   .column {
     display: flex;
@@ -22,23 +22,19 @@
 
         &.complete {
           .stepNumber {
-            background: $successBackground;
-            color: $successText;
-            border-color: $success;
+            background: rgba($green-500, 0.9);
           }
           .stepTitle {
-            color: $primaryText;
+            color: $mainText;
           }
         }
 
         &.active {
           .stepNumber {
-            background-color: $tertiaryBackground;
-            color: $primaryText;
-            border-color: $success;
+            border-color: $mainText;
           }
           .stepTitle {
-            color: $primaryText;
+            color: $mainText;
           }
         }
 
@@ -49,20 +45,39 @@
           justify-content: center;
           font-size: 1.5rem;
           line-height: 2rem;
-          width: 3rem;
-          height: 3rem;
-          color: $primaryText;
-          background: $secondaryBackground;
-          border: 1px solid $secondaryBorder;
+          width: 3.4375rem;
+          height: 3.4375rem;
+          background: $hover-dark;
+          color: $mainText;
           border-radius: 50%;
+          position: relative;
+          border: 1px solid transparent;
+
+          &::after {
+            content: '';
+            position: absolute;
+            width: 0.0625rem;
+            height: 100%;
+            background: $hover-dark;
+            bottom: -1.75rem;
+            z-index: -1;
+          }
+        }
+
+        &:last-child {
+          .stepNumber {
+            &::after {
+              display: none;
+            }
+          }
         }
 
         .stepTitle {
           display: flex;
           align-items: center;
           font-size: 1.125rem;
-          font-weight: 400;
-          color: $secondaryText;
+          font-weight: 300;
+          color: $mainText;
         }
       }
     }
@@ -75,6 +90,7 @@
     .image {
       width: 100%;
       height: auto;
+      border: 1px solid rgba(106, 111, 134, 0.2);
     }
 
     .video {
@@ -122,13 +138,12 @@
 }
 
 .boldText {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 @include breakpoint-down-from(medium-desktop) {
   .wrapper {
     gap: 1.40625rem;
-    margin-bottom: 0.9375rem;
 
     .column {
       .stepper {
@@ -170,5 +185,12 @@
 
   .copySectionWrapper {
     margin-bottom: 0.75rem;
+  }
+}
+
+
+@include breakpoint-down-from(large-tablet) {
+  .wrapper {
+    flex-direction: column;
   }
 }

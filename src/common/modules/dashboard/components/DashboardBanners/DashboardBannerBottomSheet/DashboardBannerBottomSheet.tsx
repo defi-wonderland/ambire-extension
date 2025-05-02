@@ -1,10 +1,16 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { View, ViewStyle } from 'react-native'
 
+import { getIsBridgeRoute } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import BottomSheet from '@common/components/BottomSheet'
 import DualChoiceModal from '@common/components/DualChoiceModal'
+import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import ActiveRouteCard from '@web/modules/swap-and-bridge/components/ActiveRouteCard'
 
 type Props = {
   id: string
@@ -12,11 +18,24 @@ type Props = {
   closeBottomSheet: () => void
 }
 
-const WITH_BOTTOM_SHEET = ['update-available']
+const WITH_BOTTOM_SHEET = ['update-available', 'bridge-in-progress']
+const RENDER_AS_MODAL = ['update-available']
+
+const style: {
+  [key: string]: ViewStyle
+} = {
+  'update-available': {
+    overflow: 'hidden',
+    width: 496,
+    ...spacings.ph0,
+    ...spacings.pv0
+  }
+}
 
 const DashboardBannerBottomSheet: FC<Props> = ({ id, sheetRef, closeBottomSheet }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const { activeRoutes } = useSwapAndBridgeControllerState()
 
   if (!WITH_BOTTOM_SHEET.includes(id)) return null
 
@@ -26,8 +45,8 @@ const DashboardBannerBottomSheet: FC<Props> = ({ id, sheetRef, closeBottomSheet 
       sheetRef={sheetRef}
       closeBottomSheet={closeBottomSheet}
       backgroundColor="secondaryBackground"
-      style={{ overflow: 'hidden', width: 496, ...spacings.ph0, ...spacings.pv0 }}
-      type="modal"
+      style={style[id]}
+      type={RENDER_AS_MODAL.includes(id) ? 'modal' : undefined}
     >
       {id === 'update-available' && (
         <DualChoiceModal
@@ -46,6 +65,28 @@ const DashboardBannerBottomSheet: FC<Props> = ({ id, sheetRef, closeBottomSheet 
           secondaryButtonText={t('Cancel')}
           onSecondaryButtonPress={closeBottomSheet}
         />
+      )}
+      {id === 'bridge-in-progress' && (
+        <View style={[flexbox.flex1, spacings.ptSm]}>
+          <Text fontSize={16} weight="medium" style={spacings.mbLg}>
+            {t('Pending bridge transactions')}
+          </Text>
+          {activeRoutes
+            .filter(
+              (route) =>
+                route.route &&
+                getIsBridgeRoute(route.route) &&
+                (route.routeStatus === 'in-progress' ||
+                  route.routeStatus === 'completed' ||
+                  route.routeStatus === 'failed')
+            )
+
+            .map((route) => (
+              <View key={route.activeRouteId} style={spacings.mbTy}>
+                <ActiveRouteCard activeRoute={route} />
+              </View>
+            ))}
+        </View>
       )}
     </BottomSheet>
   )

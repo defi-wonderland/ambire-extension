@@ -1,4 +1,4 @@
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import { AccountsController } from '@ambire-common/controllers/accounts/accounts'
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
@@ -30,7 +30,7 @@ export const controllersNestedInMainMapping = {
   networks: NetworksController,
   accounts: AccountsController,
   selectedAccount: SelectedAccountController,
-  accountAdder: AccountAdderController,
+  accountPicker: AccountPickerController,
   keystore: KeystoreController,
   signMessage: SignMessageController,
   portfolio: PortfolioController,

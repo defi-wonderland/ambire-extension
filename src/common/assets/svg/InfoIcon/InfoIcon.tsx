@@ -1,9 +1,10 @@
 import React from 'react'
-import Svg, { G, Path, SvgProps } from 'react-native-svg'
+import Svg, { G, Path } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
+import { LegendsSvgProps } from '@legends/types/svg'
 
-const InfoIcon: React.FC<SvgProps> = ({
+const InfoIcon: React.FC<LegendsSvgProps> = ({
   width = 24,
   height = 24,
   color = colors.martinique,

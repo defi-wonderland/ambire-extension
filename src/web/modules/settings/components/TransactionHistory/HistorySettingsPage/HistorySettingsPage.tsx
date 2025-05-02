@@ -207,7 +207,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType, session
   return (
     <>
       <SettingsPageHeader
-        title={historyType === 'messages' ? 'Signed Messages' : 'Transaction History'}
+        title={historyType === 'messages' ? 'Signed messages' : 'Transaction history'}
       />
       <View style={[flexbox.directionRow, spacings.mbLg]}>
         <Select

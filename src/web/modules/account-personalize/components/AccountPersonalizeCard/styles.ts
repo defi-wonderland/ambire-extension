@@ -13,14 +13,15 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor: theme.primaryBackground,
       borderColor: theme.secondaryBorder,
       borderWidth: 1,
       ...common.borderRadiusPrimary,
       ...spacings.phTy,
       ...spacings.pvTy,
       ...spacings.mbSm,
-      width: '100%'
+      width: '100%',
+      flex: 1
     },
     pfpSelectorItem: {
       height: 48,

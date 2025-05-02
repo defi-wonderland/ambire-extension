@@ -116,7 +116,7 @@ const TokenIcon: React.FC<Props> = ({
     ]
   )
 
-  const shouldDisplayNetworkIcon = withNetworkIcon && !!network
+  const shouldDisplayNetworkIcon = withNetworkIcon && !!network && !onGasTank
 
   return (
     <View style={memoizedContainerStyle}>

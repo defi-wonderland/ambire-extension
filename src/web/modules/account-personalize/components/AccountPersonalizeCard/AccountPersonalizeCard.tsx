@@ -23,20 +23,37 @@ type Props = {
     accounts: Account[]
   }>
   hasBottomSpacing?: boolean
+  onSave: (value: string) => void
 }
 
-const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = true }: Props) => {
+const AccountPersonalizeCard = ({
+  account,
+  index,
+  control,
+  hasBottomSpacing = true,
+  onSave
+}: Props) => {
   const { addr: address, preferences } = account
   const { ens, isLoading } = useReverseLookup({ address })
   const { styles } = useTheme(getStyles)
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
-      <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
-        <View testID="personalize-account" style={[flexbox.directionRow, flexbox.alignCenter]}>
+      <View
+        style={[
+          flexbox.flex1,
+          flexbox.justifySpaceBetween,
+          flexbox.alignCenter,
+          flexbox.directionRow
+        ]}
+      >
+        <View
+          testID="personalize-account"
+          style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}
+        >
           <Avatar isSmart={isSmartAccount(account)} pfp={preferences.pfp} />
           <View style={flexbox.flex1}>
-            <View style={flexbox.directionRow}>
+            <View style={[flexbox.directionRow, flexbox.flex1]}>
               <Controller
                 control={control}
                 name={`accounts.${index}.preferences.label`}
@@ -47,44 +64,26 @@ const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = tr
                     initialValue={preferences.label}
                     testID={`edit-name-field-${index}`}
                     height={24}
-                    textProps={{
-                      weight: 'medium'
-                    }}
+                    textProps={{ weight: 'medium' }}
+                    onSave={onSave}
                   />
                 )}
               />
               <AccountBadges accountData={account} />
             </View>
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
               <DomainBadge ens={ens} />
-              <AccountAddress ens={ens} isLoading={isLoading} address={address} />
+              <AccountAddress
+                ens={ens}
+                isLoading={isLoading}
+                address={address}
+                plainAddressMaxLength={18}
+                withCopy={false}
+              />
             </View>
           </View>
         </View>
       </View>
-
-      {/* <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
-        {t('Choose an avatar')}
-      </Text> */}
-      {/* <View style={[flexbox.directionRow]}>
-        <Controller
-          control={control}
-          name={`preferences.${index}.pfp`}
-          render={({ field: { onChange, value } }) => (
-            <>
-              {buildInAvatars.map(({ id, source }) => (
-                <AvatarsSelectorItem
-                  key={id}
-                  id={id}
-                  source={source}
-                  isSelected={value === id}
-                  setSelectedAvatar={onChange}
-                />
-              ))}
-            </>
-          )}
-        />
-      </View> */}
     </View>
   )
 }

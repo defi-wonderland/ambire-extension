@@ -49,4 +49,4 @@ const Toggle: React.FC<Props> = ({
   )
 }
 
-export default Toggle
+export default React.memo(Toggle)

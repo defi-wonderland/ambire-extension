@@ -1,24 +1,20 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/return-await */
-import {
-  BIP44_STANDARD_DERIVATION_TEMPLATE,
-  HD_PATH_TEMPLATE_TYPE
-} from '@ambire-common/consts/derivation'
+import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
+import {
+  SIGN_ACCOUNT_OP_MAIN,
+  SIGN_ACCOUNT_OP_SWAP
+} from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
-import { getDefaultKeyLabel, getExistingKeyLabel } from '@ambire-common/libs/keys/keys'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { browser } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { Port, PortMessenger } from '@web/extension-services/messengers'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
@@ -29,9 +25,6 @@ export const handleActions = async (
     pm,
     port,
     mainCtrl,
-    ledgerCtrl,
-    trezorCtrl,
-    latticeCtrl,
     walletStateCtrl,
     autoLockCtrl,
     extensionUpdateCtrl
@@ -39,9 +32,6 @@ export const handleActions = async (
     pm: PortMessenger
     port: Port
     mainCtrl: MainController
-    ledgerCtrl: LedgerController
-    trezorCtrl: TrezorController
-    latticeCtrl: LatticeController
     walletStateCtrl: WalletStateController
     autoLockCtrl: AutoLockController
     extensionUpdateCtrl: ExtensionUpdateController
@@ -85,61 +75,31 @@ export const handleActions = async (
       return mainCtrl.onPopupOpen()
     case 'MAIN_CONTROLLER_LOCK':
       return mainCtrl.lock()
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-      return await mainCtrl.handleAccountAdderInitLedger(LedgerKeyIterator)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LEDGER': {
+      return await mainCtrl.handleAccountPickerInitLedger(LedgerKeyIterator)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
-      const { walletSDK } = trezorCtrl
-      await mainCtrl.accountAdder.init({
-        keyIterator: new TrezorKeyIterator({ walletSDK }),
-        hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-      })
-
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR': {
+      return await mainCtrl.handleAccountPickerInitTrezor(TrezorKeyIterator)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-      return await mainCtrl.handleAccountAdderInitLattice(LatticeKeyIterator)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE': {
+      return await mainCtrl.handleAccountPickerInitLattice(LatticeKeyIterator)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
-
-      // if it enters here, it's from the default seed. We can init the account adder like so
-      if (keyIterator.subType === 'seed' && params.shouldPersist) {
-        await mainCtrl.keystore.addSeed({ seed: params.privKeyOrSeed, hdPathTemplate })
-      }
-      if (keyIterator.subType === 'seed' && params.shouldAddToTemp) {
-        await mainCtrl.keystore.addSeedToTemp({
-          seed: params.privKeyOrSeed,
-          seedPassphrase: params.seedPassphrase,
-          hdPathTemplate
-        })
-      }
-
-      await mainCtrl.accountAdder.init({
-        keyIterator,
-        pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
-        hdPathTemplate
-      })
-
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
+      await mainCtrl.accountPicker.setInitParams({ keyIterator, hdPathTemplate })
+      break
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_FROM_SAVED_SEED_PHRASE': {
-      if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
-      const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed()
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE': {
+      const keystoreSavedSeed = await mainCtrl.keystore.getSavedSeed(params.id)
       if (!keystoreSavedSeed) return
+
       const keyIterator = new KeyIterator(keystoreSavedSeed.seed, keystoreSavedSeed.seedPassphrase)
-      await mainCtrl.accountAdder.init({
+      await mainCtrl.accountPicker.setInitParams({
         keyIterator,
-        pageSize: 5,
         hdPathTemplate: keystoreSavedSeed.hdPathTemplate
       })
-
-      return await mainCtrl.accountAdder.setPage({ page: 1 })
+      break
     }
     case 'MAIN_CONTROLLER_ADD_NETWORK': {
       return await mainCtrl.addNetwork(params)
@@ -152,6 +112,9 @@ export const handleActions = async (
     }
     case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_STATE': {
       return await mainCtrl.accounts.updateAccountState(params.addr, 'latest', params.chainIds)
+    }
+    case 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE': {
+      return await mainCtrl.accounts.resetAccountsNewlyAddedState()
     }
     case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
       return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
@@ -168,82 +131,45 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
       return await mainCtrl.selectAccount(params.accountAddr)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
-      return mainCtrl.accountAdder.selectAccount(params.account)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SELECT_ACCOUNT': {
+      return mainCtrl.accountPicker.selectAccount(params.account)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-      return mainCtrl.accountAdder.deselectAccount(params.account)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_DESELECT_ACCOUNT': {
+      return mainCtrl.accountPicker.deselectAccount(params.account)
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
-      if (mainCtrl.accountAdder.isInitialized) {
-        mainCtrl.accountAdder.reset()
-      }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET': {
+      await mainCtrl.accountPicker.reset()
       break
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
-      return await mainCtrl.accountAdder.setPage(params)
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_HD_PATH_TEMPLATE': {
-      return await mainCtrl.accountAdder.setHDPathTemplate(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT': {
+      mainCtrl.accountPicker.init()
+      break
     }
-    case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
-      const readyToAddKeys: ReadyToAddKeys = {
-        internal: [],
-        external: []
+    case 'RESET_ACCOUNT_ADDING_ON_PAGE_ERROR': {
+      await mainCtrl.accountPicker.reset()
+      const accounts = [...mainCtrl.accounts.accounts]
+      // eslint-disable-next-line no-restricted-syntax
+      for (const account of accounts) {
+        if (account.newlyAdded) {
+          // eslint-disable-next-line no-await-in-loop
+          await mainCtrl.removeAccount(account.addr)
+        }
       }
 
-      if (mainCtrl.accountAdder.type === 'internal') {
-        readyToAddKeys.internal = mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
-      } else {
-        // External keys flow
-        const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
-
-        const deviceIds: { [key in ExternalKey['type']]: string } = {
-          ledger: ledgerCtrl.deviceId,
-          trezor: trezorCtrl.deviceId,
-          lattice: latticeCtrl.deviceId
-        }
-
-        const deviceModels: { [key in ExternalKey['type']]: string } = {
-          ledger: ledgerCtrl.deviceModel,
-          trezor: trezorCtrl.deviceModel,
-          lattice: latticeCtrl.deviceModel
-        }
-
-        const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-          ({ account, accountKeys }) =>
-            accountKeys.map(({ addr, index }, i) => ({
-              addr,
-              type: keyType,
-              label: `${HARDWARE_WALLET_DEVICE_NAMES[mainCtrl.accountAdder.type as Key['type']]} ${
-                getExistingKeyLabel(
-                  mainCtrl.keystore.keys,
-                  addr,
-                  mainCtrl.accountAdder.type as Key['type']
-                ) ||
-                getDefaultKeyLabel(
-                  mainCtrl.keystore.keys.filter((key) => account.associatedKeys.includes(key.addr)),
-                  i
-                )
-              }`,
-              dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
-              meta: {
-                deviceId: deviceIds[keyType],
-                deviceModel: deviceModels[keyType],
-                // always defined in the case of external keys
-                hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                index,
-                createdAt: new Date().getTime()
-              }
-            }))
-        )
-
-        readyToAddKeys.external = readyToAddExternalKeys
-      }
-
-      return await mainCtrl.accountAdder.addAccounts(
-        mainCtrl.accountAdder.selectedAccounts,
-        readyToAddKeys
-      )
+      break
+    }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_RESET_ACCOUNTS_SELECTION': {
+      mainCtrl.accountPicker.resetAccountsSelection()
+      break
+    }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_PAGE':
+      return await mainCtrl.accountPicker.setPage(params)
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_SET_HD_PATH_TEMPLATE': {
+      return await mainCtrl.accountPicker.setHDPathTemplate(params)
+    }
+    case 'MAIN_CONTROLLER_ACCOUNT_PICKER_ADD_ACCOUNTS': {
+      await mainCtrl.accountPicker.addAccounts()
+      break
     }
     case 'IMPORT_SMART_ACCOUNT_JSON': {
       // Add accounts first, because some of the next steps have validation
@@ -260,18 +186,8 @@ export const handleActions = async (
     }
     case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
       // Since these accounts are view-only, directly add them in the
-      // MainController, bypassing the AccountAdder flow.
+      // MainController, bypassing the AccountPicker flow.
       await mainCtrl.accounts.addAccounts(params.accounts)
-      break
-    }
-    // This flow interacts manually with the AccountAdder controller so that it can
-    // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
-    case 'CREATE_NEW_SEED_PHRASE_AND_ADD_FIRST_SMART_ACCOUNT': {
-      await mainCtrl.importSmartAccountFromSavedSeed(params.seed)
-      break
-    }
-    case 'ADD_NEXT_SMART_ACCOUNT_FROM_DEFAULT_SEED_PHRASE': {
-      await mainCtrl.importSmartAccountFromSavedSeed()
       break
     }
     case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
@@ -339,12 +255,19 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.signAccountOp?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-      return await mainCtrl.handleSignAndBroadcastAccountOp()
+      const signAccountOpType = params?.isSwapAndBridge
+        ? SIGN_ACCOUNT_OP_SWAP
+        : SIGN_ACCOUNT_OP_MAIN
+      return await mainCtrl.handleSignAndBroadcastAccountOp(signAccountOpType)
     }
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
       return mainCtrl.initSignAccOp(params.actionId)
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
+    case 'SIGN_ACCOUNT_OP_UPDATE': {
+      if (params.updateType === 'Main') return mainCtrl?.signAccountOp?.update(params)
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+    }
 
     case 'SELECTED_ACCOUNT_SET_DASHBOARD_NETWORK_FILTER': {
       mainCtrl.selectedAccount.setDashboardNetworkFilter(params.dashboardNetworkFilter)
@@ -354,7 +277,7 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
       return await mainCtrl.swapAndBridge.initForm(params.sessionId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
-      return mainCtrl.swapAndBridge.unloadScreen(params.sessionId)
+      return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
       return mainCtrl.swapAndBridge.updateForm(params)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
@@ -362,9 +285,13 @@ export const handleActions = async (
     case 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS':
       return await mainCtrl.swapAndBridge.addToTokenByAddress(params.address)
     case 'SWAP_AND_BRIDGE_CONTROLLER_SELECT_ROUTE':
-      return mainCtrl.swapAndBridge.selectRoute(params.route)
-    case 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM':
+      return await mainCtrl.swapAndBridge.selectRoute(params.route, params.isAutoSelectDisabled)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST': {
       return await mainCtrl.buildSwapAndBridgeUserRequest()
+    }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE': {
+      return await mainCtrl.swapAndBridge.onEstimationFailure()
+    }
     case 'SWAP_AND_BRIDGE_CONTROLLER_ACTIVE_ROUTE_BUILD_NEXT_USER_REQUEST':
       return await mainCtrl.buildSwapAndBridgeUserRequest(params.activeRouteId)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_QUOTE': {
@@ -375,6 +302,41 @@ export const handleActions = async (
       })
       break
     }
+    case 'SWAP_AND_BRIDGE_CONTROLLER_RESET_FORM':
+      return mainCtrl.swapAndBridge.resetForm()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_MARK_SELECTED_ROUTE_AS_FAILED':
+      return mainCtrl.swapAndBridge.markSelectedRouteAsFailed()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl?.swapAndBridge?.signAccountOpController?.updateStatus(params.status)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl?.swapAndBridge.setUserProceeded(params.proceeded)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_IS_AUTO_SELECT_ROUTE_DISABLED':
+      return mainCtrl?.swapAndBridge.setIsAutoSelectRouteDisabled(params.isDisabled)
+    case 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
+      return mainCtrl?.swapAndBridge.destroySignAccountOp()
+    case 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW':
+      if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+
+      return mainCtrl.actions.addOrUpdateAction(
+        {
+          id: `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`,
+          type: 'swapAndBridge',
+          userRequest: {
+            meta: {
+              accountAddr: mainCtrl.selectedAccount.account.addr
+            }
+          }
+        },
+        'last',
+        'open-action-window'
+      )
+    case 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW':
+      if (!mainCtrl.selectedAccount.account) throw new Error('No selected account')
+      return mainCtrl.actions.removeAction(
+        `${mainCtrl.selectedAccount.account.addr}-swap-and-bridge-sign`
+      )
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
@@ -445,6 +407,8 @@ export const handleActions = async (
         params.extraEntropy,
         params.leaveUnlocked
       )
+    case 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED':
+      return await mainCtrl.keystore.addTempSeed(params)
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
@@ -465,16 +429,12 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
-    case 'KEYSTORE_CONTROLLER_SEND_SEED_OVER_CHANNEL':
-      return await mainCtrl.keystore.sendSeedToUi()
+    case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
+      return await mainCtrl.keystore.sendSeedToUi(params.id)
+    case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
+      return await mainCtrl.keystore.sendTempSeedToUi()
     case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
       return await mainCtrl.keystore.deleteSavedSeed()
-    case 'KEYSTORE_CONTROLLER_MOVE_SEED_FROM_TEMP': {
-      if (params.action === 'save') {
-        return await mainCtrl.keystore.moveTempSeedToKeystoreSeeds()
-      }
-      return mainCtrl.keystore.deleteTempSeed()
-    }
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
@@ -523,10 +483,6 @@ export const handleActions = async (
       return await mainCtrl.domains.reverseLookup(params.address)
     case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
       return mainCtrl.domains.saveResolvedReverseLookup(params)
-    case 'SET_ONBOARDING_STATE': {
-      walletStateCtrl.onboardingState = params
-      break
-    }
     case 'SET_IS_PINNED': {
       walletStateCtrl.isPinned = params.isPinned
       break
@@ -586,6 +542,22 @@ export const handleActions = async (
     }
     case 'EXTENSION_UPDATE_CONTROLLER_APPLY_UPDATE': {
       extensionUpdateCtrl.applyUpdate()
+      break
+    }
+
+    case 'OPEN_EXTENSION_POPUP': {
+      try {
+        await browser.action.openPopup()
+      } catch (error) {
+        try {
+          await chrome.action.openPopup()
+        } catch (e) {
+          pm.send('> ui', {
+            method: 'navigate',
+            params: { route: WEB_ROUTES.dashboard }
+          })
+        }
+      }
       break
     }
 

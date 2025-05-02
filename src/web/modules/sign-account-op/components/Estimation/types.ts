@@ -17,6 +17,7 @@ type Props = {
   isViewOnly: boolean
   isSponsored: boolean
   sponsor: Sponsor | undefined
+  updateType: 'Main' | 'Swap&Bridge'
 }
 
 export type { FeeOption, Props }

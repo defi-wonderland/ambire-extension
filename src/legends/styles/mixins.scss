@@ -4,12 +4,10 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  text-transform: uppercase;
-  background-color: $primaryBackground;
-  border: 0.125rem solid $secondaryAccent;
-  box-shadow: 0 0.1563rem 0 $secondaryAccent;
-  color: $secondaryText;
+  background-color: $primaryBackground200;
+  font-size: 1rem;
   font-weight: 600;
+  color: $whiteText;
 
   &:disabled {
     opacity: 0.5;
@@ -23,36 +21,41 @@
 
 @mixin primary-button {
   @include button;
-  height: 3.375rem;
-  color: $secondaryAccent;
+  padding: 1rem;
+  transition: background 0.3s ease;
+  background-blend-mode: overlay;
+  background: linear-gradient(100.29deg, $green-500 7.82%, $teal 49.79%, $dark-purple 92.28%);
 
   &:not(:disabled) {
     &:hover {
-      background-color: $secondaryBackground;
+      background: linear-gradient(100.29deg, $green-500 7.82%, $teal 49.79%, $dark-purple 92.28%), linear-gradient(0deg, rgba(244, 244, 247, 0.102), rgba(244, 244, 247, 0.1));
     }
     &:active {
-      transform: translateY(0.125rem);
       box-shadow: none;
     }
   }
 }
 @mixin secondary-button {
   @include button;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1rem;
-  height: 2.25rem;
-  width: 100%;
-  text-transform: uppercase;
+  padding: 1rem;
+  gap: .625rem;
+  border-radius: $primaryBorderRadius;
+  background-color: transparent;
+  border: 0.125rem solid $primaryText;
+  color: $primaryText;
 
   svg {
     font-size: 0.875rem;
   }
 }
 @mixin container {
-  max-width: 60rem;
+  max-width: 62.5rem;
   width: 100%;
   margin: 0 auto;
+}
+
+@mixin containerLg {
+  max-width: 75rem;
 }
 
 @mixin on-mobile {

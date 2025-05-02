@@ -88,12 +88,6 @@ const RouteStepsPlaceholder = ({
       </View>
       <Text fontSize={12} weight="medium">
         <Text fontSize={12} weight="medium">
-          {t('Total gas fees: {{fees}}', { fees: '-/-' })}
-        </Text>
-        <Text fontSize={12} weight="medium" appearance="secondaryText">
-          {'  |  '}
-        </Text>
-        <Text fontSize={12} weight="medium">
           {t('Estimation: {{time}}', { time: '-/-' })}
         </Text>
       </Text>

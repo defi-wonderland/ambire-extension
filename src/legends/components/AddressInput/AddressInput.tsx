@@ -33,8 +33,8 @@ const AddressInput: FC<Props> = ({
   return (
     <div className={styles.wrapper}>
       <div style={{ display: 'flex' }}>
-        <Input.Label label={label} />
-        <Input.Label label={rightLabel} className={`${styles.leftLabel}`} />
+        <Input.Label label={label} className={`${styles.label}`} />
+        <Input.Label label={rightLabel} className={`${styles.leftLabel} ${styles.label}`} />
       </div>
       <div className={styles.inputWrapper}>
         <Input.Field
@@ -45,7 +45,12 @@ const AddressInput: FC<Props> = ({
           disabled={disabled}
         />
         <div className={styles.domainsIcons}>
-          <EnsIcon color="currentColor" isActive={!!ensAddress} className={styles.ensIcon} />
+          <EnsIcon
+            color="currentColor"
+            width={22}
+            isActive={!!ensAddress}
+            className={styles.ensIcon}
+          />
         </div>
       </div>
       <Input.ValidationAndInfo validation={validation} infoLabel={infoLabel} />

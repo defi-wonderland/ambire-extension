@@ -1,7 +1,7 @@
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Port } from '@web/extension-services/messengers'
 
-export const handleCleanUpOnPortDisconnect = ({
+export const handleCleanUpOnPortDisconnect = async ({
   port,
   mainCtrl
 }: {

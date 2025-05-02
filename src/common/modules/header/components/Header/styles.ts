@@ -1,6 +1,6 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING } from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -10,7 +10,7 @@ import { getUiType } from '@web/utils/uiType'
 const { isTab } = getUiType()
 
 export const HEADER_HEIGHT = Platform.select({
-  web: (isTab ? 50 : 40) + SPACING * 2,
+  web: isTab ? 50 + SPACING_LG * 2 : 40 + SPACING * 2,
   default: 60
 })
 

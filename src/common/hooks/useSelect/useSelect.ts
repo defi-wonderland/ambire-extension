@@ -7,8 +7,8 @@ import useElementSize from '@common/hooks/useElementSize'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { SPACING } from '@common/styles/spacings'
 
-const useSelect = (props?: { maxMenuHeight: number }) => {
-  const { maxMenuHeight = 400 } = props || {}
+const useSelect = (props?: { maxMenuHeight?: number; menuPosition?: 'top' | 'bottom' }) => {
+  const { maxMenuHeight = 400, menuPosition } = props || {}
   const selectRef: React.MutableRefObject<any> = useRef(null)
   const menuRef: React.MutableRefObject<any> = useRef(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -47,20 +47,27 @@ const useSelect = (props?: { maxMenuHeight: number }) => {
     forceUpdate() // calculate menu position
   }, [forceUpdate])
 
-  const menuPosition: 'top' | 'bottom' = useMemo(() => {
+  const dynamicMenuPosition: 'top' | 'bottom' = useMemo(() => {
+    if (menuPosition) return menuPosition
+
     if (!!isMenuOpen && y + height + maxMenuHeight > windowHeight && y - maxMenuHeight > 0)
       return 'top'
 
     return 'bottom'
-  }, [height, isMenuOpen, maxMenuHeight, windowHeight, y])
+  }, [height, isMenuOpen, maxMenuHeight, windowHeight, y, menuPosition])
 
   const maxMenuDynamicHeight = useMemo(() => {
-    if (menuPosition === 'bottom' && y + height + maxMenuHeight > windowHeight) {
-      return windowHeight - (y + height) - SPACING
+    // if the menu height exceeds the maximum height of window
+    if (y + height + maxMenuHeight > windowHeight) {
+      if (dynamicMenuPosition === 'bottom') {
+        return windowHeight - (y + height) - SPACING
+      }
+      // if 'top'
+      return y - SPACING
     }
 
     return maxMenuHeight
-  }, [height, maxMenuHeight, menuPosition, windowHeight, y])
+  }, [height, maxMenuHeight, dynamicMenuPosition, windowHeight, y])
 
   return {
     selectRef,
@@ -77,7 +84,7 @@ const useSelect = (props?: { maxMenuHeight: number }) => {
       y,
       height,
       width,
-      position: menuPosition,
+      position: dynamicMenuPosition,
       maxDynamicHeight: maxMenuDynamicHeight,
       windowHeight
     }

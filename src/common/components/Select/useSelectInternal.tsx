@@ -9,7 +9,7 @@ import useSelectKeyboardControl from './useSelectKeyboardControl'
 
 type Props = Pick<
   SelectProps,
-  'menuOptionHeight' | 'setValue' | 'size' | 'attemptToFetchMoreOptions'
+  'menuOptionHeight' | 'setValue' | 'size' | 'attemptToFetchMoreOptions' | 'mode' | 'menuPosition'
 > & {
   value: SelectProps['value']
   data: SectionedSelectProps['sections']
@@ -25,9 +25,11 @@ const useSelectInternal = ({
   data,
   stickySectionHeadersEnabled,
   headerHeight = 0,
-  attemptToFetchMoreOptions
+  attemptToFetchMoreOptions,
+  mode = 'select',
+  menuPosition
 }: Props) => {
-  const useSelectReturnValue = useSelect()
+  const useSelectReturnValue = useSelect({ menuPosition })
   const { search, isMenuOpen, setIsMenuOpen, setSearch } = useSelectReturnValue
   const optionHeight = menuOptionHeight || SELECT_SIZE_TO_HEIGHT[size]
 
@@ -127,7 +129,8 @@ const useSelectInternal = ({
     isMenuOpen,
     stickySectionHeadersEnabled,
     setIsMenuOpen,
-    handleOptionSelect
+    handleOptionSelect,
+    mode
   })
 
   return {

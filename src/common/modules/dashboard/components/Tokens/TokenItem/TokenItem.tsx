@@ -3,7 +3,7 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -235,7 +235,7 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
                   label="Pending transaction signature"
                   backgroundColor={colors.lightBrown}
                   textColor={theme.warningText}
-                  Icon={CartIcon}
+                  Icon={BatchIcon}
                 />
               )}
               {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (

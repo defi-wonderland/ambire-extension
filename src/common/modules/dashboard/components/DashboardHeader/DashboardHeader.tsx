@@ -39,6 +39,7 @@ const DashboardHeader = () => {
       >
         <AccountButton />
         <Pressable
+          testID="dashboard-hamburger-btn"
           style={[spacings.ml, spacings.phTy, spacings.pvTy, flexboxStyles.alignSelfCenter]}
           onPress={() =>
             isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.generalSettings)

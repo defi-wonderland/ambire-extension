@@ -57,7 +57,7 @@ const DeFiPositions: FC<Props> = ({
         let isMatchingSearch = true
 
         if (dashboardNetworkFilter) {
-          isMatchingNetwork = chainId === dashboardNetworkFilter
+          isMatchingNetwork = chainId === BigInt(dashboardNetworkFilter)
         }
 
         if (searchValue) {

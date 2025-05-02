@@ -1,162 +1,69 @@
 import { wordlists } from 'bip39'
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { Pressable, View } from 'react-native'
+import { Controller, useForm } from 'react-hook-form'
+import { View } from 'react-native'
 
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import Alert from '@common/components/Alert'
-import BackButton from '@common/components/BackButton'
+import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
+import BrushIcon from '@common/assets/svg/BrushIcon'
 import Button from '@common/components/Button'
-import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Panel from '@common/components/Panel'
-import Select from '@common/components/Select'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
+import TextArea from '@common/components/TextArea'
+import Toggle from '@common/components/Toggle'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import getStyles from './styles'
 
-const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
-
-const DEFAULT_SEED_LENGTH = 12
-
-const SEED_LENGTH_SELECT_OPTIONS = [
-  {
-    label: 'I have 12-word phrase',
-    value: `${12}.${false}`
-  },
-  {
-    label: 'I have 12-word phrase with Passphrase',
-    value: `${12}.${true}`
-  },
-  {
-    label: 'I have 15-word phrase',
-    value: `${15}.${false}`
-  },
-  {
-    label: 'I have 15-word phrase with Passphrase',
-    value: `${15}.${true}`
-  },
-  {
-    label: 'I have 18-word phrase',
-    value: `${18}.${false}`
-  },
-  {
-    label: 'I have 18-word phrase with Passphrase',
-    value: `${18}.${true}`
-  },
-  {
-    label: 'I have 21-word phrase',
-    value: `${21}.${false}`
-  },
-  {
-    label: 'I have 21-word phrase with Passphrase',
-    value: `${21}.${true}`
-  },
-  {
-    label: 'I have 24-word phrase',
-    value: `${24}.${false}`
-  },
-  {
-    label: 'I have 24-word phrase with Passphrase',
-    value: `${24}.${true}`
-  }
-]
-
-const getPropsFromValue = (
-  value: string
-): {
-  length: number
-  withPassphrase: boolean
-} => {
-  const props = value.split('.')
-
-  return {
-    length: Number(props[0]),
-    withPassphrase: props[1] === 'true'
-  }
-}
+export const CARD_WIDTH = 400
 
 const SeedPhraseImportScreen = () => {
-  const { updateStepperState } = useStepper()
+  const { goToPrevRoute, goToNextRoute } = useOnboardingNavigation()
   const { t } = useTranslation()
-  const { addToast } = useToast()
-  const { navigate } = useNavigation()
+
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const accountAdderCtrlState = useAccountAdderControllerState()
-  const keystoreState = useKeystoreControllerState()
+  const { initParams, subType } = useAccountPickerControllerState()
   const {
     watch,
     control,
     handleSubmit,
-    getValues,
     setValue,
-    formState: { isValid, errors }
+    getValues,
+    formState: { isValid },
+    unregister
   } = useForm({
     mode: 'all',
-    defaultValues: {
-      seedFields: arrayWithEmptyString(DEFAULT_SEED_LENGTH),
-      seedLength: SEED_LENGTH_SELECT_OPTIONS[0],
-      passphrase: ''
-    }
+    defaultValues: { seed: '', passphrase: '' }
   })
-  const { maxWidthSize } = useWindowSize()
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'seedFields'
-  })
+  const [importButtonPressed, setImportButtonPressed] = useState(false)
+
   const [enablePassphrase, setEnablePassphrase] = useState(false)
   const [seedPhraseStatus, setSeedPhraseStatus] = useState<'incomplete' | 'valid' | 'invalid'>(
     'incomplete'
   )
 
   useEffect(() => {
-    updateStepperState(
-      WEB_ROUTES.importSeedPhrase,
-      keystoreState.hasKeystoreSavedSeed ? 'seed' : 'seed-with-option-to-save'
-    )
-  }, [updateStepperState, keystoreState.hasKeystoreSavedSeed])
-
-  useEffect(() => {
     const { unsubscribe } = watch((value) => {
-      const formattedSeed = value.seedFields?.map((field) => field.value?.trim()).join(' ') || ''
-
-      // Some fields are empty
-      if (!value.seedLength) {
+      if (!value.seed) {
         setSeedPhraseStatus('incomplete')
         return
       }
 
-      if (
-        value.seedFields?.filter((field) => field.value).length !==
-        getPropsFromValue(value.seedLength!.value!).length
-      ) {
-        setSeedPhraseStatus('incomplete')
-        return
-      }
+      const formattedSeed = value.seed.trim().split(/\s+/).join(' ')
 
-      // Invalid seed phrase
       if (!Mnemonic.isValidMnemonic(formattedSeed)) {
         setSeedPhraseStatus('invalid')
         return
@@ -165,126 +72,51 @@ const SeedPhraseImportScreen = () => {
       setSeedPhraseStatus('valid')
     })
     return () => unsubscribe()
-  }, [watch, t])
-
-  useEffect(() => {
-    if (
-      accountAdderCtrlState.isInitialized &&
-      // The AccountAdder could have been already initialized with the same or a
-      // different type. Navigate immediately only if the types match.
-      accountAdderCtrlState.type === 'internal' &&
-      accountAdderCtrlState.subType === 'seed'
-    ) {
-      navigate(WEB_ROUTES.accountAdder)
-    }
-  }, [
-    accountAdderCtrlState.isInitialized,
-    accountAdderCtrlState.subType,
-    accountAdderCtrlState.type,
-    navigate
-  ])
+  }, [watch])
 
   const handleFormSubmit = useCallback(async () => {
-    await handleSubmit(({ seedFields, passphrase }) => {
-      const formattedSeed = seedFields.map((field) => field.value).join(' ')
+    await handleSubmit(({ seed, passphrase }) => {
+      const formattedSeed = seed.trim().toLowerCase().replace(/\s+/g, ' ')
+      setImportButtonPressed(true)
       dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED',
         params: {
-          privKeyOrSeed: formattedSeed,
+          seed: formattedSeed,
           seedPassphrase: passphrase || null,
-          shouldAddToTemp: !keystoreState.hasKeystoreSavedSeed
+          hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
         }
+      })
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: { privKeyOrSeed: formattedSeed, seedPassphrase: passphrase || null }
       })
     })()
-  }, [dispatch, handleSubmit, keystoreState.hasKeystoreSavedSeed])
+  }, [dispatch, handleSubmit])
 
-  const updateFieldsLength = useCallback(
-    (value: string) => {
-      const { length, withPassphrase } = getPropsFromValue(value)
-      const currentLength = fields.length
-      const lengthDifference = currentLength - length
+  useEffect(() => {
+    if (!getValues('seed')) return
+    if (!!importButtonPressed && initParams && subType === 'seed') {
+      setImportButtonPressed(false)
+      goToNextRoute()
+    }
+  }, [goToNextRoute, dispatch, getValues, initParams, subType, importButtonPressed])
 
-      setEnablePassphrase(withPassphrase)
-
-      if (lengthDifference === 0) return
-
-      if (lengthDifference > 0) {
-        for (let i = 0; i < lengthDifference; i++) {
-          remove(currentLength - 1 - i)
-        }
-      } else {
-        append(arrayWithEmptyString(Math.abs(lengthDifference)))
-      }
-    },
-    [append, fields.length, remove]
-  )
-
-  const handlePaste = useCallback(
-    (text: string) => {
-      const separators = /[\s,;\n]+/
-      const words = text.trim().split(separators)
-
-      if (words.length === fields.length) {
-        // Wait for the input to register (react-hook-form)
-        setTimeout(() => {
-          words.forEach((word, wordIndex) => {
-            setValue(`seedFields.${wordIndex}.value`, word, {
-              shouldDirty: true,
-              shouldValidate: true,
-              shouldTouch: true
-            })
-          })
-        }, 1)
-        addToast(t('Seed phrase successfully pasted from clipboard'))
-        return
-      }
-
-      const correspondingLengthOption = SEED_LENGTH_SELECT_OPTIONS.find(
-        (option) =>
-          getPropsFromValue(option.value).length === words.length &&
-          getPropsFromValue(option.value).withPassphrase === enablePassphrase
-      )
-
-      if (correspondingLengthOption) {
-        setValue('seedLength', correspondingLengthOption)
-        updateFieldsLength(correspondingLengthOption.value)
-
-        // Wait for the input to register (react-hook-form)
-        setTimeout(() => {
-          words.forEach((word, wordIndex) => {
-            setValue(`seedFields.${wordIndex}.value`, word, {
-              shouldDirty: true,
-              shouldValidate: true,
-              shouldTouch: true
-            })
-          })
-        }, 1)
-
-        addToast(
-          t('Updated Seed Length to {{seedLength}} in order to match clipboard content', {
-            seedLength: words.length
-          })
-        )
-        return
-      }
-
-      // The user may want to paste the words one by one
-      if (words.length === 1) return
-
-      addToast(t('Invalid seed phrase'), {
-        type: 'error'
-      })
-    },
-    [fields, enablePassphrase, setValue, addToast, updateFieldsLength, t]
-  )
+  useEffect(() => {
+    if (!enablePassphrase) {
+      setValue('passphrase', '')
+      unregister('passphrase')
+    }
+  }, [enablePassphrase, setValue, unregister])
 
   const validateSeedPhraseWord = useCallback(
     (value: string) => {
-      const couldValueBeAPastedSeed = value.split(' ').length > 1
+      const formattedSeed = value.trim().toLowerCase().replace(/\s+/g, ' ')
+
+      const couldValueBeAPastedSeed = formattedSeed.length > 1
 
       // If the value contains multiple words, it could be a pasted seed phrase
       // Don't display errors in this case, otherwise an error flashes when pasting
-      if (!value || couldValueBeAPastedSeed) return undefined
+      if (!formattedSeed || couldValueBeAPastedSeed) return undefined
       if (!wordlists.english.includes(value)) return t('invalid-bip39-word')
       return undefined
     },
@@ -293,183 +125,147 @@ const SeedPhraseImportScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="md"
       backgroundColor={theme.secondaryBackground}
-      header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton fallbackBackRoute={ROUTES.dashboard} />
-          <Button
-            testID="import-button"
-            accessibilityRole="button"
-            text={t('Import')}
-            size="large"
-            hasBottomSpacing={false}
-            disabled={!isValid || seedPhraseStatus !== 'valid'}
-            onPress={handleFormSubmit}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel>
-          <View style={[spacings.mbMd, flexbox.directionRow, flexbox.justifySpaceBetween]}>
-            <View style={spacings.ptTy}>
-              <Text
-                fontSize={maxWidthSize('xl') ? 20 : 18}
-                weight="medium"
-                appearance="primaryText"
-                numberOfLines={1}
-                style={spacings.mrTy}
+        <Panel
+          type="onboarding"
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+          title={t('Import recovery phrase')}
+          step={1}
+          totalSteps={2}
+        >
+          <View style={[flexbox.justifySpaceBetween, flexbox.flex1]}>
+            <View>
+              <Button
+                testID="clear-seed-phrase-btn"
+                type="ghost"
+                size="small"
+                onPress={() => {
+                  setValue('seed', '')
+                  setSeedPhraseStatus('incomplete')
+                }}
+                style={[spacings.mbTy, spacings.ph0, flexbox.alignSelfEnd]}
               >
-                {t('Enter your seed phrase')}
-              </Text>
-            </View>
-            <Controller
-              name="seedLength"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <Select
-                  testID="select-seed-phrase-length"
-                  setValue={(e) => {
-                    updateFieldsLength(e.value as string)
-                    onChange(e)
-                  }}
-                  options={SEED_LENGTH_SELECT_OPTIONS}
-                  selectStyle={{ height: 40 }}
-                  value={value}
-                  containerStyle={{ width: 340 }}
-                />
-              )}
-            />
-          </View>
-          <Alert
-            style={spacings.mbLg}
-            type="info"
-            title={t(
-              'Type in the words individually or paste the entire seed phrase (if separated by spaces) into any field.'
-            )}
-          />
-          <View style={[flexbox.directionRow, flexbox.wrap, { marginBottom: -SPACING_MI }]}>
-            {fields.map((field, index) => (
-              <View
-                key={field.id}
-                style={[
-                  flexbox.directionRow,
-                  (index + 1) % 4 !== 0 ? spacings.pr : {},
-                  spacings.mbTy,
-                  { width: '25%' }
-                ]}
-              >
-                <Text fontSize={14} weight="medium" style={[{ marginTop: 10, width: 24 }]}>
-                  {index + 1}.
-                </Text>
-                <View
-                  style={[
-                    flexbox.flex1,
-                    {
-                      height: 64
-                    }
-                  ]}
-                >
-                  <Controller
-                    control={control}
-                    rules={{
-                      required: true,
-                      validate: validateSeedPhraseWord
-                    }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <Input
-                        testID={`seed-phrase-field-${index + 1}`}
-                        value={value}
-                        editable
-                        numberOfLines={1}
-                        inputWrapperStyle={{ height: 40 }}
-                        inputStyle={{ height: 38 }}
-                        placeholder={t('Word {{index}}', { index: index + 1 })}
-                        containerStyle={spacings.mb0}
-                        placeholderTextColor={theme.secondaryText}
-                        // @ts-ignore
-                        isValid={errors.seedFields?.[index] ? false : undefined}
-                        // any type, because nativeEvent?.inputType is web only
-                        onChange={(e: any) => {
-                          if (!isWeb) return onChange(e)
-                          const prevValue = getValues(`seedFields.${index}.value`)
-                          const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
-
-                          if (e.nativeEvent?.inputType === 'insertFromPaste') {
-                            handlePaste(newValueWithoutPrevValue)
-                          }
-                          onChange(e)
-                        }}
-                        onSubmitEditing={handleFormSubmit}
-                        onBlur={onBlur}
-                      />
-                    )}
-                    name={`seedFields.${index}.value`}
-                  />
-                  {/* @ts-ignore */}
-                  {errors.seedFields?.[index]?.value?.message === 'invalid-bip39-word' && (
-                    <Text fontSize={10} appearance="errorText" style={styles.errorText}>
-                      {t('Invalid ')}
-                      <Pressable
-                        onPress={() =>
-                          openInTab(
-                            'https://raw.githubusercontent.com/bitcoin/bips/refs/heads/master/bip-0039/english.txt',
-                            false
-                          )
-                        }
-                      >
-                        <Text
-                          fontSize={10}
-                          appearance="errorText"
-                          style={{
-                            textDecorationLine: 'underline'
-                          }}
-                          weight="medium"
-                        >
-                          {t('BIP39')}
-                        </Text>
-                      </Pressable>
-                      {t(' word')}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            ))}
-          </View>
-
-          {enablePassphrase && (
-            <View style={styles.passphraseContainer}>
+                <BrushIcon />
+              </Button>
               <Controller
                 control={control}
-                rules={{ required: true }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <InputPassword
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    placeholder="Seed Passphrase"
-                    inputWrapperStyle={{ height: 40 }}
-                    inputStyle={{ height: 40 }}
-                    containerStyle={{ flex: 0.5 }}
-                  />
-                )}
-                name="passphrase"
-              />
-            </View>
-          )}
+                rules={{
+                  required: true,
+                  validate: validateSeedPhraseWord
+                }}
+                name="seed"
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const words = value.split(/(\s+)/)
 
-          {seedPhraseStatus === 'invalid' ? (
-            <Alert
-              type="error"
-              title={t('Invalid Seed Phrase. Please review every field carefully.')}
+                  const styledOverlay = (
+                    <View style={styles.overlay}>
+                      {words.map((word, index) => {
+                        const isWhitespace = /^\s+$/.test(word)
+                        const cleanWord = word.trim().toLowerCase()
+                        const isValidWord = isWhitespace || wordlists.english.includes(cleanWord)
+
+                        if (isWhitespace) {
+                          return (
+                            <Text key={`space-${String(index)}`} fontSize={14}>
+                              {word}
+                            </Text>
+                          )
+                        }
+
+                        return (
+                          <Text
+                            key={`${word}-${String(index)}`}
+                            fontSize={14}
+                            style={{
+                              color: isValidWord ? theme.primaryText : theme.errorText,
+                              textDecorationLine: isValidWord ? 'none' : 'underline'
+                            }}
+                          >
+                            {word}
+                          </Text>
+                        )
+                      })}
+                    </View>
+                  )
+
+                  return (
+                    <View style={styles.textAreaWrapper}>
+                      {styledOverlay}
+                      <TextArea
+                        testID="enter-seed-phrase-field"
+                        value={value}
+                        editable
+                        multiline
+                        numberOfLines={4}
+                        autoFocus
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        inputWrapperStyle={{
+                          position: 'relative',
+                          backgroundColor: 'transparent',
+                          zIndex: 2
+                        }}
+                        placeholder={t('Write or paste your recovery phrase')}
+                        isValid={seedPhraseStatus === 'valid'}
+                        error={seedPhraseStatus === 'invalid' && t('Invalid recovery phrase.')}
+                        placeholderTextColor={theme.secondaryText}
+                        onSubmitEditing={handleFormSubmit}
+                        nativeInputStyle={{
+                          color: 'rgba(0, 0, 0, 0.01)',
+                          // @ts-ignore caretColor: theme.primaryText
+                          caretColor: theme.primaryText
+                        }}
+                      />
+                    </View>
+                  )
+                }}
+              />
+              <Toggle
+                testID="enable-passphrase-toggle"
+                isOn={enablePassphrase}
+                onToggle={() => setEnablePassphrase((prev) => !prev)}
+                label={t('Advanced mode')}
+                labelProps={{
+                  fontSize: 14,
+                  weight: 'regular',
+                  appearance: 'secondaryText'
+                }}
+                style={flexbox.alignSelfStart}
+              />
+              {enablePassphrase ? (
+                <View style={styles.passphraseContainer}>
+                  <Controller
+                    control={control}
+                    rules={{ required: enablePassphrase }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <InputPassword
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Recovery phrase passphrase"
+                        containerStyle={flexbox.flex1}
+                      />
+                    )}
+                    name="passphrase"
+                  />
+                </View>
+              ) : null}
+            </View>
+
+            <Button
+              testID="import-button"
+              size="large"
+              text={t('Confirm')}
+              hasBottomSpacing={false}
+              onPress={handleFormSubmit}
+              disabled={!isValid || seedPhraseStatus === 'invalid'}
             />
-          ) : null}
+          </View>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

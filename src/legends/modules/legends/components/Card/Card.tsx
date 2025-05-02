@@ -1,15 +1,15 @@
 import React, { FC, useState } from 'react'
 
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
+import useAccountContext from '@legends/hooks/useAccountContext'
+import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import useToast from '@legends/hooks/useToast'
 import ActionModal from '@legends/modules/legends/components/ActionModal'
 import { PREDEFINED_ACTION_LABEL_MAP } from '@legends/modules/legends/constants'
 import { CardActionType, CardFromResponse, CardStatus } from '@legends/modules/legends/types'
-import getRecentActivity from '@legends/contexts/activityContext/helpers/recentActivity'
 
-import useAccountContext from '@legends/hooks/useAccountContext'
-import useDataPollingContext from '@legends/hooks/useDataPollingContext'
 import CardContent from './CardContent'
 import OnCompleteModal from './OnCompleteModal'
 
@@ -24,10 +24,11 @@ const Card: FC<Props> = ({ cardData }) => {
   const buttonText = PREDEFINED_ACTION_LABEL_MAP[predefinedId] || 'Proceed'
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [isOnCompleteModalVisible, setIsOnCompleteModalVisible] = useState(false)
-  const { onLegendComplete } = useLegendsContext()
-  const { connectedAccount } = useAccountContext()
+  const { onLegendComplete, treasureChestStreak } = useLegendsContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const { addToast } = useToast()
   const { startPolling, stopPolling } = useDataPollingContext()
+  const nonConnectedAcc = Boolean(!connectedAccount || v1Account)
 
   const openActionModal = () => {
     stopPolling()
@@ -99,7 +100,8 @@ const Card: FC<Props> = ({ cardData }) => {
         action={action}
         openActionModal={openActionModal}
         disabled={disabled}
-        buttonText={buttonText}
+        nonConnectedAcc={nonConnectedAcc}
+        treasureChestStreak={treasureChestStreak}
       />
       {/* Modals */}
       <OnCompleteModal

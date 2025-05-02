@@ -36,6 +36,7 @@ export interface InputProps extends TextInputProps {
   disabled?: boolean
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
+  setInputRef?: (ref: TextInput | null) => void
   inputBorderWrapperRef?: React.RefObject<View>
   nativeInputStyle?: ViewStyle & TextStyle
   borderWrapperStyle?: ViewStyle
@@ -78,6 +79,7 @@ const Input = ({
   childrenBelowInput,
   tooltip,
   borderless,
+  setInputRef,
   inputBorderWrapperRef,
   ...rest
 }: InputProps) => {
@@ -157,6 +159,7 @@ const Input = ({
                 editable={!disabled}
                 onBlur={handleOnBlur}
                 onFocus={handleOnFocus}
+                ref={setInputRef}
                 {...rest}
                 style={[styles.nativeInput, nativeInputStyle]}
               />

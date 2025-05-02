@@ -19,8 +19,8 @@ import text from '@common/styles/utils/text'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-
-import useLedger from '../../hooks/useLedger'
+import useLedger from '@web/modules/hardware-wallet/hooks/useLedger'
+import { getUiType } from '@web/utils/uiType'
 
 type Props = {
   isVisible: boolean
@@ -32,6 +32,8 @@ type Props = {
    */
   displayOptionToAuthorize?: boolean
 }
+
+const { isTab } = getUiType()
 
 const LedgerConnectModal = ({
   isVisible,
@@ -70,13 +72,12 @@ const LedgerConnectModal = ({
   }
 
   const handleOnLedgerReauthorize = useCallback(
-    () =>
-      openInternalPageInTab(`${WEB_ROUTES.hardwareWalletReconnect}?actionId=${currentAction?.id}`),
+    () => openInternalPageInTab(`${WEB_ROUTES.ledgerConnect}?actionId=${currentAction?.id}`),
     [currentAction?.id]
   )
 
   const isLoading =
-    isGrantingPermission || mainCtrlState.statuses.handleAccountAdderInitLedger === 'LOADING'
+    isGrantingPermission || mainCtrlState.statuses.handleAccountPickerInitLedger === 'LOADING'
 
   return (
     <BottomSheet
@@ -87,7 +88,9 @@ const LedgerConnectModal = ({
       closeBottomSheet={handleClose}
       onClosed={handleClose}
       autoOpen={isVisible}
-      type="bottom-sheet"
+      // The modal is displayed in tab in swap and bridge
+      type={!isTab ? 'bottom-sheet' : 'modal'}
+      containerInnerWrapperStyles={isTab ? { ...spacings.pv2Xl, ...spacings.ph2Xl } : {}}
       withBackdropBlur={false}
     >
       <ModalHeader title={t('Connect Ledger')} />

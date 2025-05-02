@@ -59,31 +59,31 @@ export const SETTINGS_LINKS = [
   {
     key: 'transactions',
     Icon: React.memo(TransactionHistoryIcon),
-    label: 'Transaction History',
+    label: 'Transaction history',
     path: ROUTES.transactions
   },
   {
     key: 'messages',
     Icon: React.memo(SignedMessageIcon),
-    label: 'Signed Messages',
+    label: 'Signed messages',
     path: ROUTES.signedMessages
   },
-  {
-    key: 'security',
-    Icon: SidebarSecurityIcon,
-    label: 'Saved Seed Phrase',
-    path: ROUTES.securityAndPrivacy
-  },
+  // { TODO: impl multiple seed phrases support
+  //   key: 'security',
+  //   Icon: SidebarSecurityIcon,
+  //   label: 'Saved Seed Phrase',
+  //   path: ROUTES.securityAndPrivacy
+  // },
   {
     key: 'device-password-change',
     Icon: React.memo(KeyStoreSettingsIcon),
-    label: 'Device Password',
+    label: 'Extension password',
     path: ROUTES.devicePasswordChange
   },
   {
     key: 'device-password-recovery',
     Icon: React.memo(PasswordRecoverySettingsIcon),
-    label: 'Password Recovery',
+    label: 'Password recovery',
     path: ROUTES.devicePasswordRecovery
   },
   {
@@ -97,7 +97,7 @@ export const SETTINGS_LINKS = [
   {
     key: 'manage-tokens',
     Icon: React.memo(CustomTokensIcon),
-    label: 'Custom Tokens',
+    label: 'Custom tokens',
     path: ROUTES.manageTokens
   }
 ]
@@ -119,7 +119,7 @@ const OTHER_LINKS = [
   {
     key: 'report-issue',
     Icon: React.memo(BugIcon),
-    label: 'Report an Issue',
+    label: 'Report an issue',
     path: 'https://help.ambire.com/hc/en-us/requests/new',
     isExternal: true
   }

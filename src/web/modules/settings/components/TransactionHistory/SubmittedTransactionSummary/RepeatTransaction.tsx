@@ -16,10 +16,11 @@ type Props = {
   chainId: bigint
   rawCalls: SubmittedAccountOp['calls']
   textSize: number
+  iconSize: number
   text?: string
 }
 
-const RepeatTransaction: FC<Props> = ({ text, accountAddr, chainId, rawCalls, textSize }) => {
+const RepeatTransaction: FC<Props> = ({ text, accountAddr, chainId, rawCalls, textSize, iconSize }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
@@ -55,13 +56,7 @@ const RepeatTransaction: FC<Props> = ({ text, accountAddr, chainId, rawCalls, te
       <Text fontSize={textSize} appearance="secondaryText" weight="medium" style={spacings.mrMi}>
         {text || t('Repeat Transaction')}
       </Text>
-      <RepeatIcon
-        width={textSize}
-        height={textSize}
-        color={theme.secondaryText}
-        style={spacings.mrMi}
-        strokeWidth={2}
-      />
+      <RepeatIcon width={iconSize} height={iconSize} color={theme.secondaryText} strokeWidth={2} />
     </TouchableOpacity>
   )
 }

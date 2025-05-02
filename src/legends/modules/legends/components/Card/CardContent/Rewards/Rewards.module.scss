@@ -1,9 +1,9 @@
 @import '@legends/styles/base.scss';
 
 // TODO - if we use rem here, it doesn't scale well with round()
-$font-size-lg: 20px;
+$font-size-lg: 24px;
 $gap-lg: 12px;
-$icon-size-lg: 28px;
+$icon-size-lg: 24px;
 $margin-left-lg: -10px;
 
 $scale-factor: 0.75;
@@ -43,7 +43,7 @@ $scale-factor: 0.75;
 
     .itemText {
       font-size: var(--font-size);
-      color: $blackText;
+      color: $whiteText;
     }
 
     svg {

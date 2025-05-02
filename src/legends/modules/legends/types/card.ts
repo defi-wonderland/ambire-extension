@@ -15,6 +15,7 @@ export enum CardActionType {
 export type CardActionCalls = {
   type: CardActionType.calls
   calls: [string, string, string][]
+  chainId?: number
 }
 
 export type CardActionPredefined = {
@@ -60,9 +61,30 @@ export interface CardXp {
   chains: Networks[] | null
 }
 
+export enum CardGroup {
+  Show = 'show',
+  SwapAndBridge = 'swap-and-bridge',
+  Supporter = 'supporter',
+  GasTank = 'gas-tank',
+  Transactions = 'transactions',
+  Seasonal = 'seasonal',
+  MiniGame = 'mini-game'
+}
+
+export enum CardGroupNameMapping {
+  'show' = 'Show',
+  'swap-and-bridge' = 'Swap And Bridge',
+  'supporter' = 'Supporter',
+  'gas-tank' = 'Gas Tank',
+  'transactions' = 'Transactions',
+  'seasonal' = 'Seasonal',
+  'mini-game' = 'Mini Game'
+}
+
 export interface CardFromResponse {
   id: string
   title: string
+  shortTitle: string
   xp: CardXp[]
   action: CardAction
   card: {
@@ -70,7 +92,9 @@ export interface CardFromResponse {
     status: CardStatus
   }
   image: string
+  imageV2?: string
   timesCollectedToday: number
+  group: CardGroup
   meta?: {
     invitationKey?: string
     timesUsed?: number
@@ -90,8 +114,8 @@ export interface CardFromResponse {
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
   }
   contentSteps?: string[]
-  contentImage?: string
-  contentVideo?: string
+  contentImageV2?: string
+  contentVideoV2?: string
 }
 
 export interface ChestCard extends Omit<CardFromResponse, 'id' | 'meta'> {

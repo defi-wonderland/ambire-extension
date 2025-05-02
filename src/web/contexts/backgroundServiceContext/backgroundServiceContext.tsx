@@ -4,6 +4,7 @@ import React, { createContext, useEffect, useMemo, useRef } from 'react'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused'
+import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
@@ -95,7 +96,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const route = useRoute()
   const timer: any = useRef()
   const isFocused = useIsScreenFocused()
-
+  const { navigate } = useNavigation()
   useEffect(() => {
     const url = `${window.location.origin}${route.pathname}${route.search}${route.hash}`
     dispatch({ type: 'UPDATE_PORT_URL', params: { url } })
@@ -188,6 +189,14 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
 
     return () => eventBus.removeEventListener('addToast', onAddToast)
   }, [addToast])
+
+  useEffect(() => {
+    const onNavigate = ({ route: navRoute }: { route: string }) => navigate(navRoute)
+
+    eventBus.addEventListener('navigate', onNavigate)
+
+    return () => eventBus.removeEventListener('navigate', onNavigate)
+  }, [addToast, navigate])
 
   return (
     <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [])}>

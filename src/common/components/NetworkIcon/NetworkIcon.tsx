@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
@@ -92,12 +93,15 @@ const NetworkIcon = ({
     [iconScale, networkName, size, style, theme]
   )
 
+  // Ensure tooltip ID is unique per component to avoid duplicates when multiple are rendered (with same network name)
+  const tooltipId = useMemo(() => `${networkName}-${nanoid(6)}`, [networkName])
+
   return (
     <>
       <View
         // @ts-ignore
         dataSet={{
-          tooltipId: `${networkName}`,
+          tooltipId,
           tooltipContent: `${network?.name}`
         }}
         style={[
@@ -129,7 +133,7 @@ const NetworkIcon = ({
       </View>
       {!!network && withTooltip && (
         <Tooltip
-          id={networkName}
+          id={tooltipId}
           style={{
             paddingRight: SPACING_TY,
             paddingLeft: SPACING_TY,

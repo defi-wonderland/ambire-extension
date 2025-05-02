@@ -111,6 +111,7 @@ const NetworksSettingsScreen = () => {
               type="primary"
               size="small"
               text={t('Add network from Chainlist')}
+              testID="add-network-from-chainlist"
               onPress={navigateToChainlist}
               style={{ height: 48, ...spacings.mbTy }}
               childrenPosition="left"
@@ -121,6 +122,7 @@ const NetworksSettingsScreen = () => {
               type="secondary"
               size="small"
               text={t('Add network manually')}
+              testID="add-network-manually"
               onPress={openBottomSheet as any}
               hasBottomSpacing={false}
               style={{ height: 48 }}

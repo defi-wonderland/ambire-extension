@@ -25,7 +25,7 @@ const ContactsList = () => {
       <ScrollableWrapper style={flexbox.flex1}>
         {walletAccountsSourcedContacts.length > 0 ? (
           <>
-            <TitleAndIcon title={t('My Wallets')} icon={WalletFilledIcon} />
+            <TitleAndIcon title={t('My wallets')} icon={WalletFilledIcon} />
             {walletAccountsSourcedContacts.map((contact) => (
               <AddressBookContact
                 testID={`name-${contact.name.toLowerCase().replace(/\s+/g, '-')}`}
@@ -57,7 +57,7 @@ const ContactsList = () => {
           <>
             <Text fontSize={14}>{t('Your Address Book is empty.')}</Text>
             <Text fontSize={14} style={spacings.mbXl}>
-              {t('Why not add addresses you often interact with to your address book?')}
+              {t('Why not add addresses you often interact with to your Address Book?')}
             </Text>
           </>
         ) : null}

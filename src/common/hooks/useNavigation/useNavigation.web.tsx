@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Subject } from 'rxjs'
 
 import { TitleChangeEventStreamType, UseNavigationReturnType } from './types'
@@ -10,6 +10,8 @@ export const titleChangeEventStream: TitleChangeEventStreamType = new Subject<st
 const useNavigation = (): UseNavigationReturnType => {
   const nav = useNavigate()
   const currentRoute = useLocation()
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const [searchParams, _setSearchParams] = useSearchParams()
 
   const navigate = useCallback<UseNavigationReturnType['navigate']>(
     (to, options) => {
@@ -39,8 +41,18 @@ const useNavigation = (): UseNavigationReturnType => {
     // All other options are not supported in the web context
   }, [])
 
-  // Needed only in the mobile context
-  const setParams = useCallback(() => {}, [])
+  // A custom implementation is required as the default setSearchParams
+  // doesn't persist the current route state
+  const setSearchParams = useCallback<UseNavigationReturnType['setSearchParams']>(
+    (params) => {
+      _setSearchParams(params, {
+        // Persist the current route state
+        state: currentRoute.state,
+        replace: true
+      })
+    },
+    [_setSearchParams, currentRoute.state]
+  )
 
   const prevRoute = useMemo(() => {
     if (!currentRoute.state?.prevRoute) return null
@@ -50,9 +62,10 @@ const useNavigation = (): UseNavigationReturnType => {
 
   return {
     navigate,
-    setParams,
     setOptions,
+    setSearchParams,
     goBack,
+    searchParams,
     canGoBack: !!prevRoute
   }
 }

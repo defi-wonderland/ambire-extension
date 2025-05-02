@@ -1,19 +1,45 @@
 // @ts-nocheck
 
 import { browser, isSafari } from '@web/constants/browserapi'
+import { closeCurrentWindow } from '@web/extension-services/background/webapi/window'
 
-import { closeCurrentWindow } from './window'
+const createTab = async (url: string): Promise<number | undefined> => {
+  const extensionId = browser?.runtime?.id
+  if (url.startsWith('http') && !url.includes(extensionId)) {
+    const tab = await browser.tabs.create({ active: true, url })
+    return tab
+  }
+  try {
+    const allTabs = ((await browser.tabs.query({})) || []).filter(
+      (t) => !t.url.includes('action-window.html')
+    )
+    const base = browser.runtime.getURL('/')
+    const fullUrl = new URL(url, base)
+    const route = fullUrl.hash.replace(/^#/, '')
 
-const createTab = async (url): Promise<number | undefined> => {
-  const tab = await browser.tabs.create({ active: true, url })
+    const existingTab = allTabs.find((tab) => {
+      return tab.url?.includes(extensionId)
+    })
 
-  return tab?.id
-}
+    if (existingTab && existingTab.id) {
+      const existingUrl = new URL(existingTab.url)
+      const tabRoute = existingUrl.hash.replace(/^#/, '')
+      const samePath = tabRoute === route
 
-const openIndexPage = (route = ''): Promise<number | undefined> => {
-  const url = `index.html${route && `#/${route}`}`
+      if (samePath) {
+        await browser.tabs.update(existingTab.id, { active: true })
+      } else {
+        await browser.tabs.update(existingTab.id, { url, active: true })
+      }
+      await browser.tabs.move(existingTab.id, { index: -1 })
+      return existingTab.id
+    }
 
-  return createTab(url)
+    const tab = await browser.tabs.create({ active: true, url })
+    return tab
+  } catch (error) {
+    console.error('Error in createTab: ', error)
+  }
 }
 
 const getCurrentTab = async (): Promise<Tabs.Tab> => {
@@ -27,7 +53,7 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
 }
 
 export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
-  const tab = await browser.tabs.create({ active: true, url })
+  const tab = await createTab(url)
   if (needClose) {
     if (!isSafari()) await closeCurrentWindow()
   }
@@ -37,28 +63,19 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
 
 const routeableSearchParams = ['flow', 'goBack']
 
-const openInternalPageInTab = async (route?: string, useWebapi = true, searchParams = {}) => {
-  if (useWebapi) {
-    const searchToParams = searchParams
-      ? `${Object.keys(searchParams)
-          .map((key) =>
-            routeableSearchParams.indexOf(key) !== -1 ? `${key}=${searchParams[key]}` : ''
-          )
-          .filter((value: string) => value)
-          .join('&')}`
-      : ''
+const openInternalPageInTab = async (route?: string, searchParams = {}) => {
+  const searchToParams = searchParams
+    ? `${Object.keys(searchParams)
+        .map((key) =>
+          routeableSearchParams.indexOf(key) !== -1 ? `${key}=${searchParams[key]}` : ''
+        )
+        .filter((value: string) => value)
+        .join('&')}`
+    : ''
 
-    /* eslint-disable @typescript-eslint/no-floating-promises */
-    openInTab(
-      `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`
-    )
-  } else {
-    window.open(`./tab.html${route ? `#/${route}` : ''}`)
-  }
+  await openInTab(
+    `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`
+  )
 }
 
-const getAllOpenedTabs = async (): Promise<Tabs.Tab[]> => {
-  return browser.tabs.query({})
-}
-
-export { createTab, openIndexPage, getCurrentTab, openInternalPageInTab, getAllOpenedTabs }
+export { createTab, getCurrentTab, openInternalPageInTab }

@@ -35,8 +35,9 @@ const InviteAcc: FC<Props> = ({
 }) => {
   const { addToast } = useToast()
   const { onComplete, handleClose } = useCardActionContext()
-  const { connectedAccount, allAccounts } = useAccountContext()
 
+  const { connectedAccount, allAccounts, v1Account } = useAccountContext()
+  const isInvalidAccount = Boolean(!connectedAccount || v1Account)
   const [isInProgress, setIsInProgress] = useState(false)
 
   const {
@@ -125,8 +126,10 @@ const InviteAcc: FC<Props> = ({
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      buttonText={buttonText}
-      disabled={validation.isError || addressState.isDomainResolving}
+      buttonText={
+        isInvalidAccount ? 'Switch to a smart account to unlock Rewards quests' : buttonText
+      }
+      disabled={isInvalidAccount || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}
     >
       <AddressInput

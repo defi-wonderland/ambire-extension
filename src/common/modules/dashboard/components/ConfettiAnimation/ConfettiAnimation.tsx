@@ -9,13 +9,13 @@ import animation from './animation.json'
 const ConfettiAnimation = ({
   width,
   height,
-  style,
+  style = {},
   type = 'primary',
   ...rest
 }: {
   width: number
   height: number
-  style: React.CSSProperties
+  style?: React.CSSProperties
   type?: 'primary' | 'secondary'
 } & Omit<LottieComponentProps, 'animationData'>) => {
   return (
@@ -30,7 +30,7 @@ const ConfettiAnimation = ({
         alignSelf: 'center',
         ...style
       }}
-      loop={false}
+      loop
     />
   )
 }

@@ -11,7 +11,8 @@
 
   .socials {
     display: flex;
-    gap: 0.75rem;
+    gap: .5rem;
+    margin-bottom: 1rem;
 
     .social {
       display: flex;
@@ -22,9 +23,8 @@
       height: 2rem;
       font-size: 1.25rem;
       color: $primaryText;
-      background-color: $tertiaryBackground;
+      background-color: $primaryBackground300;
       border-radius: $primaryBorderRadius;
-      border: 1px solid $tertiaryBorder;
 
       &.discordSocial {
         display: none;

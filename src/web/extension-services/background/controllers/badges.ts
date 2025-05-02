@@ -35,7 +35,7 @@ export class BadgesController {
 
     this.#mainCtrl.onUpdate(() => {
       this.badgesCount = this.#mainCtrl.actions.visibleActionsQueue.filter(
-        (a) => a.type !== 'benzin'
+        (a) => a.type !== 'benzin' && a.type !== 'swapAndBridge'
       ).length
       const swapAndBridgeBannersCount = this.#mainCtrl.swapAndBridge.banners.filter(
         (b) => b.category === 'bridge-ready'

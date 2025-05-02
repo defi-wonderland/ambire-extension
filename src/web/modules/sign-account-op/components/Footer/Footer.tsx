@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -69,17 +70,19 @@ const Footer = ({
             accentColor={theme.primary}
             text={
               batchCount > 1
-                ? t('Add to Batch ({{batchCount}})', {
+                ? t('Add to batch ({{batchCount}})', {
                     batchCount
                   })
-                : t('Start a Batch')
+                : t('Start a batch')
             }
             onPress={onAddToCart}
             disabled={isAddToCartDisabled}
             hasBottomSpacing={false}
             style={{ minWidth: 160, ...spacings.ph, ...spacings.mr }}
             size="large"
-          />
+          >
+            <BatchIcon style={spacings.mlTy} />
+          </Button>
         )}
         <Button
           testID="transaction-button-sign"

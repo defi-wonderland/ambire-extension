@@ -8,6 +8,10 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import styles from './styles'
 
+// TODO: We need to implement a logic what will happen if we bump the version of the terms
+// We need to make sure that the user will see the new terms and accept them
+export const TERMS_VERSION = '1.0.0'
+
 const TermsComponent = () => {
   const { t } = useTranslation()
 

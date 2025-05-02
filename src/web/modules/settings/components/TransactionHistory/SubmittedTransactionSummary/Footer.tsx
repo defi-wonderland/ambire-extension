@@ -10,9 +10,7 @@ import { AccountOpStatus } from '@ambire-common/libs/accountOp/types'
 import { resolveAssetInfo } from '@ambire-common/services/assetInfo'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LinkIcon from '@common/assets/svg/LinkIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -32,7 +30,6 @@ import SubmittedOn from './SubmittedOn'
 type Props = {
   network: Network
   size: 'sm' | 'md' | 'lg'
-  defaultType: 'summary' | 'full-info'
   rawCalls?: SubmittedAccountOp['calls']
 } & Pick<
   SubmittedAccountOp,
@@ -48,7 +45,6 @@ const Footer: FC<Props> = ({
   gasFeePayment,
   status,
   size,
-  defaultType,
   timestamp
 }) => {
   const { styles } = useTheme(getStyles)
@@ -57,11 +53,12 @@ const Footer: FC<Props> = ({
   const { t } = useTranslation()
   const textSize = 14 * sizeMultiplier[size]
   const iconSize = 26 * sizeMultiplier[size]
-  const isFooterExpandable =
+  const iconSizeSm = 14 * sizeMultiplier[size]
+
+  const canViewFeeAndTransaction =
     status !== AccountOpStatus.Rejected &&
     status !== AccountOpStatus.BroadcastButStuck &&
     status !== AccountOpStatus.UnknownButPastNonce
-  const [isFooterExpanded, setIsFooterExpanded] = useState(defaultType === 'full-info')
   const { chainId } = network
 
   const [feeFormattedValue, setFeeFormattedValue] = useState<string>()
@@ -81,14 +78,6 @@ const Footer: FC<Props> = ({
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
   }, [network?.chainId, txnId, identifiedBy, addToast])
-
-  const handleOpenBlockExplorer = useCallback(async () => {
-    try {
-      await createTab(`${network?.explorerUrl}/tx/${txnId}`)
-    } catch (e: any) {
-      addToast(e?.message || 'Error opening block explorer', { type: 'error' })
-    }
-  }, [network?.explorerUrl, txnId, addToast])
 
   useEffect((): void => {
     const feeTokenAddress = gasFeePayment?.inToken
@@ -130,18 +119,18 @@ const Footer: FC<Props> = ({
     <View style={spacings.phMd}>
       <View style={styles.footer}>
         <StatusBadge status={status} textSize={textSize} />
-        {!!isFooterExpanded && isFooterExpandable && (
-          <View style={spacings.mrTy}>
+        {canViewFeeAndTransaction && (
+          <View style={spacings.mrMd}>
             <Text fontSize={textSize} appearance="secondaryText" weight="semiBold">
               {t('Fee')}:
             </Text>
 
             {gasFeePayment?.isSponsored ? (
-              <Text fontSize={14} appearance="successText" style={spacings.mrTy}>
+              <Text fontSize={12} appearance="successText" weight="semiBold">
                 {t('Sponsored')}
               </Text>
             ) : (
-              <Text fontSize={textSize} appearance="secondaryText" style={spacings.mrTy}>
+              <Text fontSize={textSize} appearance="secondaryText">
                 {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
               </Text>
             )}
@@ -152,9 +141,9 @@ const Footer: FC<Props> = ({
           iconSize={iconSize}
           chainId={network.chainId}
           timestamp={timestamp}
-          numberOfLines={isFooterExpanded ? 2 : 1}
+          numberOfLines={2}
         />
-        {isFooterExpanded && isFooterExpandable && (
+        {canViewFeeAndTransaction && (
           <View style={[flexbox.alignEnd]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
@@ -169,71 +158,22 @@ const Footer: FC<Props> = ({
               >
                 {t('View transaction')}
               </Text>
-              <LinkIcon />
+              <LinkIcon width={iconSizeSm} height={iconSizeSm} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[flexbox.directionRow, flexbox.alignCenter]}
-              onPress={handleOpenBlockExplorer}
-            >
-              <Text
-                fontSize={textSize}
-                appearance="secondaryText"
-                weight="medium"
-                style={spacings.mrMi}
-                underline
-              >
-                {t('View in block explorer')}
-              </Text>
-              <LinkIcon />
-            </TouchableOpacity>
+            {rawCalls?.length ? (
+              <RepeatTransaction
+                accountAddr={accountAddr}
+                chainId={network.chainId}
+                rawCalls={rawCalls}
+                textSize={textSize}
+                iconSize={iconSizeSm}
+              />
+            ) : (
+              <View />
+            )}
           </View>
         )}
-        {isFooterExpandable && !isFooterExpanded && (
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter]}
-            onPress={() => setIsFooterExpanded(true)}
-          >
-            <Text
-              fontSize={textSize}
-              appearance="secondaryText"
-              weight="medium"
-              style={spacings.mrMi}
-            >
-              {t('Show more')}
-            </Text>
-            <DownArrowIcon />
-          </TouchableOpacity>
-        )}
       </View>
-
-      {isFooterExpandable && defaultType === 'summary' && isFooterExpanded && (
-        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbSm]}>
-          {rawCalls?.length ? (
-            <RepeatTransaction
-              accountAddr={accountAddr}
-              chainId={network.chainId}
-              rawCalls={rawCalls}
-              textSize={textSize}
-            />
-          ) : (
-            <View />
-          )}
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter]}
-            onPress={() => setIsFooterExpanded(false)}
-          >
-            <Text
-              fontSize={textSize}
-              appearance="secondaryText"
-              weight="medium"
-              style={spacings.mrMi}
-            >
-              {t('Show less')}
-            </Text>
-            <UpArrowIcon />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   )
 }

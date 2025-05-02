@@ -1,143 +1,113 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { Animated, TouchableOpacity, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import BackButton from '@common/components/BackButton'
-import Button from '@common/components/Button'
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
+import BottomSheet from '@common/components/BottomSheet'
+import Checkbox from '@common/components/Checkbox'
+import DualChoiceModal from '@common/components/DualChoiceModal'
 import Panel from '@common/components/Panel'
-import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
+import Text from '@common/components/Text'
+import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import storage from '@web/extension-services/background/webapi/storage'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
-import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
+import TermsComponent from '@web/modules/terms/components'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
-  const { params, search } = useRoute()
-  const { updateStepperState } = useStepper()
+
+  const { goToPrevRoute } = useOnboardingNavigation()
   const { theme } = useTheme()
-  const keyStoreSetup = useKeyStoreSetup()
-
-  const flow = useMemo(() => {
-    if (params?.flow) return params.flow
-
-    const searchParams = new URLSearchParams(search)
-
-    return searchParams.get('flow') || null
-  }, [params?.flow, search])
+  const [agreedWithTerms, setAgreedWithTerms] = useState(true)
+  const { ref: termsModalRef, open: openTermsModal, close: closeTermsModal } = useModalize()
+  const animation = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
-    if (!flow) return
-    updateStepperState(WEB_ROUTES.keyStoreSetup, flow)
-  }, [updateStepperState, flow])
-
-  useEffect(() => {
-    if (!flow) {
-      navigate(WEB_ROUTES.getStarted)
-    }
-  }, [flow, navigate])
-
-  useEffect(() => {
-    ;(async () => {
-      const secrets = await storage.get('keystoreSecrets', [])
-      if (secrets.some((s: any) => s.id === 'password')) {
-        goBack()
-      }
-    })()
-  }, [goBack])
-
-  const onKeyStoreCreation = useCallback(() => {
-    if (flow === 'hw') {
-      navigate(WEB_ROUTES.hardwareWalletSelect, {
-        state: { backTo: WEB_ROUTES.getStarted }
-      })
-      return
-    }
-    if (flow === 'seed') {
-      navigate(WEB_ROUTES.importSeedPhrase, {
-        state: { backTo: WEB_ROUTES.importHotWallet }
-      })
-      return
-    }
-    if (flow === 'create-seed') {
-      navigate(WEB_ROUTES.createSeedPhrasePrepare, {
-        state: { backTo: WEB_ROUTES.importHotWallet }
-      })
-      return
-    }
-    if (flow === 'private-key') {
-      navigate(WEB_ROUTES.importPrivateKey, {
-        state: { backTo: WEB_ROUTES.importHotWallet }
-      })
-      return
-    }
-    if (flow === 'create-seed') {
-      navigate(WEB_ROUTES.createSeedPhrasePrepare, {
-        state: { backTo: WEB_ROUTES.getStarted }
-      })
-    }
-    if (flow === 'import-json') {
-      navigate(WEB_ROUTES.importSmartAccountJson, {
-        state: { backTo: WEB_ROUTES.importHotWallet }
-      })
-    }
-    if (flow === 'seed-with-option-to-save') {
-      navigate(WEB_ROUTES.importSeedPhrase, {
-        state: { backTo: WEB_ROUTES.importHotWallet }
-      })
-    }
-  }, [flow, navigate])
+    Animated.timing(animation, {
+      toValue: 1,
+      duration: 480,
+      useNativeDriver: false
+    }).start()
+  }, [animation])
 
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="xs"
-      header={<Header withAmbireLogo />}
-      footer={
-        <>
-          <BackButton />
-          <Button
-            testID="keystore-button-create"
-            textStyle={{ fontSize: 14 }}
-            size="large"
-            hasBottomSpacing={false}
-            disabled={
-              keyStoreSetup.formState.isSubmitting ||
-              keyStoreSetup.isKeystoreSetupLoading ||
-              !keyStoreSetup.formState.isValid ||
-              keyStoreSetup.hasPasswordSecret
-            }
-            text={
-              keyStoreSetup.formState.isSubmitting || keyStoreSetup.isKeystoreSetupLoading
-                ? t('Creating...')
-                : t('Create')
-            }
-            onPress={keyStoreSetup.handleKeystoreSetup}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Create a Device Password')} forceContainerSmallSpacings>
-          <KeyStoreSetupForm onContinue={onKeyStoreCreation} {...keyStoreSetup} />
+        <Panel
+          type="onboarding"
+          title={t('Set extension password')}
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+          step={2}
+          totalSteps={2}
+        >
+          <View>
+            <Text
+              weight="medium"
+              appearance="secondaryText"
+              style={[spacings.mbXl, spacings.phSm, { textAlign: 'center' }]}
+            >
+              {t('Used to access your local wallet and encrypt your data.')}
+            </Text>
+            <KeyStoreSetupForm agreedWithTerms={agreedWithTerms}>
+              <Checkbox
+                testID="keystore-setup-checkbox"
+                value={agreedWithTerms}
+                onValueChange={setAgreedWithTerms}
+                uncheckedBorderColor={theme.primaryText}
+                style={[spacings.mlSm, spacings.pt2Xl]}
+                label={
+                  <Trans>
+                    <Text fontSize={14}>I agree to the </Text>
+                    <TouchableOpacity
+                      testID="terms-of-service-btn"
+                      onPress={() => openTermsModal()}
+                    >
+                      <Text fontSize={14} underline color={theme.infoDecorative}>
+                        Terms of Service
+                      </Text>
+                    </TouchableOpacity>
+                    .
+                  </Trans>
+                }
+              />
+            </KeyStoreSetupForm>
+          </View>
         </Panel>
       </TabLayoutWrapperMainContent>
+      <BottomSheet
+        id="terms-modal"
+        style={{ maxWidth: 800 }}
+        closeBottomSheet={closeTermsModal}
+        backgroundColor="primaryBackground"
+        sheetRef={termsModalRef}
+      >
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+          <AmbireLogo style={[spacings.mbLg, flexbox.alignCenter]} width={185} height={92} />
+          <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
+            {t('Terms Of Service')}
+          </Text>
+        </View>
+        <DualChoiceModal
+          hideHeader
+          description={<TermsComponent />}
+          primaryButtonText={t('Ok')}
+          onPrimaryButtonPress={closeTermsModal}
+          primaryButtonTestID="terms-accept-btn"
+        />
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }

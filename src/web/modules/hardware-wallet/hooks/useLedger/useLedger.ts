@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import useDebounce from '@common/hooks/useDebounce'
 import { browser } from '@web/constants/browserapi'
-
-import LedgerController from '../../controllers/LedgerController'
+import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 const useLedger = () => {
   const [isLedgerConnected, setIsLedgerConnected] = useState(false)

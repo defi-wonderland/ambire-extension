@@ -8,6 +8,7 @@ import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import { visualizeContent } from '@common/components/HumanizedVisualization/HumanizedVisualization'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -56,13 +57,23 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
     return signedMessage.dapp?.name || 'Unknown App'
   }, [signedMessage.dapp?.name, signedMessage.fromActionId, signedMessage.content.kind])
 
+  const dAppNameTooltipId = useMemo(() => {
+    // Filter out spaces and special characters
+    const encodedDAppName = dAppName
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .replace(/\s+/g, '')
+      .toLowerCase()
+
+    return `${encodedDAppName}-tooltip`
+  }, [dAppName])
+
   return (
     <ExpandableCard
       arrowPosition="right"
       style={style}
       content={
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
-          <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.flex1]}>
+          <View style={[flexbox.alignCenter, flexbox.directionRow, flexbox.flex1, spacings.prTy]}>
             {signedMessage.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID &&
               signedMessage.content.kind !== 'authorization-7702' && (
                 <ManifestImage
@@ -72,9 +83,17 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
                   containerStyle={spacings.mrTy}
                 />
               )}
-            <Text fontSize={16} weight="semiBold">
+            <Text
+              fontSize={16}
+              weight="semiBold"
+              numberOfLines={2}
+              dataSet={{
+                tooltipId: dAppNameTooltipId
+              }}
+            >
               {dAppName}
             </Text>
+            <Tooltip content={dAppName} id={dAppNameTooltipId} />
           </View>
           <View style={flexbox.flex1}>
             {new Date(signedMessage.timestamp).toString() !== 'Invalid Date' && (

@@ -12,6 +12,7 @@ interface Style {
   successBadge: ViewStyle
   warningBadge: ViewStyle
   errorBadge: ViewStyle
+  newBadge: ViewStyle
 }
 
 const label: ViewStyle = {
@@ -26,7 +27,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...flexbox.directionRow,
-      ...common.borderRadiusSecondary
+      ...common.borderRadiusTertiary
     },
     infoBadge: {
       ...label,
@@ -52,6 +53,12 @@ const getStyles = (theme: ThemeProps) =>
       ...label,
       borderColor: theme.errorDecorative,
       backgroundColor: theme.errorBackground
+    },
+    newBadge: {
+      ...label,
+      borderColor: theme.infoDecorative,
+      // @ts-ignore
+      backgroundImage: 'linear-gradient(90deg, #6000FF 0%, #FFA000 100%)'
     }
   })
 

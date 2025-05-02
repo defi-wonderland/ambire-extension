@@ -1,9 +1,10 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { Path } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
+import { LegendsSvgProps } from '@legends/types/svg'
 
-interface Props extends SvgProps {
+interface Props extends LegendsSvgProps {
   width?: number
   height?: number
   weight?: string

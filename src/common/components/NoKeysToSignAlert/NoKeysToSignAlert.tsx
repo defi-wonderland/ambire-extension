@@ -9,6 +9,7 @@ import Alert from '@common/components/Alert'
 import useTheme from '@common/hooks/useTheme'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
+import { getUiType } from '@web/utils/uiType'
 
 import BottomSheet from '../BottomSheet'
 
@@ -52,9 +53,11 @@ const NoKeysToSignAlert: FC<Props> = ({ style, isTransaction = true }) => {
       <BottomSheet
         id="no-key-add-account"
         sheetRef={addAccountsRef}
-        closeBottomSheet={closeAddAccounts}
+        adjustToContentHeight={!getUiType().isPopup}
+        closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
-        <AddAccount />
+        <AddAccount handleClose={closeAddAccounts as any} />
       </BottomSheet>
     </View>
   )

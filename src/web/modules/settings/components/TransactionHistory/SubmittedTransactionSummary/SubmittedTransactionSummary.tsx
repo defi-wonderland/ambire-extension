@@ -24,6 +24,7 @@ interface Props {
   submittedAccountOp: SubmittedAccountOp
   style?: ViewStyle
   size?: 'sm' | 'md' | 'lg'
+  // The primary difference is the ability to expand and view raw transaction details in 'full-info'. All other features are identical.
   defaultType: 'summary' | 'full-info'
 }
 
@@ -89,7 +90,6 @@ const SubmittedTransactionSummaryInner = ({
       ))}
       <Footer
         size={size}
-        defaultType={defaultType}
         network={network}
         rawCalls={submittedAccountOp.calls}
         txnId={submittedAccountOp.txnId}

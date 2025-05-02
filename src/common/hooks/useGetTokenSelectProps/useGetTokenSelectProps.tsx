@@ -11,7 +11,7 @@ import {
   getIsTokenEligibleForSwapAndBridge
 } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
-import CartIcon from '@common/assets/svg/CartIcon'
+import BatchIcon from '@common/assets/svg/BatchIcon'
 import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -202,7 +202,7 @@ const useGetTokenSelectProps = ({
                   label={t('{{symbol}} Pending transaction signature', { symbol })}
                   backgroundColor={colors.lightBrown}
                   textColor={theme.warningText}
-                  Icon={CartIcon}
+                  Icon={BatchIcon}
                 />
               )}
               {!!pendingToBeConfirmed && !!pendingToBeConfirmedFormatted && (

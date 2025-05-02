@@ -96,7 +96,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
     <>
       <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
         <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-          {t('Device Password Recovery with email')}
+          {t('Extension password recovery with email')}
         </Text>
 
         {!keystoreState.hasPasswordSecret && (
@@ -106,14 +106,14 @@ const DevicePasswordRecoverySettingsScreen = () => {
             style={spacings.mbXl}
             title={
               <Text appearance="warningText" weight="semiBold">
-                {t('Set Device Password')}
+                {t('Set extension password')}
               </Text>
             }
             text={t(
-              'Before enabling Device Password Recovery via email, you need to first set a password for your device.'
+              'Before enabling extension password recovery via email, you need to first set a password for your device.'
             )}
             buttonProps={{
-              text: t('Set Device Password'),
+              text: t('Set extension password'),
               onPress: () =>
                 navigate(ROUTES.devicePasswordSet, { state: { flow: 'password-recovery' } })
             }}
@@ -177,7 +177,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
           title={t('How it works')}
           titleWeight="semiBold"
           text={t(
-            "This is a recovery mechanism for your local device password via email. Please note that it doesn't upload any keys, and it is not an account recovery mechanism. \nIt is just an alternative way of unlocking your extension on this device in case you forget your password."
+            "This is a recovery mechanism for your local extension password via email. \nPlease note that it doesn't upload any keys, and it is not an account recovery mechanism. \nIt is just an alternative way of unlocking your extension on this device in case you forget your password."
           )}
         />
       </View>
@@ -197,10 +197,10 @@ const DevicePasswordRecoverySettingsScreen = () => {
         sheetRef={successModalRef}
         autoWidth
       >
-        <ModalHeader title={t('Device Password Recovery')} />
+        <ModalHeader title={t('Extension password recovery')} />
         <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
         <Text fontSize={16} style={[spacings.mbLg, text.center]}>
-          {t('Your Device Password Recovery was successfully enabled!')}
+          {t('Your extension password recovery was successfully enabled!')}
         </Text>
         <Button
           text={t('Got it')}

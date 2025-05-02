@@ -1,3 +1,0 @@
-import HotWalletCreateSelectorScreen from './HotWalletCreateSelectorScreen'
-
-export default HotWalletCreateSelectorScreen

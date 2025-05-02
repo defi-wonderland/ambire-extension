@@ -1,7 +1,9 @@
 import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -15,22 +17,24 @@ interface Props {
   text: string
   icon: React.FC<any>
   onPress: () => void
-  hasLargerBottomSpace?: boolean
+  withBottomSpacing?: boolean
   iconProps?: SvgProps
   children?: React.ReactNode
   testID?: string
   disabled?: boolean
+  status?: 'default' | 'expanded' | 'collapsed'
 }
 
 const Option = ({
   icon: Icon,
   onPress,
-  hasLargerBottomSpace,
+  withBottomSpacing,
   text,
   iconProps = {},
   children,
   testID,
-  disabled
+  disabled,
+  status = 'default'
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
@@ -44,7 +48,12 @@ const Option = ({
   return (
     <AnimatedPressable
       key={text}
-      style={[styles.container, hasLargerBottomSpace && spacings.mbXl, animStyle]}
+      style={[
+        styles.container,
+        withBottomSpacing && spacings.mb,
+        animStyle,
+        disabled && { opacity: 0.5 }
+      ]}
       onPress={onPress}
       {...bindAnim}
       testID={testID}
@@ -58,7 +67,9 @@ const Option = ({
           {text}
         </Text>
         <View style={spacings.mrSm}>
-          <RightArrowIcon />
+          {status === 'default' && <RightArrowIcon />}
+          {status === 'expanded' && <UpArrowIcon />}
+          {status === 'collapsed' && <DownArrowIcon />}
         </View>
       </View>
       {children}

@@ -27,12 +27,14 @@ const StakeWallet = () => {
   const { onComplete, handleClose } = useCardActionContext()
 
   const { addToast } = useToast()
-  const { connectedAccount } = useAccountContext()
+  const { connectedAccount, v1Account } = useAccountContext()
   const switchNetwork = useSwitchNetwork()
+  const disabledButton = Boolean(!connectedAccount || v1Account)
 
   const [walletBalance, setWalletBalance] = useState(null)
 
   useEffect(() => {
+    if (!connectedAccount) return
     const provider = new BrowserProvider(window.ambire)
     const walletContract = new Contract(WALLET_TOKEN, walletIface, provider)
     // @TODO use the pending $WALLET balance in the future
@@ -127,8 +129,16 @@ const StakeWallet = () => {
     <CardActionWrapper
       isLoading={isInProgress}
       loadingText="Signing..."
-      disabled={isInProgress}
-      buttonText={isLoading ? 'Loading...' : !walletBalance ? 'Buy $WALLET' : 'Stake'}
+      disabled={disabledButton || isInProgress}
+      buttonText={
+        disabledButton
+          ? 'Switch to a smart account to unlock Rewards quests'
+          : isLoading
+          ? 'Loading...'
+          : !walletBalance
+          ? 'Buy $WALLET'
+          : 'Stake'
+      }
       onButtonClick={onButtonClick}
     />
   )

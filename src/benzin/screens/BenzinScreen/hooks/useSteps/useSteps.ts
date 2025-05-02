@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { BUNDLER } from '@ambire-common/consts/bundlers'
-import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
+import { AMBIRE_PAYMASTER, ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -49,6 +49,8 @@ export type FeePaidWith = {
   symbol: string
   usdValue: string
   isErc20: boolean
+  isSponsored: boolean
+  chainId: bigint
 }
 
 interface Props {
@@ -64,6 +66,7 @@ interface Props {
   provider: JsonRpcProvider | null
   bundler?: BUNDLER
   extensionAccOp?: SubmittedAccountOp // only for in-app benzina
+  networks: Network[]
 }
 
 export interface StepsData {
@@ -132,7 +135,8 @@ const useSteps = ({
   setActiveStep,
   provider,
   bundler,
-  extensionAccOp
+  extensionAccOp,
+  networks
 }: Props): StepsData => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [txnReceipt, setTxnReceipt] = useState<{
@@ -583,16 +587,25 @@ const useSteps = ({
     let isMounted = true
     let address: string | undefined
     let amount = 0n
+    let isGasTank = false
+    let tokenChainId = 1n
 
     // Smart account
     // Decode the fee call and get the token address and amount
     // that was used to cover the gas feePaidWith
     if (feeCall) {
       try {
-        const { address: addr, amount: tokenAmount } = decodeFeeCall(feeCall, network.chainId)
+        const {
+          address: addr,
+          amount: tokenAmount,
+          isGasTank: isTokenGasTank,
+          chainId
+        } = decodeFeeCall(feeCall, network)
 
         address = addr
         amount = tokenAmount
+        isGasTank = isTokenGasTank
+        tokenChainId = chainId
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Error decoding fee call', e)
@@ -606,40 +619,50 @@ const useSteps = ({
       address = ZeroAddress
     }
 
-    if (!address || !amount) return
+    const isSponsored =
+      (amount === 0n && isGasTank) || (!!userOp && userOp.paymaster !== AMBIRE_PAYMASTER)
+    if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    resolveAssetInfo(address, network, ({ tokenInfo }) => {
-      if (!tokenInfo || !amount) return
-      const { decimals, priceIn } = tokenInfo
-      const price = priceIn.length ? priceIn[0].price : null
+    resolveAssetInfo(
+      address,
+      networks.find((net: Network) => net.chainId === tokenChainId)!,
+      ({ tokenInfo }) => {
+        if (!tokenInfo || (!amount && !isSponsored)) return
+        const { decimals, priceIn } = tokenInfo
+        const price = priceIn.length ? priceIn[0].price : null
 
-      const fee = parseFloat(formatUnits(amount, decimals))
+        const fee = parseFloat(formatUnits(amount, decimals))
 
-      if (!isMounted) return
+        if (!isMounted) return
 
-      setFeePaidWith({
-        amount: formatDecimals(fee),
-        symbol: tokenInfo.symbol,
-        usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
-        isErc20: address !== ZeroAddress,
-        address: address as string
-      })
-    }).catch(() => {
+        setFeePaidWith({
+          amount: formatDecimals(fee),
+          symbol: tokenInfo.symbol,
+          usdValue: price ? formatDecimals(fee * priceIn[0].price, 'value') : '-$',
+          isErc20: address !== ZeroAddress,
+          address: address as string,
+          isSponsored,
+          chainId: tokenChainId
+        })
+      }
+    ).catch(() => {
       if (!isMounted) return
       setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
         symbol: address === ZeroAddress ? 'ETH' : '',
         usdValue: '-$',
         isErc20: false,
-        address: address as string
+        address: address as string,
+        isSponsored,
+        chainId: network.chainId
       })
     })
 
     return () => {
       isMounted = false
     }
-  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network])
+  }, [txnReceipt.actualGasCost, feePaidWith, feeCall, network, userOp, networks])
 
   useEffect(() => {
     if (!network) return

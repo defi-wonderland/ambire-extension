@@ -37,19 +37,30 @@ const routesConfig: RouteConfig = {
       web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Welcome to Ambire Wallet'),
-      web: i18n.t('Welcome to Ambire Wallet')
+      default: i18n.t('Onboarding'),
+      web: i18n.t('Onboarding')
     })
   },
-  [ROUTES.terms]: {
-    route: ROUTES.terms,
+  [ROUTES.importExistingAccount]: {
+    route: ROUTES.importExistingAccount,
     title: Platform.select({
-      default: i18n.t('Terms of Service'),
-      web: i18n.t('Terms of Service')
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Terms of Service'),
-      web: i18n.t('Terms of Service')
+      default: i18n.t('Select Import Method'),
+      web: i18n.t('Select Import Method')
+    })
+  },
+  [ROUTES.ledgerConnect]: {
+    route: ROUTES.ledgerConnect,
+    title: Platform.select({
+      default: i18n.t('Welcome to Ambire Wallet'),
+      web: i18n.t('Welcome to Ambire Wallet')
+    }),
+    name: Platform.select({
+      default: i18n.t('Connect Ledger'),
+      web: i18n.t('Connect Ledger')
     })
   },
   [ROUTES.authEmailAccount]: {
@@ -87,34 +98,16 @@ const routesConfig: RouteConfig = {
   },
   [ROUTES.keyStoreSetup]: {
     route: ROUTES.keyStoreSetup,
-    title: i18n.t('Ambire Key Store'),
-    name: i18n.t('Key Store')
+    title: i18n.t('Welcome to Ambire Wallet'),
+    name: i18n.t('Extension Password Setup')
   },
   [ROUTES.keyStoreReset]: {
     route: ROUTES.keyStoreReset,
     title: i18n.t('Restore Key Store Passphrase'),
     name: i18n.t('Restore Key Store Passphrase')
   },
-  [ROUTES.hardwareWalletSelect]: {
-    route: ROUTES.hardwareWalletSelect,
-    title: Platform.select({
-      default: i18n.t('Select Hardware Wallet')
-    }),
-    name: Platform.select({
-      default: i18n.t('Select Hardware Wallet')
-    })
-  },
-  [ROUTES.hardwareWalletLedger]: {
-    route: ROUTES.hardwareWalletLedger,
-    title: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    }),
-    name: Platform.select({
-      default: i18n.t('Login with Hardware Wallet')
-    })
-  },
-  [ROUTES.accountAdder]: {
-    route: ROUTES.accountAdder,
+  [ROUTES.accountPicker]: {
+    route: ROUTES.accountPicker,
     title: Platform.select({
       default: i18n.t('Add Account')
     }),
@@ -125,19 +118,19 @@ const routesConfig: RouteConfig = {
   [ROUTES.accountPersonalize]: {
     route: ROUTES.accountPersonalize,
     title: Platform.select({
-      default: i18n.t('Personalize Your Accounts')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Personalize Your Accounts')
+      default: i18n.t('Account Personalization')
     })
   },
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
     title: Platform.select({
-      default: i18n.t('Add View-Only Account')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({
-      default: i18n.t('Add View-Only Account')
+      default: i18n.t('Watch an address')
     })
   },
   [ROUTES.dashboard]: {
@@ -251,82 +244,47 @@ const routesConfig: RouteConfig = {
       default: i18n.t('Accounts')
     })
   },
-  [ROUTES.inviteVerify]: {
-    route: ROUTES.inviteVerify,
-    title: Platform.select({
-      default: i18n.t('Verify Email')
-    }),
-    name: Platform.select({ default: i18n.t('Verify Email') })
-  },
-  [ROUTES.importHotWallet]: {
-    route: ROUTES.importHotWallet,
-    title: Platform.select({
-      default: i18n.t('Import Hot Wallet')
-    }),
-    name: Platform.select({ default: i18n.t('Import Hot Wallet') })
-  },
-  [ROUTES.hardwareWalletReconnect]: {
-    route: ROUTES.hardwareWalletReconnect,
-    title: Platform.select({
-      default: i18n.t('Reconnect Hardware Wallet')
-    }),
-    name: Platform.select({ default: i18n.t('Reconnect Hardware Wallet') })
-  },
   [ROUTES.importPrivateKey]: {
     route: ROUTES.importPrivateKey,
     title: Platform.select({
-      default: i18n.t('Import Private Key')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({ default: i18n.t('Import Private Key') })
   },
   [ROUTES.importSeedPhrase]: {
     route: ROUTES.importSeedPhrase,
     title: Platform.select({
-      default: i18n.t('Import Seed Phrase')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Import Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Import Recovery Phrase') })
   },
   [ROUTES.importSmartAccountJson]: {
     route: ROUTES.importSmartAccountJson,
     title: Platform.select({
-      default: i18n.t('Import Smart Account JSON')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
     name: Platform.select({ default: i18n.t('Import Smart Account JSON') })
-  },
-  [ROUTES.createHotWallet]: {
-    route: ROUTES.createHotWallet,
-    title: Platform.select({
-      default: i18n.t('Create Hot Wallet')
-    }),
-    name: Platform.select({ default: i18n.t('Create Hot Wallet') })
   },
   [ROUTES.createSeedPhrasePrepare]: {
     route: ROUTES.createSeedPhrasePrepare,
     title: Platform.select({
-      default: i18n.t('Prepare Seed Phrase')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Prepare Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Create New Recovery Phrase') })
   },
   [ROUTES.createSeedPhraseWrite]: {
     route: ROUTES.createSeedPhraseWrite,
     title: Platform.select({
-      default: i18n.t('Write Seed Phrase')
+      default: i18n.t('Backup Recovery Phrase')
     }),
-    name: Platform.select({ default: i18n.t('Write Seed Phrase') })
+    name: Platform.select({ default: i18n.t('Backup Recovery Phrase') })
   },
-  [ROUTES.createSeedPhraseConfirm]: {
-    route: ROUTES.createSeedPhraseConfirm,
+  [ROUTES.onboardingCompleted]: {
+    route: ROUTES.onboardingCompleted,
     title: Platform.select({
-      default: i18n.t('Confirm Seed Phrase')
+      default: i18n.t('Welcome to Ambire Wallet')
     }),
-    name: Platform.select({ default: i18n.t('Confirm Seed Phrase') })
-  },
-  [ROUTES.saveImportedSeed]: {
-    route: ROUTES.saveImportedSeed,
-    title: Platform.select({
-      default: i18n.t('Save Imported Seed')
-    }),
-    name: Platform.select({ default: i18n.t('Save Imported Seed') })
+    name: Platform.select({ default: i18n.t('Ready To Use') })
   },
   [ROUTES.topUpGasTank]: {
     route: ROUTES.topUpGasTank,
@@ -392,18 +350,18 @@ const routesConfig: RouteConfig = {
   },
   [ROUTES.devicePasswordSet]: {
     route: ROUTES.devicePasswordSet,
-    title: Platform.select({ default: i18n.t('Set Device Password') }),
-    name: Platform.select({ default: i18n.t('Set Device Password') })
+    title: Platform.select({ default: i18n.t('Set Extension Password') }),
+    name: Platform.select({ default: i18n.t('Set Extension Password') })
   },
   [ROUTES.devicePasswordChange]: {
     route: ROUTES.devicePasswordChange,
-    title: Platform.select({ default: i18n.t('Change Device Password') }),
-    name: Platform.select({ default: i18n.t('Change Device Password') })
+    title: Platform.select({ default: i18n.t('Change Extension Password') }),
+    name: Platform.select({ default: i18n.t('Change Extension Password') })
   },
   [ROUTES.devicePasswordRecovery]: {
     route: ROUTES.devicePasswordRecovery,
-    title: Platform.select({ default: i18n.t('Recover Device Password') }),
-    name: Platform.select({ default: i18n.t('Recover Device Password') })
+    title: Platform.select({ default: i18n.t('Recover Extension Password') }),
+    name: Platform.select({ default: i18n.t('Recover Extension Password') })
   },
   [ROUTES.manageTokens]: {
     route: ROUTES.manageTokens,

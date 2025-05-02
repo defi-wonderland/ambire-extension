@@ -56,7 +56,7 @@ const ConfirmAddress = ({
         <Checkbox
           value={isRecipientAddressUnknownAgreed}
           onValueChange={onRecipientAddressUnknownCheckboxClick}
-          label={t('Confirm sending to a previously unknown address')}
+          label={t('Confirm sending to this address.')}
           style={isSWWarningVisible ? spacings.mbSm : spacings.mb0}
           testID="recipient-address-unknown-checkbox"
         />

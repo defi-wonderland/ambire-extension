@@ -37,4 +37,4 @@ const Toggle = ({ isOn, onToggle, label, style, disabled }: Props) => {
   )
 }
 
-export default Toggle
+export default React.memo(Toggle)

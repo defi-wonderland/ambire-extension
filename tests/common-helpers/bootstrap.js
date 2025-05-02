@@ -1,5 +1,6 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { serviceWorkerLogger } from './serviceWorkerLogger'
+import { getRecordingName } from './utils'
 
 const puppeteer = require('puppeteer')
 
@@ -77,7 +78,7 @@ export async function bootstrap(namespace) {
   const recorder = new PuppeteerScreenRecorder(page, {
     followNewTab: true
   })
-  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
+  await recorder.start(getRecordingName(namespace))
 
   return {
     browser,

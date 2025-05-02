@@ -1,9 +1,15 @@
 const LEGENDS_ROUTES = {
-  landing: '/',
-  legends: '/legends',
-  character: '/character',
+  '/': '/',
+  quests: '/quests',
+  home: '/home',
   characterSelect: '/character-select',
-  leaderboard: '/leaderboard'
+  leaderboard: '/leaderboard',
+  staking: '/staking'
 }
 
-export { LEGENDS_ROUTES }
+const LEGENDS_LEGACY_ROUTES = {
+  legends: '/legends',
+  character: '/character'
+}
+
+export { LEGENDS_ROUTES, LEGENDS_LEGACY_ROUTES }

@@ -43,6 +43,7 @@
   // Don't touch this, it works too well
   font-size: min(1.8vh, 1.2vw);
   transition: 0.1s opacity ease-in-out;
+  backdrop-filter: blur(0.5rem);
 
   &:not(.visible) {
     opacity: 0;
@@ -106,19 +107,32 @@
   transition: 0.3s transform ease-in-out, 0.2s opacity ease-in-out;
 
   .title {
-    font-size: 3em;
-    font-weight: 500;
-    color: $primaryBackground;
-    margin-bottom: 0.25em;
+    font-size: 4rem;
+    font-weight: 400;
+    color: $whiteText;
+    margin-bottom: 1.25rem;
     text-align: center;
   }
 
   .card {
     position: relative;
-    height: 36.25em;
-    width: 22.5em;
+    height:  38.5625rem;
+    width: 24.75rem;
     background-size: cover;
     margin-bottom: 1.5em;
+
+    background-color: $neutral-700;
+    border-radius: $tertiaryBorderRadius;
+    border: 0.25rem solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                      linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
+                      
+    
+    .background {
+      height: 100%;
+    }
 
     .characterImage {
       display: block;
@@ -127,25 +141,27 @@
       top: 5em;
       left: 50%;
       transform: translateX(-50%);
-      width: 17em;
-      height: 18.75em;
-      object-fit: cover;
+      width: 100%;
+      height: 28.375rem;
+      object-fit: contain;
       object-position: top center;
     }
 
     .badge {
       position: absolute;
       z-index: 2;
-      bottom: 4.75em;
+      bottom: 3.75em;
       left: 0;
-      width: 22.5em;
-      height: 15.375em;
+      right: 0;
+      margin: 0 auto;
+      width: 19rem;
+      height: 15.3125rem;
       background-size: cover;
 
       .badgeLevels {
         z-index: 3;
         position: relative;
-        width: 5em;
+        width: 7em;
         height: 5em;
         left: 50%;
         top: 3.5em;
@@ -154,17 +170,18 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        font-weight: 700;
+        
+      .badgeLevelsInner {
+        position: relative;
 
-        .badgeLevelsInner {
-          position: relative;
-
-          .level {
-            text-align: center;
-            font-size: 4em;
-            color: #38185c;
-            text-shadow: -0.0625rem -0.0625rem $primaryBackground;
-          }
+        .level {
+          text-align: center;
+          font-size: 4em;
+          color: $whiteText;
+          text-shadow: -0.0625rem -0.0625rem $accent;
         }
+      }
       }
     }
   }
@@ -172,7 +189,9 @@
   .button {
     @include primary-button;
     height: 4rem;
-    width: 18em;
+    width: 24.75rem;
+    
     font-size: 1.25rem;
+    font-weight: 400;
   }
 }

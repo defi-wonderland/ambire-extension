@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@ambire-common/consts/hardwareWallets'
 import { Account } from '@ambire-common/interfaces/account'
 import { ExternalKey, InternalKey } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
@@ -11,7 +12,6 @@ import AccountKey, { AccountKeyType } from '@common/components/AccountKey/Accoun
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import Row from './Row'
 import getStyles from './styles'

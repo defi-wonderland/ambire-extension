@@ -1,0 +1,521 @@
+@import '@legends/styles/base.scss';
+
+@property --dna-pointer-x {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 10%;
+}
+
+@property --dna-pointer-y {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 10%;
+}
+
+@property --dna-angle-x {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 10deg;
+}
+
+@property --dna-angle-y {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 10deg;
+}
+
+.error {
+  margin-bottom: 1.5rem;
+}
+
+.rewardsWrapper {
+  position: relative;
+  z-index: 3;
+  @include container;
+  user-select: none;
+
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+    // margin-right: 3rem;
+    // width: calc(100% - 6rem);
+  }
+}
+
+.rewardsBadgeWrapper {
+  border: 0.1875rem solid;
+
+  border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($mainBg, $mainBg),
+    linear-gradient(104.11deg, #00bb92 8.63%, #350586 93.48%);
+  border-radius: 1.25rem;
+  padding: 0.25rem;
+  max-width: 40rem;
+  width: fit-content;
+  transform-style: preserve-3d;
+  overflow: hidden;
+  transition: transform 0.2s;
+
+  /* Default fallback values */
+  --pointer-x: 50%;
+  --pointer-y: 50%;
+  --rotate-x: 0deg;
+  --rotate-y: 0deg;
+  --scale: 1;
+  --perspective: 0px;
+
+  transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y)) scale(var(--scale))
+    perspective(var(--perspective));
+
+  &:hover .rewardsBadge::after {
+    opacity: 1;
+  }
+}
+
+.rewardsBadge {
+  display: flex;
+  position: relative;
+  border-radius: 0.8125rem;
+
+  &:after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 1rem;
+    background-image: radial-gradient(
+      circle at var(--pointer-x) var(--pointer-y),
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0) 30%
+    );
+    transition: opacity 0.2s ease;
+    opacity: 0;
+  }
+
+  background: linear-gradient(0deg, #191a1f, #191a1f),
+    linear-gradient(
+      95.63deg,
+      rgba(106, 111, 134, 0) 11.53%,
+      rgba(106, 111, 134, 0.2) 49.67%,
+      rgba(106, 111, 134, 0) 80.34%
+    );
+  padding-right: 1.375rem;
+
+  .rewardsTitle {
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    letter-spacing: 0;
+    color: $mainText;
+  }
+
+  .rewardsAmount {
+    font-weight: 400;
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+    letter-spacing: 0;
+    color: $green-300;
+  }
+
+  .rewardsInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .rewardsCoverImgWrapper {
+    position: relative;
+
+    .rewardsCoverImgDisabled {
+      opacity: 0.3;
+    }
+    .rewardsCoverImg {
+      width: 7.3125rem;
+      height: 100%;
+      align-self: end;
+    }
+
+    .lockIcon {
+      position: absolute;
+      top: 2.5rem;
+      left: 0;
+      left: 3rem;
+      transform: translateX(-50%);
+      path:first-child {
+        fill: $red-400;
+        stroke: $red-400;
+      }
+      path:nth-child(2) {
+        fill: $neutral-700;
+      }
+    }
+  }
+}
+.wrapper {
+  @include container;
+  display: flex;
+  position: relative;
+  margin-bottom: 3rem;
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(19, 43, 37, 0.988) 87.21%
+  );
+  border-radius: 1rem;
+  padding: 2.75rem 2.5rem 1.25rem 2.375rem;
+  margin: 0 auto;
+  margin-bottom: 8.5rem;
+  margin-top: 1.875rem;
+
+  .logoAndBalanceWrapper {
+    display: inline-block;
+    position: relative;
+  }
+
+  .logoWrapper {
+    display: flex;
+    justify-content: end;
+    position: absolute;
+    top: -12px;
+    right: 0;
+  }
+
+  .characterInfo {
+    position: relative;
+    z-index: 2;
+
+    .characterNameWrapper {
+      margin-bottom: 3rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .characterInfoWrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.3125rem;
+
+      .infoIcon {
+        color: $secondaryText;
+        cursor: pointer;
+      }
+    }
+
+    .accountInfo {
+      margin-bottom: 6.5625rem;
+      padding: 0;
+      font-size: 1.25rem;
+    }
+
+    .accountInfoAddress {
+      color: $secondaryText;
+    }
+
+    .kicker {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: $whiteText;
+      margin-bottom: 6.5625rem;
+    }
+
+    .characterLevelInfoWrapper {
+      display: flex;
+      gap: 2.1875rem;
+      align-items: flex-start;
+      .characterItemWrapper {
+        display: flex;
+
+        .icon {
+          margin-right: 1.5625rem;
+        }
+        .iconCoin {
+          align-self: center;
+        }
+
+        .characterItem {
+          display: flex;
+          flex-direction: column;
+          font-size: 0.875rem;
+          font-weight: 300;
+          line-height: 1.5rem;
+          color: $mainText;
+          align-self: end;
+        }
+
+        .levelWrapper {
+          display: flex;
+          flex-direction: column;
+
+          .levelInfoTop {
+            margin-bottom: 0.125rem;
+          }
+
+          .levelInfo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .startXp,
+            .endXp {
+              color: $secondaryText;
+              font-weight: 300;
+            }
+            .level {
+              color: $secondaryText;
+              font-size: 1rem;
+              font-weight: 400;
+              line-height: 1.5rem;
+              text-align: left;
+            }
+          }
+
+          .xp {
+            font-size: 1.5rem;
+            font-weight: 400;
+            line-height: 2.75rem;
+            z-index: 2;
+            color: $primaryText;
+          }
+
+          .levelProgress {
+            flex: 1;
+            padding: 0.125rem 0.3125rem;
+            border-radius: $secondaryBorderRadius;
+            background-color: rgba($tertiaryText, 0.3);
+            overflow: hidden;
+            position: relative;
+            min-width: 11.25rem;
+            text-align: center;
+            font-size: 1rem;
+
+            .levelProgressBarWrapper {
+              display: flex;
+              justify-content: space-between;
+              .level {
+                color: $whiteText;
+                z-index: 3;
+              }
+            }
+
+            .levelProgressBar {
+              position: absolute;
+              top: 0;
+              left: 0;
+              z-index: 1;
+              height: 100%;
+              background-color: $secondaryAccent;
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              white-space: nowrap;
+              transition: width 0.3s ease;
+            }
+          }
+        }
+      }
+
+      .item {
+        min-width: 8.75rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: $secondaryBorderRadius;
+        background-color: $secondaryBackground;
+        background-color: rgba($tertiaryText, 0.3);
+
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 2.75rem;
+        text-align: center;
+        color: $primaryText;
+
+        .itemTitleRow {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .itemTitle {
+            display: block;
+            color: $secondaryText;
+            font-family: $secondaryFont;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            margin-bottom: 0.5rem;
+          }
+
+          .progressText {
+            font-size: 0.75rem;
+            color: $secondaryText;
+          }
+        }
+      }
+    }
+
+    .characterAbout {
+      font-size: 1rem;
+      color: $secondaryText;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .character {
+    position: absolute;
+    z-index: 0;
+    right: 0rem;
+    top: -4rem;
+
+    .characterRelativeWrapper {
+      position: relative;
+
+      .characterImage {
+        position: relative;
+        z-index: 2;
+        // width: 29.0625rem;
+        // height: 34.4375rem;
+
+        width: 18.75rem;
+        height: 25.9375rem;
+
+        width: 21.75rem;
+        height: 28.9375rem;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .characterBlurEffect {
+    position: absolute;
+    width: 40.1875rem;
+    height: 19.0625rem;
+    top: 0;
+    filter: blur(13.2px);
+    background-position: 2rem -19rem;
+    opacity: 0.1;
+    background-size: 35.3125rem;
+    background-repeat: no-repeat;
+    right: 0;
+    transform: scaleX(-1);
+  }
+
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+    margin-right: 3rem;
+    width: calc(100% - 6rem);
+  }
+
+  @include breakpoint-down-from(small-desktop) {
+    padding-top: 1rem;
+
+    .characterInfo {
+      .characterName {
+        font-size: 3rem;
+      }
+
+      .characterAbout {
+        font-size: 0.875rem;
+      }
+    }
+
+    .character {
+      .characterRelativeWrapper {
+        &::before {
+          width: 18.75rem;
+          height: 4.6875rem;
+        }
+      }
+
+      .characterImage {
+        width: 30rem;
+        height: 30rem;
+      }
+    }
+  }
+}
+
+// Custom colors for the character background gradient
+
+// sorceress: rgba(19, 43, 37, 0.988)
+// vitalik rgba(20, 15, 23, 0.4)
+// trump: rgba(#6a320a, 0.488)
+// orc: rgba(#1c1e0f, 0.988)
+// penguin: rgba(#2e2927, 0.988)
+// slime: rgba(22, 32, 2, 0.588)
+
+.wrappernecromancer {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(rgb(46 11 21), 0.988) 87.21%
+  );
+
+  .characterBlurEffect {
+    filter: blur(6.2px);
+    background-position: 2rem -9rem;
+  }
+}
+.wrapperslime {
+  background: linear-gradient(
+    147.96deg,
+    $secondaryBackground 43.03%,
+    rgba(22, 32, 2, 0.588) 87.21%
+  );
+
+  .characterBlurEffect {
+    background-position: 2rem -12rem;
+  }
+}
+.wrapperpenguin {
+  background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(#2e2927, 0.988) 87.21%);
+}
+.wrappershapeshifter {
+  background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(#6a320a, 0.488) 87.21%);
+}
+.wrapperorc {
+  background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(#1c1e0f, 0.988) 87.21%);
+}
+
+@keyframes lagWs {
+  0% {
+    --dna-pointer-x: 90%;
+    --dna-pointer-y: 10%;
+  }
+  25% {
+    --dna-pointer-x: 10%;
+    --dna-pointer-y: 10%;
+  }
+  50% {
+    --dna-pointer-x: 10%;
+    --dna-pointer-y: 90%;
+  }
+  75% {
+    --dna-pointer-x: 90%;
+    --dna-pointer-y: 90%;
+  }
+  100% {
+    --dna-pointer-x: 90%;
+    --dna-pointer-y: 10%;
+  }
+}
+
+@keyframes _3wNqp {
+  0% {
+    --dna-angle-x: 10deg;
+    --dna-angle-y: 10deg;
+  }
+  25% {
+    --dna-angle-x: 10deg;
+    --dna-angle-y: -10deg;
+  }
+  50% {
+    --dna-angle-x: -10deg;
+    --dna-angle-y: -10deg;
+  }
+  75% {
+    --dna-angle-x: -10deg;
+    --dna-angle-y: 10deg;
+  }
+  100% {
+    --dna-angle-x: 10deg;
+    --dna-angle-y: 10deg;
+  }
+}

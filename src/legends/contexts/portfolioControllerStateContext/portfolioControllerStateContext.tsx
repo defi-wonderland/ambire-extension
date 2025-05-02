@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { AdditionalPortfolioNetworkResult } from '@ambire-common/libs/portfolio/interfaces'
+import { RELAYER_URL } from '@env'
 import useAccountContext from '@legends/hooks/useAccountContext'
 
 export type AccountPortfolio = {
@@ -12,14 +14,49 @@ export type AccountPortfolio = {
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio?: AccountPortfolio
   updateAccountPortfolio: () => void
+  claimableRewardsError: string | null
+  claimableRewards: AdditionalPortfolioNetworkResult | null
+  isLoadingClaimableRewards: boolean
 }>({
-  updateAccountPortfolio: () => {}
+  updateAccountPortfolio: () => {},
+  claimableRewardsError: null,
+  claimableRewards: null,
+  isLoadingClaimableRewards: false
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const getPortfolioIntervalRef: any = useRef(null)
   const { connectedAccount, nonV2Account, isLoading } = useAccountContext()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>()
+  const [claimableRewards, setClaimableRewards] = useState<any>(null)
+  const [isLoadingClaimableRewards, setIsLoadingClaimableRewards] = useState(true)
+  const [claimableRewardsError, setClaimableRewardsError] = useState<string | null>(null)
+
+  const updateAdditionalPortfolio = useCallback(async () => {
+    if (!connectedAccount) return
+    try {
+      setIsLoadingClaimableRewards(true)
+      const additionalPortfolioResponse = await fetch(
+        `${RELAYER_URL}/v2/identity/${connectedAccount}/portfolio-additional`
+      )
+
+      const additionalPortfolioJson = await additionalPortfolioResponse.json()
+
+      const claimableBalance = additionalPortfolioJson?.data?.rewards?.xWalletClaimableBalance
+
+      if (claimableBalance === undefined) {
+        throw new Error('Invalid response format')
+      }
+
+      setClaimableRewards(claimableBalance)
+      setIsLoadingClaimableRewards(false)
+    } catch (e) {
+      console.error('Error fetching additional portfolio:', e)
+      setIsLoadingClaimableRewards(false)
+      setClaimableRewards(null)
+      setClaimableRewardsError('Error fetching claimable data')
+    }
+  }, [connectedAccount])
 
   const updateAccountPortfolio = useCallback(async () => {
     if (!window.ambire)
@@ -82,6 +119,11 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    updateAdditionalPortfolio()
+  }, [updateAdditionalPortfolio])
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     updateAccountPortfolio()
     return () => {
       clearTimeout(getPortfolioIntervalRef.current)
@@ -93,9 +135,18 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       value={useMemo(
         () => ({
           accountPortfolio,
-          updateAccountPortfolio
+          updateAccountPortfolio,
+          claimableRewardsError,
+          claimableRewards,
+          isLoadingClaimableRewards
         }),
-        [accountPortfolio, updateAccountPortfolio]
+        [
+          accountPortfolio,
+          updateAccountPortfolio,
+          claimableRewards,
+          claimableRewardsError,
+          isLoadingClaimableRewards
+        ]
       )}
     >
       {children}

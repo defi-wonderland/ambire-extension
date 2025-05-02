@@ -1,81 +1,133 @@
-import { formatUnits, getAddress, isAddress, parseUnits } from 'ethers'
+import { formatUnits, getAddress, parseUnits } from 'ethers'
 import { nanoid } from 'nanoid'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useModalize } from 'react-native-modalize'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
+import { getUsdAmount } from '@ambire-common/controllers/signAccountOp/helper'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
-import { TokenResult } from '@ambire-common/libs/portfolio'
-import {
-  getIsNetworkSupported,
-  getIsTokenEligibleForSwapAndBridge
-} from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import { getIsTokenEligibleForSwapAndBridge } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import { getSanitizedAmount } from '@ambire-common/libs/transfer/amount'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import NetworkIcon from '@common/components/NetworkIcon'
-import { SelectValue } from '@common/components/Select/types'
-import Text from '@common/components/Text'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
+import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import useTheme from '@common/hooks/useTheme'
-import flexbox from '@common/styles/utils/flexbox'
+import { ROUTES } from '@common/modules/router/constants/common'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
 
 type SessionId = ReturnType<typeof nanoid>
+
+const { isPopup, isActionWindow } = getUiType()
 
 const useSwapAndBridgeForm = () => {
   const {
     fromAmount,
     fromSelectedToken,
     fromAmountFieldMode,
-    toSelectedToken,
     portfolioTokenList,
     isTokenListLoading,
-    toTokenList,
-    maxFromAmount,
-    maxFromAmountInFiat,
     quote,
     fromAmountInFiat,
     activeRoutes,
+    signAccountOpController,
     formStatus,
-    toChainId,
-    updateToTokenListStatus,
     supportedChainIds,
     updateQuoteStatus,
-    sessionIds
+    sessionIds,
+    toSelectedToken
   } = useSwapAndBridgeControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
-  const [followUpTransactionConfirmed, setFollowUpTransactionConfirmed] = useState<boolean>(false)
-  const [highPriceImpactConfirmed, setHighPriceImpactConfirmed] = useState<boolean>(false)
+  /**
+   * @deprecated - the settings menu is not used anymore
+   */
   const [settingModalVisible, setSettingsModalVisible] = useState<boolean>(false)
+  const [hasBroadcasted, setHasBroadcasted] = useState(false)
+  const [showAddedToBatch, setShowAddedToBatch] = useState(false)
+  const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
+    useState<boolean>(false)
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { theme } = useTheme()
+  const currentRoute = useLocation()
+  const { setSearchParams, navigate } = useNavigation()
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const { ref: routesModalRef, open: openRoutesModal, close: closeRoutesModal } = useModalize()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
+  const {
+    ref: priceImpactModalRef,
+    open: openPriceImpactModal,
+    close: closePriceImpactModal
+  } = useModalize()
+  const [isInitialized, setIsInitialized] = useState(false)
+  const { visibleActionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
-  const sessionId = useMemo(() => nanoid(), []) // purposely, so it is unique per hook lifetime
+  const sessionId = useMemo(() => {
+    if (isPopup) return 'popup'
+    if (isActionWindow) return 'action-window'
+
+    return nanoid()
+  }, []) // purposely, so it is unique per hook lifetime
+
+  const setIsAutoSelectRouteDisabled = useCallback(
+    (isDisabled: boolean) => {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_IS_AUTO_SELECT_ROUTE_DISABLED',
+        params: { isDisabled }
+      })
+    },
+    [dispatch]
+  )
+
+  const isBridge = useMemo(() => {
+    if (!fromSelectedToken || !toSelectedToken) return false
+    return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
+  }, [fromSelectedToken, toSelectedToken])
+
+  const handleSetFromAmount = useCallback(
+    (val: string) => {
+      setFromAmountValue(val)
+      setIsAutoSelectRouteDisabled(false)
+    },
+    [setFromAmountValue, setIsAutoSelectRouteDisabled]
+  )
 
   useEffect(() => {
+    if (isInitialized || !portfolio.isReadyToVisualize) return
+
     if (
-      searchParams.get('address') &&
-      searchParams.get('chainId') &&
-      !!portfolio?.isReadyToVisualize &&
-      (sessionIds || []).includes(sessionId)
+      currentRoute &&
+      currentRoute.state &&
+      currentRoute.state.chainId &&
+      currentRoute.state.address
     ) {
+      const { address, chainId } = currentRoute.state as {
+        address: string
+        chainId: string
+      }
+
+      if (
+        fromSelectedToken?.address === address &&
+        String(fromSelectedToken?.chainId) === chainId
+      ) {
+        setIsInitialized(true)
+        return
+      }
       const tokenToSelectOnInit = portfolio.tokens.find(
         (t) =>
-          t.address === searchParams.get('address') &&
-          t.chainId.toString() === searchParams.get('chainId') &&
+          t.address === address &&
+          t.chainId.toString() === chainId &&
           getIsTokenEligibleForSwapAndBridge(t)
       )
 
@@ -84,27 +136,60 @@ const useSwapAndBridgeForm = () => {
           type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
           params: { fromSelectedToken: tokenToSelectOnInit }
         })
-        // Reset search params once updated in the state
-        setSearchParams((prev) => {
-          prev.delete('address')
-          prev.delete('chainId')
-          return prev
+      }
+    } else {
+      setIsInitialized(true)
+    }
+  }, [
+    currentRoute,
+    dispatch,
+    fromSelectedToken?.address,
+    fromSelectedToken?.chainId,
+    isInitialized,
+    portfolio?.isReadyToVisualize,
+    portfolio.tokens
+  ])
+
+  useEffect(() => {
+    const hasSwapAndBridgeAction = visibleActionsQueue.some(
+      (action) => action.type === 'swapAndBridge'
+    )
+
+    // Cleanup sessions
+    if (hasSwapAndBridgeAction) {
+      // If there is an open swap and bridge window
+      // 1. Focus it if there is a signAccountOp controller
+      // 2. Close it if there isn't as that means the screen is displaying
+      // the progress of the operation
+      if (isPopup) {
+        if (signAccountOpController) {
+          window.close()
+          dispatch({
+            type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+          })
+          return
+        }
+
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+        })
+        navigate(ROUTES.dashboard)
+
+        return
+      }
+      // Forcefully unload the popup session after the action window session is added.
+      // Otherwise when the user is done with the operation
+      // and closes the window the popup session will remain open and the swap and bridge
+      // screen will open on load
+      if (isActionWindow && sessionIds.includes('popup') && sessionIds.includes(sessionId)) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+          params: { sessionId: 'popup', forceUnload: true }
         })
       }
     }
-  }, [
-    dispatch,
-    setSearchParams,
-    portfolio?.isReadyToVisualize,
-    portfolio.tokens,
-    searchParams,
-    sessionIds,
-    sessionId
-  ])
 
-  // init session
-  useEffect(() => {
-    // Init each session only once
+    // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
     dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
@@ -113,7 +198,15 @@ const useSwapAndBridgeForm = () => {
       prev.set('sessionId', sessionId)
       return prev
     })
-  }, [dispatch, sessionId, sessionIdsRequestedToBeInit, setSearchParams])
+  }, [
+    dispatch,
+    navigate,
+    sessionId,
+    sessionIds,
+    setSearchParams,
+    signAccountOpController,
+    visibleActionsQueue
+  ])
 
   // remove session - this will be triggered only
   // when navigation to another screen internally in the extension
@@ -131,14 +224,20 @@ const useSwapAndBridgeForm = () => {
       prevFromAmountInFiat !== fromAmountInFiat &&
       fromAmountInFiat !== fromAmountValue
     ) {
-      setFromAmountValue(fromAmountInFiat)
+      handleSetFromAmount(fromAmountInFiat)
     }
-  }, [fromAmountInFiat, fromAmountValue, prevFromAmountInFiat, fromAmountFieldMode])
+  }, [
+    fromAmountInFiat,
+    fromAmountValue,
+    prevFromAmountInFiat,
+    fromAmountFieldMode,
+    handleSetFromAmount
+  ])
 
   useEffect(() => {
-    if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
-    if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
+    if (fromAmountFieldMode === 'token') handleSetFromAmount(fromAmount)
+    if (fromAmountFieldMode === 'fiat') handleSetFromAmount(fromAmountInFiat)
+  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, handleSetFromAmount])
 
   useEffect(() => {
     if (
@@ -146,38 +245,20 @@ const useSwapAndBridgeForm = () => {
       prevFromAmount !== fromAmount &&
       fromAmount !== fromAmountValue
     ) {
-      setFromAmountValue(fromAmount)
+      handleSetFromAmount(fromAmount)
     }
-  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode])
+  }, [fromAmount, fromAmountValue, prevFromAmount, fromAmountFieldMode, handleSetFromAmount])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
-      setFromAmountValue(value)
+      handleSetFromAmount(value)
       dispatch({
         type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
         params: { fromAmount: value }
       })
     },
-    [dispatch]
+    [dispatch, handleSetFromAmount]
   )
-
-  useEffect(() => {
-    if (
-      followUpTransactionConfirmed &&
-      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
-    ) {
-      setFollowUpTransactionConfirmed(false)
-    }
-  }, [followUpTransactionConfirmed, formStatus, updateQuoteStatus])
-
-  useEffect(() => {
-    if (
-      highPriceImpactConfirmed &&
-      (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit || updateQuoteStatus === 'LOADING')
-    ) {
-      setHighPriceImpactConfirmed(false)
-    }
-  }, [highPriceImpactConfirmed, formStatus, updateQuoteStatus])
 
   const {
     options: fromTokenOptions,
@@ -191,158 +272,16 @@ const useSwapAndBridgeForm = () => {
     supportedChainIds
   })
 
-  const handleChangeFromToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = portfolioTokenList.find(
-        (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
-      )
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { fromSelectedToken: tokenToSelect }
-      })
-    },
-    [dispatch, portfolioTokenList, networks]
-  )
-
-  const {
-    options: toTokenOptions,
-    value: toTokenValue,
-    amountSelectDisabled: toTokenAmountSelectDisabled
-  } = useGetTokenSelectProps({
-    tokens: toTokenList,
-    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
-    networks,
-    supportedChainIds,
-    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
-    isToToken: true
-  })
-
-  const handleChangeToToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find(
-        (t: SwapAndBridgeToToken) => getTokenId(t, networks) === value
-      )
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: { toSelectedToken: tokenToSelect }
-      })
-    },
-    [dispatch, toTokenList, networks]
-  )
-
-  const handleAddToTokenByAddress = useCallback(
-    (searchTerm: string) => {
-      const isValidTokenAddress = isAddress(searchTerm)
-      if (!isValidTokenAddress) return
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
-        params: { address: searchTerm }
-      })
-    },
-    [dispatch]
-  )
-
-  const toNetworksOptions: SelectValue[] = useMemo(
-    () =>
-      networks.map((n) => {
-        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
-
-        return {
-          value: String(n.chainId),
-          extraSearchProps: [n.name],
-          disabled: !isNetworkSupported,
-          label: (
-            <>
-              <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
-                {n.name}
-              </Text>
-              {!isNetworkSupported && (
-                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-              )}
-            </>
-          ),
-          icon: (
-            <NetworkIcon
-              key={n.chainId.toString()}
-              id={n.chainId.toString()}
-              style={{ backgroundColor: theme.primaryBackground }}
-              size={28}
-            />
-          )
-        }
-      }),
-    [networks, supportedChainIds, theme.primaryBackground]
-  )
-
-  const getToNetworkSelectValue = useMemo(() => {
-    const network = networks.find((n) => Number(n.chainId) === toChainId)
-    if (!network) return toNetworksOptions[0]
-
-    return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
-  }, [networks, toChainId, toNetworksOptions])
-
-  const handleSetToNetworkValue = useCallback(
-    (networkOption: SelectValue) => {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-        params: {
-          toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
-        }
-      })
-    },
-    [networks, dispatch]
-  )
-
-  const handleSwitchFromAmountFieldMode = useCallback(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmountFieldMode: fromAmountFieldMode === 'token' ? 'fiat' : 'token' }
-    })
-  }, [fromAmountFieldMode, dispatch])
-
-  const handleSwitchFromAndToTokens = useCallback(
-    () =>
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
-      }),
-    [dispatch]
-  )
-
-  const handleSetMaxFromAmount = useCallback(() => {
-    dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-      params: { fromAmount: fromAmountFieldMode === 'token' ? maxFromAmount : maxFromAmountInFiat }
-    })
-  }, [fromAmountFieldMode, maxFromAmount, maxFromAmountInFiat, dispatch])
-
-  const formattedToAmount = useMemo(() => {
-    if (!quote || !quote.selectedRoute || !quote?.toAsset?.decimals) return '0'
-
-    return `${formatDecimals(
-      Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
-      'precise'
-    )}`
-  }, [quote])
-
-  const shouldConfirmFollowUpTransactions = useMemo(() => {
-    if (!quote?.selectedRoute) return false
-
-    if (quote.selectedRoute.isOnlySwapRoute) return false
-
-    const stepTypes = quote.selectedRouteSteps.map((s) => s.type)
-
-    return (
-      stepTypes.includes('middleware') &&
-      stepTypes.includes('swap') &&
-      formStatus === SwapAndBridgeFormStatus.ReadyToSubmit
-    )
-  }, [quote, formStatus])
-
-  const highPriceImpactInPercentage = useMemo(() => {
+  const highPriceImpactOrSlippageWarning:
+    | { type: 'highPriceImpact'; percentageDiff: number }
+    | {
+        type: 'slippageImpact'
+        possibleSlippage: number
+        minInUsd: number
+        minInToken: string
+        symbol: string
+      }
+    | null = useMemo(() => {
     if (updateQuoteStatus === 'LOADING') return null
 
     if (formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit) return null
@@ -373,19 +312,120 @@ const useSwapAndBridgeForm = () => {
 
       const percentageDiff = (difference / inputValueInUsd) * 100
 
-      // show the warning banner only if the percentage diff is higher than 5%
-      return percentageDiff < 5 ? null : percentageDiff
+      if (percentageDiff >= 5) {
+        return {
+          type: 'highPriceImpact',
+          percentageDiff
+        }
+      }
+
+      // try to calculate the slippage
+      const minAmountOutInWei = BigInt(
+        quote.selectedRoute.userTxs[quote.selectedRoute.userTxs.length - 1].minAmountOut
+      )
+      const minInUsd = getUsdAmount(
+        Number(quote.selectedRoute.toToken.priceUSD),
+        quote.selectedRoute.toToken.decimals,
+        minAmountOutInWei
+      )
+      const allowedSlippage = inputValueInUsd <= 400 ? 1.05 : 0.55
+      const possibleSlippage = (1 - Number(minInUsd) / quote.selectedRoute.outputValueInUsd) * 100
+      if (possibleSlippage > allowedSlippage) {
+        return {
+          type: 'slippageImpact',
+          possibleSlippage,
+          minInUsd: Number(minInUsd),
+          minInToken: formatUnits(minAmountOutInWei, quote.selectedRoute.toToken.decimals),
+          symbol: quote.selectedRoute.toToken.symbol
+        }
+      }
+
+      return null
     } catch (error) {
       return null
     }
   }, [quote, formStatus, fromAmount, fromAmountInFiat, fromSelectedToken, updateQuoteStatus])
 
-  const handleSubmitForm = useCallback(() => {
+  const openEstimationModalAndDispatch = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_SUBMIT_FORM'
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED',
+      params: {
+        proceeded: true
+      }
     })
-  }, [dispatch])
+    openEstimationModal()
+  }, [openEstimationModal, dispatch])
 
+  const acknowledgeHighPriceImpact = useCallback(() => {
+    closePriceImpactModal()
+
+    if (isOneClickModeDuringPriceImpact) {
+      openEstimationModalAndDispatch()
+    } else {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+      })
+      setShowAddedToBatch(true)
+    }
+  }, [
+    closePriceImpactModal,
+    openEstimationModalAndDispatch,
+    dispatch,
+    isOneClickModeDuringPriceImpact,
+    setShowAddedToBatch
+  ])
+
+  const handleSubmitForm = useCallback(
+    (isOneClickMode: boolean) => {
+      setIsOneClickModeDuringPriceImpact(isOneClickMode)
+      if (highPriceImpactOrSlippageWarning) {
+        openPriceImpactModal()
+        return
+      }
+      if (!quote || !quote.selectedRoute) return
+
+      // open the estimation modal on one click method;
+      // build/add a swap user request on batch
+      if (isOneClickMode) {
+        openEstimationModalAndDispatch()
+      } else {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+        })
+        setShowAddedToBatch(true)
+      }
+    },
+    [
+      dispatch,
+      highPriceImpactOrSlippageWarning,
+      openEstimationModalAndDispatch,
+      openPriceImpactModal,
+      quote
+    ]
+  )
+
+  const closeEstimationModalWrapped = useCallback(() => {
+    // Destroy the existing signAccountOp if the form was cleared
+    // Example: The user clicks on sign and is using a hardware wallet
+    // The form is cleared and the user decides to reject the txn.
+    // The signAccountOp must be destroyed
+    if (formStatus === SwapAndBridgeFormStatus.Empty) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+      })
+    } else {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED',
+        params: {
+          proceeded: false
+        }
+      })
+    }
+    closeEstimationModal()
+  }, [closeEstimationModal, dispatch, formStatus])
+  /**
+   * @deprecated - the settings menu is not used anymore
+   */
   const handleToggleSettingsMenu = useCallback(() => {
     setSettingsModalVisible((p) => !p)
   }, [])
@@ -398,39 +438,55 @@ const useSwapAndBridgeForm = () => {
     )
   }, [activeRoutes, account])
 
+  const displayedView: 'estimate' | 'batch' | 'track' = useMemo(() => {
+    if (showAddedToBatch) return 'batch'
+
+    if (hasBroadcasted) return 'track'
+
+    return 'estimate'
+  }, [hasBroadcasted, showAddedToBatch])
+
+  useEffect(() => {
+    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+
+    if (broadcastStatus === 'SUCCESS' && activeRoutes.length) {
+      setHasBroadcasted(true)
+    }
+  }, [activeRoutes.length, mainCtrlStatuses.broadcastSignedAccountOp])
+
+  useEffect(() => {
+    if (!signAccountOpController) {
+      closeEstimationModalWrapped()
+    }
+  }, [closeEstimationModalWrapped, signAccountOpController])
+
   return {
     sessionId,
+    isInitialized,
     fromAmountValue,
     onFromAmountChange,
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,
-    handleChangeFromToken,
-    toNetworksOptions,
-    getToNetworkSelectValue,
-    handleSetToNetworkValue,
-    toTokenAmountSelectDisabled,
-    toTokenOptions,
-    toTokenValue,
-    handleAddToTokenByAddress,
-    handleChangeToToken,
-    handleSwitchFromAmountFieldMode,
-    handleSetMaxFromAmount,
+    closeEstimationModalWrapped,
     handleSubmitForm,
-    formattedToAmount,
-    shouldConfirmFollowUpTransactions,
-    followUpTransactionConfirmed,
-    setFollowUpTransactionConfirmed,
-    highPriceImpactInPercentage,
-    highPriceImpactConfirmed,
-    setHighPriceImpactConfirmed,
+    highPriceImpactOrSlippageWarning,
+    priceImpactModalRef,
+    closePriceImpactModal,
+    acknowledgeHighPriceImpact,
     settingModalVisible,
     handleToggleSettingsMenu,
-    handleSwitchFromAndToTokens,
     pendingRoutes,
     routesModalRef,
+    displayedView,
+    hasBroadcasted,
+    setHasBroadcasted,
     openRoutesModal,
-    closeRoutesModal
+    closeRoutesModal,
+    estimationModalRef,
+    setIsAutoSelectRouteDisabled,
+    isBridge,
+    setShowAddedToBatch
   }
 }
 

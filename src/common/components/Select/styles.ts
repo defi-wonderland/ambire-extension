@@ -2,9 +2,9 @@ import { ImageStyle, StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
 import { BOTTOM_SHEET_Z_INDEX } from '@common/components/BottomSheet/styles'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
+import spacings, { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -17,6 +17,7 @@ interface Style {
   menuOption: ViewProps
   smMenuOption: ViewStyle
   mdMenuOption: ViewStyle
+  sheetMenuOption: ViewStyle
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   optionIcon: ImageStyle
@@ -78,6 +79,12 @@ const getStyles = (theme: ThemeProps) =>
     menuOption: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter
+    },
+    sheetMenuOption: {
+      marginBottom: SPACING_MI / 2,
+      borderRadius: BORDER_RADIUS_PRIMARY,
+      borderWidth: 1,
+      borderColor: 'transparent'
     },
     smMenuOption: {
       height: SELECT_SIZE_TO_HEIGHT.sm,

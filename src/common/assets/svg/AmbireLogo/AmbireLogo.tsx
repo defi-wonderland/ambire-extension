@@ -7,7 +7,7 @@ type Props = {
 }
 
 const AmbireLogo: React.FC<any> = ({ width = 74, height = 112 }: Props) => (
-  <Svg width={width} height={height} viewBox="0 0 74.807 112.371">
+  <Svg width={width} height={height} viewBox="0 0 68 112.371">
     <Defs>
       <LinearGradient
         id="linear-gradient"

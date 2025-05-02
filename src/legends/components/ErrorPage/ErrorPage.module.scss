@@ -2,47 +2,36 @@
 
 .wrapper {
   @include container;
-  padding-top: 1.25rem;
+  padding-top: 4rem;
   text-align: center;
 
   .logo {
-    width: 10rem;
+    width: 15rem;
     height: auto;
-  }
-
-  .mb {
-    margin-bottom: 2rem;
-  }
-
-  .mbLg {
-    margin-bottom: 4rem;
   }
 
   .title {
     font-size: 3rem;
     line-height: 3.9375rem;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
+    margin-bottom: 1rem;
+    font-weight: 600;
   }
 
   .error {
     font-size: 1.25rem;
     line-height: 1.625rem;
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: 0.5rem;
   }
 
   .subtitle {
-    font-size: 1.10rem;
-    margin-top: 2rem;
+    font-size: 1.1rem;
+    margin-bottom: 4rem;
   }
 
   .button {
     @include primary-button;
-    width: auto;
-    display: inline-flex;
-    padding: 0 2rem;
-    font-size: 1rem;
-    color: $accent;
+    width: 16rem;
+    margin: 0 auto;
   }
 }

@@ -1,9 +1,7 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import { Animated, Pressable, PressableProps, View } from 'react-native'
 
 import RepeatIcon from '@common/assets/svg/RepeatIcon'
-import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import { useCustomHover } from '@web/hooks/useHover'
 
@@ -12,7 +10,6 @@ import getStyles from './styles'
 const SWITCH_TOKENS_CONDITION_TOOLTIP_ID = 'switch-tokens-condition-tooltip-sab'
 
 const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
-  const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [bindAnim, , , , animatedValues] = useCustomHover({
     property: 'rotateZ' as any,
@@ -28,25 +25,17 @@ const SwitchTokensButton = ({ disabled, ...rest }: PressableProps) => {
     : null
 
   return (
-    <View
-      style={styles.switchTokensButtonWrapper}
-      // @ts-ignore `dataSet` exists, but lacks a type
-      dataSet={disabled && { tooltipId: SWITCH_TOKENS_CONDITION_TOOLTIP_ID }}
-      testID={SWITCH_TOKENS_CONDITION_TOOLTIP_ID}
-    >
-      <Pressable style={styles.switchTokensButton} {...bindAnim} disabled={disabled} {...rest}>
+    <View style={styles.switchTokensButtonWrapper} testID={SWITCH_TOKENS_CONDITION_TOOLTIP_ID}>
+      <Pressable
+        style={[styles.switchTokensButton, disabled ? { opacity: 0.5 } : {}]}
+        disabled={disabled}
+        {...bindAnim}
+        {...rest}
+      >
         <Animated.View style={{ transform: [{ rotateZ: rotateInterpolate || '0deg' }] }}>
           <RepeatIcon />
         </Animated.View>
       </Pressable>
-      {disabled && (
-        <Tooltip
-          content={t(
-            'Switching tokens is only possible if the account already holds the selected receive token.'
-          )}
-          id={SWITCH_TOKENS_CONDITION_TOOLTIP_ID}
-        />
-      )}
     </View>
   )
 }

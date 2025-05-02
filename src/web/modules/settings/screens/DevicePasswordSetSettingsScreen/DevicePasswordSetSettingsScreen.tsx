@@ -1,16 +1,17 @@
-import React, { useContext, useEffect, useCallback } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { View } from 'react-native'
-import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import flexbox from '@common/styles/utils/flexbox'
-import spacings from '@common/styles/spacings'
-import { useTranslation } from '@common/config/localization'
+
 import Text from '@common/components/Text'
-import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
+import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup/useKeyStoreSetup'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
+import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup/useKeyStoreSetup'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 const DevicePasswordSetSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -48,7 +49,7 @@ const DevicePasswordSetSettingsScreen = () => {
   return (
     <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
       <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-        {t('Device Password')}
+        {t('Extension password')}
       </Text>
       <KeyStoreSetupForm showSubmitButton onContinue={onKeyStoreCreation} {...keyStoreSetup} />
     </View>

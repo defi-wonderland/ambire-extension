@@ -8,18 +8,14 @@ import { Account, AccountCreation } from '@ambire-common/interfaces/account'
 import { ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
-import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
 import Alert from '@common/components/Alert'
-import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useStepper from '@common/modules/auth/hooks/useStepper'
+import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
 import {
@@ -28,7 +24,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import getStyles from './styles'
 
@@ -136,27 +131,15 @@ const validateJson = (json: ImportedJson): { error?: string; success: boolean } 
 }
 
 const SmartAccountImportScreen = () => {
-  const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { dispatch } = useBackgroundService()
-  const { statuses } = useKeystoreControllerState()
-  const { navigate } = useNavigation()
+
   const { accounts } = useAccountsControllerState()
   const newAccounts: Account[] = useMemo(() => accounts.filter((a) => a.newlyAdded), [accounts])
-
-  useEffect(() => {
-    if (statuses.addKeys === 'SUCCESS') {
-      if (newAccounts.length) navigate(WEB_ROUTES.accountPersonalize)
-      else navigate(WEB_ROUTES.dashboard)
-    }
-  }, [statuses.addKeys, newAccounts, navigate])
-
-  useEffect(() => {
-    updateStepperState(WEB_ROUTES.importSmartAccountJson, 'import-json')
-  }, [updateStepperState])
+  const { goToNextRoute, goToPrevRoute } = useOnboardingNavigation()
 
   const handleFileUpload = (files: any) => {
     setError('')
@@ -200,16 +183,17 @@ const SmartAccountImportScreen = () => {
           }
         ]
 
-        dispatch({
-          type: 'IMPORT_SMART_ACCOUNT_JSON',
-          params: { readyToAddAccount, keys }
-        })
+        dispatch({ type: 'IMPORT_SMART_ACCOUNT_JSON', params: { readyToAddAccount, keys } })
       } catch (e) {
         setError('Could not parse file. Please upload a valid json file')
         setIsLoading(false)
       }
     })
   }
+
+  useEffect(() => {
+    if (newAccounts.length) goToNextRoute()
+  }, [newAccounts.length, goToNextRoute])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: handleFileUpload })
 
@@ -225,11 +209,16 @@ const SmartAccountImportScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="md"
-      header={<Header withAmbireLogo />}
-      footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import a JSON backup file')}>
+        <Panel
+          title={t('Import JSON backup file')}
+          type="onboarding"
+          spacingsSize="small"
+          withBackButton
+          onBackButtonPress={goToPrevRoute}
+        >
           <div
             {...getRootProps()}
             style={{
@@ -241,19 +230,18 @@ const SmartAccountImportScreen = () => {
             <View style={styles.dropAreaContainer}>
               <View style={styles.dropArea}>
                 <input {...getInputProps()} />
-                <ImportJsonIcon />
                 <Trans>
                   {isDragActive ? (
-                    <Text weight="regular" style={text.center}>
+                    <Text appearance="secondaryText" style={text.center}>
                       Drop your file here...
                     </Text>
                   ) : (
-                    <Text weight="regular" style={text.center}>
-                      {'Drag and drop the JSON backup file\nor '}
-                      <Text appearance="primary" weight="regular">
+                    <Text appearance="secondaryText" style={text.center}>
+                      {t('Drag & drop your file here or ')}
+                      <Text appearance="primary" weight="medium">
                         upload
                       </Text>
-                      <Text weight="regular">{' it from your computer'}</Text>
+                      <Text appearance="secondaryText">{' it from your computer'}</Text>
                       {isLoading && (
                         <View style={spacings.mlTy}>
                           <Spinner style={{ width: 16, height: 16 }} />
@@ -268,26 +256,27 @@ const SmartAccountImportScreen = () => {
                   {error}
                 </Text>
               )}
-              <Trans>
-                <Alert
-                  title="Ambire v2 Smart Accounts only"
-                  type="warning"
-                  text={
-                    <Text>
-                      You can import backups only for v2 Smart Accounts created in the Ambire
-                      Extension. If you are looking to import v1 Smart Accounts from the web or
-                      mobile wallet check{' '}
-                      <TouchableOpacity onPress={handleGuideLinkPressed}>
-                        <Text color={theme.infoDecorative} underline weight="regular">
-                          this guide
-                        </Text>
-                      </TouchableOpacity>
-                      .
-                    </Text>
-                  }
-                />
-              </Trans>
             </View>
+            <Trans>
+              <Alert
+                title="Ambire v2 Smart Accounts only"
+                type="warning"
+                size="sm"
+                text={
+                  <Text fontSize={14} appearance="secondaryText">
+                    You can import backups only for v2 Smart Accounts created in the Ambire
+                    Extension. If you are looking to import v1 Smart Accounts from the web or mobile
+                    wallet check{' '}
+                    <TouchableOpacity onPress={handleGuideLinkPressed}>
+                      <Text color={theme.infoDecorative} fontSize={14} underline weight="medium">
+                        this guide
+                      </Text>
+                    </TouchableOpacity>
+                    .
+                  </Text>
+                }
+              />
+            </Trans>
           </div>
         </Panel>
       </TabLayoutWrapperMainContent>

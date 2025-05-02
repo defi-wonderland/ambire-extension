@@ -9,6 +9,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { sortPortfolioTokenList } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import Spinner from '@common/components/Spinner'
+import { APP_VERSION } from '@common/config/env'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -80,16 +81,19 @@ const TransferControllerStateProvider = ({
 
   useEffect(() => {
     // Don't reinit the controller if it already exists. Only update its properties
-    if (transferCtrl || !account) return
+    if (transferCtrl || !account || !portfolio) return
 
     transferCtrlRef.current = new TransferController(
       storage,
       humanizerInfo as HumanizerMeta,
       account,
-      networks
+      networks,
+      portfolio,
+      !isTopUp, // Hydrate and persist in case of Transfer, if it's PopUp don't
+      APP_VERSION
     )
     forceUpdate()
-  }, [forceUpdate, account, networks, transferCtrl])
+  }, [forceUpdate, account, networks, transferCtrl, portfolio, isTopUp])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -126,26 +130,27 @@ const TransferControllerStateProvider = ({
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
+    if (!state.selectedToken?.address || !transferCtrl) return
 
     // If a token is already selected, we should retrieve its latest value from tokens.
     // This is important because the token amount is likely to change,
     // especially when initiating a transfer or adding a new one to the queue.
     // As a result, the token `amountPostSimulation` may differ, and we need to update the available token balance accordingly.
-    const selectedToken = tokens.find((token) =>
-      transferCtrl.selectedToken
-        ? token.address === transferCtrl.selectedToken?.address &&
-          token.chainId === transferCtrl.selectedToken?.chainId
-        : token.address === selectedTokenFromUrl?.addr &&
-          token.chainId.toString() === selectedTokenFromUrl?.chainId
+    const selectedToken = tokens.find(
+      (token) =>
+        token.address === transferCtrl.selectedToken?.address &&
+        token.chainId === transferCtrl.selectedToken?.chainId
     )
 
     // It has a scenario where no token is provided view URL parameters but only isTopUp and the selectedToken will be undefined
     // In that case we do not update the selected token
     if (selectedToken) {
-      transferCtrl.update({
-        selectedToken
-      })
+      transferCtrl.update(
+        {
+          selectedToken
+        },
+        { shouldPersist: false }
+      )
     }
   }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.chainId, tokens, transferCtrl])
 
@@ -173,9 +178,12 @@ const TransferControllerStateProvider = ({
 
     if (isSelectedTokenInTokens) return
 
-    transferCtrl.update({
-      selectedToken: tokens[0]
-    })
+    transferCtrl.update(
+      {
+        selectedToken: tokens[0]
+      },
+      { shouldPersist: false }
+    )
   }, [
     portfolio.latest,
     portfolio.pending,

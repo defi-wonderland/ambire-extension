@@ -12,7 +12,7 @@ const getStyles = () =>
   StyleSheet.create<Style>({
     container: {
       ...flexbox.directionRow,
-      ...common.borderRadiusSecondary,
+      ...common.borderRadiusTertiary,
       ...flexbox.alignCenter,
       ...spacings.phTy,
       height: 20,

@@ -43,7 +43,7 @@ const getTimeAgo = (date: string, status: string): string => {
 const InviteAccount: FC<Props> = ({ meta }) => {
   return (
     <div className={`${styles.historyWrapper}`}>
-      <div className={`${styles.heading}`}>Invitations history:</div>
+      <div className={`${styles.heading}`}>Invitations history</div>
       <div className={`${styles.scrollableHistory}`}>
         {meta?.usersInvitationHistory?.length ? (
           (meta?.usersInvitationHistory || []).map(({ status, invitee, date }) => (

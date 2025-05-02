@@ -1,49 +1,41 @@
 @font-face {
-  font-family: 'Sentient';
-  src: url('../public/fonts/Sentient-Extralight.woff2') format('woff2'),
-    url('../public/fonts/Sentient-Extralight.woff') format('woff'),
-    url('../public/fonts/Sentient-Extralight.ttf') format('truetype'),
-    url('../public/fonts/Sentient-Extralight.eot') format('opentype');
-  font-weight: 200;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Sentient';
-  src: url('../public/fonts/Sentient-Light.woff2') format('woff2'),
-    url('../public/fonts/Sentient-Light.woff') format('woff'),
-    url('../public/fonts/Sentient-Light.ttf') format('truetype'),
-    url('../public/fonts/Sentient-Light.eot') format('opentype');
+  font-family: 'FunnelDisplay';
+  src: url('../public/fonts/FunnelDisplay-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Sentient';
-  src: url('../public/fonts/Sentient-Regular.woff2') format('woff2'),
-    url('../public/fonts/Sentient-Regular.woff') format('woff'),
-    url('../public/fonts/Sentient-Regular.ttf') format('truetype'),
-    url('../public/fonts/Sentient-Regular.eot') format('opentype');
+  font-family: 'FunnelDisplay';
+  src: url('../public/fonts/FunnelDisplay-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Sentient';
-  src: url('../public/fonts/Sentient-Medium.woff2') format('woff2'),
-    url('../public/fonts/Sentient-Medium.woff') format('woff'),
-    url('../public/fonts/Sentient-Medium.ttf') format('truetype'),
-    url('../public/fonts/Sentient-Medium.eot') format('opentype');
+  font-family: 'FunnelDisplay';
+  src: url('../public/fonts/FunnelDisplay-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Sentient';
-  src: url('../public/fonts/Sentient-Bold.woff2') format('woff2'),
-    url('../public/fonts/Sentient-Bold.woff') format('woff'),
-    url('../public/fonts/Sentient-Bold.ttf') format('truetype'),
-    url('../public/fonts/Sentient-Bold.eot') format('opentype');
+  font-family: 'FunnelDisplay';
+  src: url('../public/fonts/FunnelDisplay-Bold.ttf') format('truetype');
   font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('../public/fonts/FunnelDisplay-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('../public/fonts/FunnelDisplay-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
   font-style: normal;
 }

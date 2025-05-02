@@ -29,21 +29,15 @@ const SOCIALS = [
 const Socials = () => {
   return (
     <div className={styles.wrapper}>
-      <HighlightedLink
-        title="Ambire Discord Server"
-        text="Join our Discord server for support and announcements."
-        className={styles.discordLinkWrapper}
+      <a
+        target="_blank"
+        href="https://www.ambire.com/discord"
+        className={styles.discordLink}
+        rel="noreferrer"
       >
-        <a
-          target="_blank"
-          href="https://www.ambire.com/discord"
-          className={styles.discordLink}
-          rel="noreferrer"
-        >
-          <FontAwesomeIcon icon={faDiscord} />
-          Join Discord
-        </a>
-      </HighlightedLink>
+        <FontAwesomeIcon icon={faDiscord} />
+        Join Discord
+      </a>
       <div className={styles.socials}>
         {SOCIALS.map((social) => (
           <a

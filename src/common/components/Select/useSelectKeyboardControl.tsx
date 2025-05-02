@@ -5,7 +5,7 @@ import usePrevious from '@common/hooks/usePrevious'
 
 import { SectionedSelectProps, SelectProps, SelectValue } from './types'
 
-type Props = Pick<SelectProps, 'size' | 'value'> &
+type Props = Pick<SelectProps, 'size' | 'value' | 'mode'> &
   Pick<SectionedSelectProps, 'sections'> & {
     listHeight: number
     optionHeight: number
@@ -26,7 +26,8 @@ const useSelectKeyboardControl = ({
   isMenuOpen,
   stickySectionHeadersEnabled,
   setIsMenuOpen,
-  handleOptionSelect
+  handleOptionSelect,
+  mode
 }: Props) => {
   const listRef: any = useRef(null)
   const highlightedItemOnMouseMoveEnabled = useRef(true)
@@ -292,6 +293,7 @@ const useSelectKeyboardControl = ({
           onHoverOut={handleSetHoverOut}
           disabled={!!item?.disabled}
           size={size}
+          mode={mode}
         />
       )
     },

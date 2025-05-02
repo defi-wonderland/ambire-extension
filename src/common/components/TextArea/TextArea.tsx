@@ -28,6 +28,7 @@ export interface InputProps extends TextInputProps {
   inputStyle?: ViewStyle | ViewStyle[]
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   bottomLabelStyle?: TextStyle | TextStyle[]
+  nativeInputStyle?: TextStyle
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
@@ -44,6 +45,7 @@ const TextArea = ({
   inputStyle,
   inputWrapperStyle,
   bottomLabelStyle,
+  nativeInputStyle,
   leftIcon,
   ...rest
 }: InputProps) => {
@@ -101,8 +103,12 @@ const TextArea = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              // @ts-ignore outline: 'none'
-              style={{ ...styles.nativeInput, outline: 'none' }}
+              style={{
+                ...styles.nativeInput,
+                // @ts-ignore outline: 'none'
+                outline: 'none',
+                ...nativeInputStyle
+              }}
             />
           </View>
         </View>

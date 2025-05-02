@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Animated, Pressable, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -23,7 +23,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useFeatureFlagsControllerState from '@web/hooks/useFeatureFlagsControllerState'
@@ -43,17 +43,23 @@ const Account = ({
   onSelect,
   maxAccountAddrLength = 42,
   withSettings = true,
+  isSelectable = true,
+  withKeyType = true,
   renderRightChildren,
   showExportImport = false,
-  openAddAccountBottomSheet
+  openAddAccountBottomSheet,
+  containerStyle
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
   maxAccountAddrLength?: number
   withSettings?: boolean
+  isSelectable?: boolean
+  withKeyType?: boolean
   renderRightChildren?: () => React.ReactNode
   showExportImport?: boolean
   openAddAccountBottomSheet?: () => void
+  containerStyle?: ViewStyle
 }) => {
   const { addr, preferences } = account
   const { t } = useTranslation()
@@ -169,24 +175,43 @@ const Account = ({
     return add7702option ? [SUBMENU_OPTION_7702, ...SUBMENU_OPTIONS] : SUBMENU_OPTIONS
   }, [add7702option])
 
+  const Container = React.memo(({ children }: any) => {
+    return isSelectable ? (
+      <Pressable
+        disabled={accountsStatuses.selectAccount !== 'INITIAL'}
+        onPress={selectAccount}
+        {...bindAnim}
+        testID="account"
+        // @ts-ignore
+        style={showExportImport ? { cursor: 'default' } : {}}
+      >
+        {children}
+      </Pressable>
+    ) : (
+      <View>{children}</View>
+    )
+  })
+
   return (
-    <Pressable
-      disabled={accountsStatuses.selectAccount !== 'INITIAL'}
-      onPress={selectAccount}
-      {...bindAnim}
-      testID="account"
-      // @ts-ignore
-      style={showExportImport ? { cursor: 'default' } : {}}
-    >
-      <Animated.View style={[styles.accountContainer, animStyle]}>
-        <View style={[flexboxStyles.directionRow]}>
+    <Container>
+      <Animated.View style={[styles.accountContainer, containerStyle, isSelectable && animStyle]}>
+        <View style={[flexbox.flex1, flexbox.directionRow]}>
           <Avatar pfp={account.preferences.pfp} isSmart={isSmartAccount(account)} showTooltip />
-          <View>
-            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
               {!withSettings ? (
-                <Text fontSize={isTab ? 16 : 14} weight="medium">
-                  {account.preferences.label}
-                </Text>
+                <>
+                  <Text fontSize={isTab ? 16 : 14} weight="medium" numberOfLines={1}>
+                    {account.preferences.label}
+                  </Text>
+                  {!!withKeyType && (
+                    <View style={[spacings.mlMi]}>
+                      <AccountKeyIcons isExtended account={account} />
+                    </View>
+                  )}
+
+                  <AccountBadges accountData={account} />
+                </>
               ) : (
                 <Editable
                   initialValue={account.preferences.label}
@@ -198,16 +223,18 @@ const Account = ({
                   }}
                   minWidth={100}
                   maxLength={40}
-                />
+                >
+                  {!!withKeyType && (
+                    <View style={[spacings.mlMi]}>
+                      <AccountKeyIcons isExtended account={account} />
+                    </View>
+                  )}
+
+                  <AccountBadges accountData={account} />
+                </Editable>
               )}
-
-              <View style={[spacings.mlMi]}>
-                <AccountKeyIcons isExtended account={account} />
-              </View>
-
-              <AccountBadges accountData={account} />
             </View>
-            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <DomainBadge ens={ens} />
               <AccountAddress
                 isLoading={isLoading}
@@ -219,7 +246,7 @@ const Account = ({
             </View>
           </View>
         </View>
-        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           {renderRightChildren && renderRightChildren()}
           {showExportImport && (
             <AccountKeysBottomSheet
@@ -251,7 +278,7 @@ const Account = ({
           />
         </DialogFooter>
       </Dialog>
-    </Pressable>
+    </Container>
   )
 }
 

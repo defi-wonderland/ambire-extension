@@ -31,10 +31,10 @@ const AccountAddress: FC<Props> = ({
   }
 
   return (
-    <View style={{ height: 18 }} testID="address">
+    <View style={[flexbox.flex1, { height: 18 }]} testID="address">
       {ens ? (
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Text fontSize={12} weight="semiBold" appearance="primary">
+        <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+          <Text fontSize={12} weight="semiBold" appearance="primary" numberOfLines={1}>
             {ens}
           </Text>
           {withCopy ? (
@@ -52,4 +52,4 @@ const AccountAddress: FC<Props> = ({
   )
 }
 
-export default AccountAddress
+export default React.memo(AccountAddress)
