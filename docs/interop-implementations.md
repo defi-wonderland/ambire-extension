@@ -35,7 +35,6 @@
 
 - Create ERC-7930 parsing and formatting methods
 - [Add support for 7930 in Receive Modal](./tech-implementations/receive-modal.md)
-- [Add Support for 7930 in Transfer Page](./tech-implementations/transfer-part-1.md)
 
 **Stage 1: Create "Bridge" Page & Integrate Intent-Based Cross-Chain Transfers (Across)**
 
@@ -58,7 +57,6 @@
 - Once functionality is verified, remove the old "Transfer" button from the main navigation and deprecate/remove the old Transfer page code.
 - **Goal:** The "Bridge" page now handles both Across cross-chain bridging and standard same-chain transfers.
 
-[Transfer Technical Implementation](./tech-implementations/transfer-implementation.md)
 
 **Stage 3: Integrate Canonical Swap & Swap&Bridge into "Bridge" Page (current [Li.Fi](http://Li.Fi) integration)**
 
@@ -67,7 +65,6 @@
 - Once functionality is verified, remove the old "Swap&Bridge" button from the main navigation and deprecate/remove the old Swap&Bridge page code.
 - **Goal:** The "Bridge" page now handles all target operations: Transfer, Bridge (Across-based initially), Swap, and Swap&Bridge (canonical).
 
-[Swap&Bridge Technical Implementation](./tech-implementations/swap-and-bridge-implementation.md)
 
 **Stage 4:**
 
