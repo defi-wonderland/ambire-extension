@@ -19,13 +19,11 @@ import { SelectedAccountController } from '@ambire-common/controllers/selectedAc
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { TransactionManager } from '@ambire-common/controllers/transaction/transactionManager'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
-
-// TODO: change to transaction manager controller from ambire-common
-class TransactionManagerController {}
 
 export const controllersNestedInMainMapping = {
   providers: ProvidersController,
@@ -53,7 +51,7 @@ export const controllersNestedInMainMapping = {
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
   // - value is the type of the controller
-  transaction: TransactionManagerController
+  transaction: TransactionManager
 }
 export const controllersMapping = {
   main: MainController,
