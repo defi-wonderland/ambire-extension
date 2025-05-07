@@ -12,7 +12,7 @@ const TransactionControllerStateContext = createContext<TransactionManager>(
 )
 
 const TransactionControllerStateProvider: React.FC<any> = ({ children }) => {
-  const controller = 'transaction'
+  const controller = 'transactionManager'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
