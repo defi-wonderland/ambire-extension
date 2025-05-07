@@ -24,6 +24,9 @@ import AutoLockController from '@web/extension-services/background/controllers/a
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
+// TODO: change to transaction manager controller from ambire-common
+class TransactionManagerController {}
+
 export const controllersNestedInMainMapping = {
   providers: ProvidersController,
   networks: NetworksController,
@@ -45,11 +48,12 @@ export const controllersNestedInMainMapping = {
   invite: InviteController,
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
-  defiPositions: DefiPositionsController
+  defiPositions: DefiPositionsController,
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
   // - value is the type of the controller
+  transaction: TransactionManagerController
 }
 export const controllersMapping = {
   main: MainController,
