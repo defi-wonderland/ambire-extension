@@ -42,7 +42,6 @@ import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControl
 import { ProvidersControllerStateProvider } from '@web/contexts/providersControllerStateContext'
 import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAccountControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
-import { StorageControllerStateProvider } from '@web/contexts/storageControllerStateContext'
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
 import { TransactionControllerStateProvider } from '@web/contexts/transactionControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
