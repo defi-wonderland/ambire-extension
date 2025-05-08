@@ -37,13 +37,10 @@ const { isTab, isActionWindow } = getUiType()
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { handleSubmitForm, formState } = useTransactionForm()
-
-  const { addressState } = formState
+  const { handleSubmitForm, onFromAmountChange, fromAmountValue, addressState } =
+    useTransactionForm()
   const {
     sessionId,
-    fromAmountValue,
-    onFromAmountChange,
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,

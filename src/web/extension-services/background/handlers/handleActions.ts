@@ -566,7 +566,14 @@ export const handleActions = async (
 
       if (transactionType === 'intent') {
         // eslint-disable-next-line no-console
-        return console.log('buildIntentUserRequest', params)
+        console.log('buildIntentUserRequest', params)
+
+        // TODO: remove this once the intent is implemented
+        const amount = '1'
+        const recipientAddress = '0x0000000000000000000000000000000000000000'
+        const selectedToken = mainCtrl.swapAndBridge.fromSelectedToken as any
+
+        return mainCtrl.buildIntentUserRequest(amount, recipientAddress, selectedToken)
       }
 
       if (transactionType === 'swapAndBridge') {
@@ -583,6 +590,9 @@ export const handleActions = async (
       }
       break
     }
+
+    case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
+      return mainCtrl.transactionManager.formState.update(params)
 
     default:
       // eslint-disable-next-line no-console
