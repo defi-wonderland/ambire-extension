@@ -37,13 +37,9 @@ const { isTab, isActionWindow } = getUiType()
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { handleSubmitForm, formState } = useTransactionForm()
-
-  const { addressState } = formState
+  const { handleSubmitForm, onFromAmountChange, fromAmountValue } = useTransactionForm()
   const {
     sessionId,
-    fromAmountValue,
-    onFromAmountChange,
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,
@@ -57,7 +53,6 @@ const IntentScreen = () => {
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
-    isInitialized,
     displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
@@ -161,7 +156,7 @@ const IntentScreen = () => {
     )
   }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
 
-  if (!sessionIds.includes(sessionId) || !isInitialized) {
+  if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen
     // takes a short time and the spinner will only flash.
     if (portfolio.isReadyToVisualize) return null
