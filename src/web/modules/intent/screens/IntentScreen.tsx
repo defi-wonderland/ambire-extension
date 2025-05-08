@@ -30,13 +30,16 @@ import PriceImpactWarningModal from '../components/PriceImpactWarningModal'
 import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
+import Recipient from '../components/Recipient'
 
 const { isTab, isActionWindow } = getUiType()
 
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { handleSubmitForm } = useTransactionForm()
+  const { handleSubmitForm, formState } = useTransactionForm()
+
+  const { addressState } = formState
   const {
     sessionId,
     fromAmountValue,
@@ -189,6 +192,27 @@ const IntentScreen = () => {
     )
   }
 
+  // Mocked data
+  const isRecipientHumanizerKnownTokenOrSmartContract = true
+  const isRecipientAddressUnknown = false
+  const isRecipientAddressUnknownAgreed = false
+  const isSWWarningVisible = false
+  const isSWWarningAgreed = false
+  const selectedToken = fromTokenOptions[0]
+  const recipientMenuClosedAutomaticallyRef = { current: false }
+  const isPopup = false
+  const disableForm = false
+  const setAddressStateFieldValue = () => {}
+  const onRecipientAddressUnknownCheckboxClick = () => {}
+  const validation = {
+    isError: true,
+    message: ''
+  }
+  const selectedTokenSymbol =
+    typeof selectedToken === 'object' && 'extraSearchProps' in selectedToken
+      ? selectedToken.extraSearchProps.symbol
+      : undefined
+
   return (
     <Wrapper title={t('Swap & Bridge')} handleGoBack={onBackButtonPress} buttons={buttons}>
       <Content scrollViewRef={scrollViewRef} buttons={buttons}>
@@ -203,6 +227,26 @@ const IntentScreen = () => {
           />
         )}
         <Form>
+          <Recipient
+            disabled={disableForm}
+            address={addressState.fieldValue}
+            setAddress={setAddressStateFieldValue}
+            validation={validation}
+            ensAddress={addressState.ensAddress}
+            addressValidationMsg={validation.message}
+            isRecipientHumanizerKnownTokenOrSmartContract={
+              isRecipientHumanizerKnownTokenOrSmartContract
+            }
+            isRecipientAddressUnknown={isRecipientAddressUnknown}
+            isRecipientDomainResolving={addressState.isDomainResolving}
+            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+            isSWWarningVisible={isSWWarningVisible}
+            isSWWarningAgreed={isSWWarningAgreed}
+            selectedTokenSymbol={selectedTokenSymbol}
+            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
+            menuPosition={isPopup ? 'top' : undefined}
+          />
           <FromToken
             fromTokenOptions={fromTokenOptions}
             fromTokenValue={fromTokenValue}
