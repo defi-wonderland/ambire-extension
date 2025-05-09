@@ -43,7 +43,8 @@ const IntentScreen = () => {
     fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
-    fromTokenAmountSelectDisabled
+    fromTokenAmountSelectDisabled,
+    addressState
   } = useTransactionForm()
 
   const {
