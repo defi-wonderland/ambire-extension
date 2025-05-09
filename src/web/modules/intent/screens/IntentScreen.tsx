@@ -37,13 +37,18 @@ const { isTab, isActionWindow } = getUiType()
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { handleSubmitForm, onFromAmountChange, fromAmountValue, addressState } =
-    useTransactionForm()
   const {
-    sessionId,
+    handleSubmitForm,
+    onFromAmountChange,
+    fromAmountValue,
+    addressState,
     fromTokenOptions,
     fromTokenValue,
-    fromTokenAmountSelectDisabled,
+    fromTokenAmountSelectDisabled
+  } = useTransactionForm()
+
+  const {
+    sessionId,
     highPriceImpactOrSlippageWarning,
     priceImpactModalRef,
     closePriceImpactModal,
@@ -54,13 +59,14 @@ const IntentScreen = () => {
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
-    isInitialized,
     displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch
   } = useSwapAndBridgeForm()
+
+  const isInitialized = true
   const {
     sessionIds,
     formStatus,
