@@ -38,8 +38,16 @@ type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRoute
 const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { toChainId, supportedChainIds, switchTokensStatus, toSelectedToken, toTokenList, quote } =
-    useTransactionForm()
+  const {
+    toChainId,
+    supportedChainIds,
+    switchTokensStatus,
+    toSelectedToken,
+    toTokenList,
+    quote,
+    fromSelectedToken,
+    fromTokenValue
+  } = useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
     updateQuoteStatus,
@@ -72,13 +80,23 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     [networks, dispatch]
   )
 
+  const defaultToTokenId = useMemo(() => {
+    if (fromTokenValue.value === 'no-selection') return ''
+
+    const tokenAddress = toTokenList.find(
+      (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
+    )?.address
+
+    return `${tokenAddress}.${fromSelectedToken?.symbol}`
+  }, [fromSelectedToken, toChainId, toTokenList, fromTokenValue.value])
+
   const {
     options: toTokenOptions,
-    value: toTokenValue,
-    amountSelectDisabled: toTokenAmountSelectDisabled
+    value: toTokenValue
+    // amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: toTokenList,
-    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : '',
+    tokens: toTokenList.filter((token) => token.symbol === (fromSelectedToken as any)?.symbol),
+    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : defaultToTokenId,
     networks,
     supportedChainIds,
     isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
@@ -236,6 +254,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {t('Receive')}
         </Text>
         <Select
+          disabled // temporarily disabled
           setValue={handleSetToNetworkValue}
           containerStyle={{ ...spacings.mb0, width: 142 }}
           options={toNetworksOptions}
@@ -255,7 +274,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             toTokenOptions={toTokenOptions}
             toTokenValue={toTokenValue}
             handleChangeToToken={handleChangeToToken}
-            toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
+            // toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
             addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
