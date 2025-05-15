@@ -11,7 +11,9 @@ import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isEqual } from 'lodash'
+import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
 import useAddressInput from './useAddressInput'
+import { toTokenList } from '../utils/toTokenList'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -34,7 +36,8 @@ const useTransactionForm = () => {
     isRecipientAddressUnknown,
     isRecipientAddressUnknownAgreed,
     supportedChainIds,
-    maxFromAmount
+    maxFromAmount,
+    switchTokensStatus
   } = formState
 
   // Temporary log
@@ -66,13 +69,23 @@ const useTransactionForm = () => {
   })
 
   const handleSubmitForm = useCallback(() => {
+    if (!fromAmount || !fromSelectedToken || !addressState.fieldValue) return
+
+    // TODO: remove this once the intent is implemented
+    const transactionType = 'transfer'
+
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+      type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
       params: {
-        transactionType: 'intent'
+        transactionType,
+        fromAmount,
+        fromSelectedToken,
+        recipientAddress: addressState.fieldValue,
+        toChainId,
+        toSelectedToken
       }
     })
-  }, [dispatch])
+  }, [dispatch, fromAmount, fromSelectedToken, addressState.fieldValue, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -146,6 +159,25 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
+  const fromTokenOptionsFiltered = useMemo(() => {
+    return fromTokenOptions.filter((token: any) => supportedChainIds.includes(token.chainId))
+  }, [fromTokenOptions, supportedChainIds])
+
+  // Temporary while the SDK quote is implemented
+  const quote = useMemo(() => {
+    return {
+      fromAsset: fromSelectedToken,
+      fromChainId,
+      toAsset: toSelectedToken,
+      toChainId,
+      selectedRouteSteps: [],
+      routes: [],
+      selectedRoute: {
+        toAmount: fromAmount || '0'
+      }
+    } as unknown as SwapAndBridgeQuote
+  }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
+
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
@@ -183,10 +215,6 @@ const useTransactionForm = () => {
     })
   }, [])
 
-  const fromTokenOptionsFiltered = useMemo(() => {
-    return fromTokenOptions.filter((token: any) => supportedChainIds.includes(token.chainId))
-  }, [fromTokenOptions, supportedChainIds])
-
   return {
     handleSubmitForm,
     onFromAmountChange,
@@ -207,7 +235,10 @@ const useTransactionForm = () => {
     isRecipientAddressUnknownAgreed,
     addressInputState,
     supportedChainIds,
-    maxFromAmount
+    maxFromAmount,
+    switchTokensStatus,
+    toTokenList,
+    quote
   }
 }
 
