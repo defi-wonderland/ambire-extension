@@ -13,7 +13,6 @@ import {
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
 import { isEqual } from 'lodash'
-import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
@@ -42,7 +41,8 @@ const useTransactionForm = () => {
     maxFromAmount,
     switchTokensStatus,
     updateToTokenListStatus,
-    recipientAddress
+    recipientAddress,
+    quote
   } = formState
 
   // Temporary log
@@ -164,21 +164,6 @@ const useTransactionForm = () => {
     addToast,
     handleCacheResolvedDomain
   })
-
-  // Temporary while the SDK quote is implemented
-  const quote = useMemo(() => {
-    return {
-      fromAsset: fromSelectedToken,
-      fromChainId,
-      toAsset: toSelectedToken,
-      toChainId,
-      selectedRouteSteps: [],
-      routes: [],
-      selectedRoute: {
-        toAmount: fromAmount || '0'
-      }
-    } as unknown as SwapAndBridgeQuote
-  }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
