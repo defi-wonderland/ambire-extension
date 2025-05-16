@@ -683,7 +683,6 @@ type OpenExtensionPopupAction = {
 type MainControllerBuildTransactionUserRequest = {
   type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
   params: {
-    transactionType: 'transfer' | 'swapAndBridge' | 'intent'
     fromAmount: string
     fromSelectedToken: TokenResult
     recipientAddress: string
