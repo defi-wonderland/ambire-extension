@@ -8,7 +8,10 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
-import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
+import {
+  ExtendedAddressState,
+  ExtendedAddressStateOptional
+} from '@ambire-common/interfaces/interop'
 import { isEqual } from 'lodash'
 import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
@@ -127,9 +130,9 @@ const useTransactionForm = () => {
   )
 
   const setAddressState = useCallback(
-    (newPartialAddressState: AddressStateOptional) => {
+    (newPartialAddressState: ExtendedAddressStateOptional) => {
       // Merge the partial update with the current state to ensure a full AddressState object is dispatched
-      const nextAddressState: AddressState = {
+      const nextAddressState: ExtendedAddressState = {
         fieldValue: newPartialAddressState.fieldValue ?? addressState.fieldValue,
         ensAddress: newPartialAddressState.ensAddress ?? addressState.ensAddress,
         interopAddress: newPartialAddressState.interopAddress ?? addressState.interopAddress,
