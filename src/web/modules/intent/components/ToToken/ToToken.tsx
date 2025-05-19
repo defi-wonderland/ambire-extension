@@ -220,14 +220,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
 
   const formattedToAmount = useMemo(() => {
     if (transactionType === 'transfer') {
-      if (!toSelectedToken) {
-        return '0'
-      }
-
-      return `${formatDecimals(
-        Number(formatUnits(fromAmount, toSelectedToken?.decimals)),
-        'amount'
-      )}`
+      return Number(fromAmount) > 0 ? fromAmount : '0'
     }
 
     if (
@@ -243,13 +236,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     //   'amount'
     // )}`
     return quote.selectedRoute.toAmount
-  }, [
-    quote,
-    signAccountOpController?.estimation.status,
-    toSelectedToken,
-    fromAmount,
-    transactionType
-  ])
+  }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
 
   return (
     <View>
