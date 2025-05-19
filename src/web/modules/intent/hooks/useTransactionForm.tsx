@@ -24,7 +24,7 @@ const useTransactionForm = () => {
   const { isPopup, isActionWindow } = getUiType()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState } = state
+  const { formState, transactionType } = state
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -227,7 +227,8 @@ const useTransactionForm = () => {
     toTokenList,
     updateToTokenListStatus,
     recipientAddress,
-    quote
+    quote,
+    transactionType
   }
 }
 
