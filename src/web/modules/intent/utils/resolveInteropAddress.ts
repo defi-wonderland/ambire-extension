@@ -2,7 +2,7 @@ export const resolveInteropAddress = async (trimmedAddress: string): Promise<str
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(trimmedAddress)
-    }, 500)
+    }, 100)
   })
   // return isValid ? trimmedAddress : ''
 }
