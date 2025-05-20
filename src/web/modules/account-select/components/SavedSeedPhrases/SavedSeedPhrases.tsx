@@ -111,7 +111,7 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
     <View style={[spacings.ptSm, flexbox.flex1]}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
         <PanelBackButton onPress={handleClose} style={spacings.mrSm} />
-        <PanelTitle title={t('Add from current recovery phrase')} style={text.left} />
+        <PanelTitle title={t('Add from stored recovery phrases')} style={text.left} />
         <Button
           size="small"
           type="ghost"

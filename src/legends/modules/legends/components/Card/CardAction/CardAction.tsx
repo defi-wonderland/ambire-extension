@@ -5,7 +5,7 @@ import CardActionButton from '@legends/modules/legends/components/Card/CardActio
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
 
-import { InviteAcc, SendAccOp, StakeWallet } from './actions'
+import { InviteAcc, SendAccOp } from './actions'
 import Feedback from './actions/Feedback'
 
 export type CardActionComponentProps = {
@@ -45,9 +45,6 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
       )
     }
 
-    if (action.predefinedId === CARD_PREDEFINED_ID.staking) {
-      return <StakeWallet />
-    }
     if (action.predefinedId === CARD_PREDEFINED_ID.feedback) {
       return <Feedback />
     }

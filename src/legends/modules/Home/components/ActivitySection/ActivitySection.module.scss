@@ -9,6 +9,10 @@
     padding-right: 3rem;
     margin: 0;
   }
+
+  @include breakpoint-down-from(tablet) {
+    padding-left: 0;
+  }
 }
 
 .table {

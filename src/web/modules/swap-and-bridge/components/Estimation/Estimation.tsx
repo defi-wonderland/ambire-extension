@@ -11,11 +11,9 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
-import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
+import Modals from '@web/modules/sign-account-op/components/Modals/Modals'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
 
@@ -31,7 +29,6 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const { signAccountOpController, hasProceeded, swapSignErrors } =
     useSwapAndBridgeControllerState()
 
@@ -86,13 +83,18 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     renderedButNotNecessarilyVisibleModal,
     handleChangeSigningKey,
     onSignButtonClick,
-    isSignDisabled
+    isSignDisabled,
+    warningToPromptBeforeSign,
+    warningModalRef,
+    dismissWarning,
+    acknowledgeWarning,
+    slowPaymasterRequest
   } = useSign({
     signAccountOpState: signAccountOpController,
     handleBroadcast: handleBroadcastAccountOp,
     handleUpdate: updateController,
     handleUpdateStatus,
-    isOneClickSwap: true
+    isOneClickSign: true
   })
 
   return (
@@ -155,7 +157,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
                 style={{ width: 98 }}
               />
               <Button
-                text={t('Sign')}
+                text={isSignLoading ? t('Signing...') : t('Sign')}
                 hasBottomSpacing={false}
                 disabled={isSignDisabled || signingErrors.length > 0}
                 onPress={onSignButtonClick}
@@ -165,25 +167,28 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
           </View>
         )}
       </BottomSheet>
-      {renderedButNotNecessarilyVisibleModal === 'hw-sign' && signAccountOpController && (
-        <SignAccountOpHardwareWalletSigningModal
-          signingKeyType={signingKeyType}
-          feePayerKeyType={feePayerKeyType}
-          broadcastSignedAccountOpStatus={mainCtrlStatuses.broadcastSignedAccountOp}
-          signAccountOpStatusType={signAccountOpController.status?.type}
-          shouldSignAuth={signAccountOpController.shouldSignAuth}
-          signedTransactionsCount={signAccountOpController.signedTransactionsCount}
-          accountOp={signAccountOpController.accountOp}
-        />
-      )}
-
-      {renderedButNotNecessarilyVisibleModal === 'ledger-connect' && (
-        <LedgerConnectModal
-          isVisible={shouldDisplayLedgerConnectModal}
-          handleClose={handleDismissLedgerConnectModal}
-          displayOptionToAuthorize={false}
-        />
-      )}
+      <Modals
+        renderedButNotNecessarilyVisibleModal={renderedButNotNecessarilyVisibleModal}
+        signAccountOpState={signAccountOpController}
+        warningModalRef={warningModalRef}
+        feePayerKeyType={feePayerKeyType}
+        signingKeyType={signingKeyType}
+        slowPaymasterRequest={slowPaymasterRequest}
+        shouldDisplayLedgerConnectModal={shouldDisplayLedgerConnectModal}
+        handleDismissLedgerConnectModal={handleDismissLedgerConnectModal}
+        warningToPromptBeforeSign={warningToPromptBeforeSign}
+        acknowledgeWarning={acknowledgeWarning}
+        dismissWarning={dismissWarning}
+        autoOpen={
+          // Display the warning automatically if the user closed
+          // the extension popup while the warning modal was open.
+          warningToPromptBeforeSign &&
+          renderedButNotNecessarilyVisibleModal === 'warnings' &&
+          isSignLoading
+            ? 'warnings'
+            : undefined
+        }
+      />
     </>
   )
 }

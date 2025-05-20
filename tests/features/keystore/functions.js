@@ -14,7 +14,6 @@ import {
 } from './constants'
 import { DEF_KEYSTORE_PASS } from '../../config/constants'
 import { typeKeystorePassAndUnlock } from '../../common-helpers/typeKeystorePassAndUnlock'
-import { timeout } from 'rxjs'
 
 // TODO: move to common functions
 async function expectButtonIsVisible(page, selector) {
@@ -181,12 +180,22 @@ async function selectNetworkButton(page, text) {
   element.click()
 }
 
-async function verifyNetwork(page, network_name, assert = true) {
+async function verifyNetwork(page, network_name, assert = true, expectDisabled = false) {
   await page.waitForTimeout(1000)
   const xpath = `//div[.//div[text()="Network details"]]//div[text()="${network_name}"]`
   if (assert) {
     const element = await page.waitForXPath(xpath, { visible: true, timeout: 3000 })
     expect(element).not.toBe(null)
+
+    if (expectDisabled) {
+      // Check if the disable network button is now "Enable"
+      const disableButtonText = await page.evaluate((selector) => {
+        const buttonEleemnt = document.querySelector(selector)
+        return buttonEleemnt ? buttonEleemnt.textContent.trim() : null
+      }, SELECTORS.disableNetworkButton)
+
+      expect(disableButtonText).toBe('Enable')
+    }
   } else {
     const element = await page.waitForXPath(xpath, { hidden: true, timeout: 3000 })
     expect(element).toBe(null)
@@ -225,15 +234,18 @@ export async function editNetwork(page, network_symbol) {
   await verifyNetworkField(page, 'Block Explorer URL', `${network.explorerUrl}/`)
 }
 
-export async function deletNetwork(page, network_symbol) {
+export async function disableNetwork(page, network_symbol) {
   await openSettingsPage(page)
   await selectSetting(page, 'Network', 'Network details')
   const network = NETWORKS_LIST[network_symbol]
   await selectNetwork(page, network.networkName)
   await verifyNetworkField(page, 'Network Name', network.networkName)
-  await clickOnElement(page, SELECTORS.removeNetworkButton)
-  await page.waitForSelector(SELECTORS.removeNetworkConfirmButton, { visible: true, timeout: 3000 })
+  await clickOnElement(page, SELECTORS.disableNetworkButton)
+  await page.waitForSelector(SELECTORS.disableNetworkConfirmButton, {
+    visible: true,
+    timeout: 3000
+  })
   await page.waitForTimeout(1500)
-  await clickOnElement(page, SELECTORS.removeNetworkConfirmButton)
-  await verifyNetwork(page, network.networkName, false)
+  await clickOnElement(page, SELECTORS.disableNetworkConfirmButton)
+  await verifyNetwork(page, network.networkName, false, true)
 }

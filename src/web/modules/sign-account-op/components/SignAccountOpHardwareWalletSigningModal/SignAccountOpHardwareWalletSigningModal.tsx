@@ -19,7 +19,7 @@ const { isPopup } = getUiType()
 interface Props {
   signingKeyType?: AccountOp['signingKeyType']
   feePayerKeyType?: Key['type']
-  broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
+  signAndBroadcastAccountOpStatus: MainController['statuses']['signAndBroadcastAccountOp']
   signAccountOpStatusType?: SigningStatus
   shouldSignAuth: {
     type: 'V2Deploy' | '7702'
@@ -32,7 +32,7 @@ interface Props {
 const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signingKeyType,
   feePayerKeyType,
-  broadcastSignedAccountOpStatus,
+  signAndBroadcastAccountOpStatus,
   signAccountOpStatusType,
   shouldSignAuth,
   signedTransactionsCount,
@@ -48,7 +48,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     if (signAccountOpStatusType === SigningStatus.UpdatesPaused) return false
 
     const isCurrentlyBroadcastingWithExternalKey =
-      broadcastSignedAccountOpStatus === 'LOADING' &&
+      signAndBroadcastAccountOpStatus === 'BROADCASTING' &&
       !!feePayerKeyType &&
       feePayerKeyType !== 'internal'
     const isCurrentlySigningWithExternalKey =
@@ -57,7 +57,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       signingKeyType !== 'internal'
 
     return isCurrentlyBroadcastingWithExternalKey || isCurrentlySigningWithExternalKey
-  }, [broadcastSignedAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
+  }, [signAndBroadcastAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
 
   const currentlyInvolvedSignOrBroadcastKeyType = useMemo(
     () => (signAccountOpStatusType === SigningStatus.InProgress ? signingKeyType : feePayerKeyType),

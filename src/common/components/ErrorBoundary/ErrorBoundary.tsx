@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback } from 'react'
 import { Trans } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
@@ -14,6 +13,7 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { setStringAsync } from '@common/utils/clipboard'
 import { PortalHost } from '@gorhom/portal'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
@@ -36,7 +36,7 @@ const ErrorBoundary = ({ error }: Props) => {
 
   const handleCopyError = useCallback(async () => {
     try {
-      await Clipboard.setStringAsync(error.stack!)
+      await setStringAsync(error.stack!)
       addToast(t('Error copied to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy error to clipboard!') as string, {

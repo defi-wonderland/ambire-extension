@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
@@ -17,6 +16,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import BottomSheet from '../BottomSheet'
@@ -74,7 +74,7 @@ const AddressInput: React.FC<Props> = ({
 
     if (address) {
       try {
-        await Clipboard.setStringAsync(address)
+        await setStringAsync(address)
         addToast(t('Copied to clipboard!'), { timeout: 2500 })
       } catch {
         addToast(t('Failed to copy address to clipboard'), { type: 'error' })

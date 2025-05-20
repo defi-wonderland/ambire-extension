@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import spacings, { DEVICE_HEIGHT, SPACING, SPACING_LG } from '@common/styles/spacings'
+import spacings, { DEVICE_HEIGHT, SPACING, SPACING_MD } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
@@ -22,7 +22,7 @@ const getStyles = (theme: ThemeProps) =>
       borderTopStartRadius: BORDER_RADIUS_PRIMARY,
       borderTopEndRadius: BORDER_RADIUS_PRIMARY,
       ...spacings.pvMd,
-      paddingHorizontal: isWeb ? SPACING_LG : SPACING
+      paddingHorizontal: isWeb ? SPACING_MD : SPACING
     },
     modal: {
       borderBottomEndRadius: BORDER_RADIUS_PRIMARY,

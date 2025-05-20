@@ -1,33 +1,23 @@
 @import '@legends/styles/base.scss';
 
-@property --dna-pointer-x {
-  syntax: '<percentage>';
-  inherits: true;
-  initial-value: 10%;
-}
-
-@property --dna-pointer-y {
-  syntax: '<percentage>';
-  inherits: true;
-  initial-value: 10%;
-}
-
-@property --dna-angle-x {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 10deg;
-}
-
-@property --dna-angle-y {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 10deg;
-}
-
 .error {
   margin-bottom: 1.5rem;
 }
 
+.overachieverWrapper {
+  @include  container;
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+  }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
+}
+.overachieverBanner {
+  margin-bottom: 1.875rem;
+  
+}
 .rewardsWrapper {
   position: relative;
   z-index: 3;
@@ -37,124 +27,12 @@
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
   }
-}
 
-.rewardsBadgeWrapper {
-  border: 0.1875rem solid;
-
-  border: 0.25rem solid transparent;
-  background-clip: padding-box, border-box;
-  background-origin: padding-box, border-box;
-  background-image: linear-gradient($mainBg, $mainBg),
-    linear-gradient(104.11deg, #00bb92 8.63%, #350586 93.48%);
-  border-radius: 1.25rem;
-  padding: 0.25rem;
-  max-width: 40rem;
-  width: fit-content;
-  transform-style: preserve-3d;
-  overflow: hidden;
-  transition: transform 0.2s;
-
-  /* Default fallback values */
-  --pointer-x: 50%;
-  --pointer-y: 50%;
-  --rotate-x: 0deg;
-  --rotate-y: 0deg;
-  --scale: 1;
-  --perspective: 0px;
-
-  transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y)) scale(var(--scale))
-    perspective(var(--perspective));
-
-  &:hover .rewardsBadge::after {
-    opacity: 1;
-  }
-
-  &.active {
-    cursor: pointer;
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
   }
 }
 
-.rewardsBadge {
-  display: flex;
-  position: relative;
-  border-radius: 0.8125rem;
-
-  &:after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    border-radius: 1rem;
-    background-image: radial-gradient(
-      circle at var(--pointer-x) var(--pointer-y),
-      rgba(255, 255, 255, 0.05),
-      rgba(255, 255, 255, 0) 30%
-    );
-    transition: opacity 0.2s ease;
-    opacity: 0;
-  }
-
-  background: linear-gradient(0deg, #191a1f, #191a1f),
-    linear-gradient(
-      95.63deg,
-      rgba(106, 111, 134, 0) 11.53%,
-      rgba(106, 111, 134, 0.2) 49.67%,
-      rgba(106, 111, 134, 0) 80.34%
-    );
-  padding-right: 1.375rem;
-
-  .rewardsTitle {
-    font-weight: 300;
-    font-size: 1rem;
-    line-height: 1.5rem;
-    letter-spacing: 0;
-    color: $mainText;
-  }
-
-  .rewardsAmount {
-    font-weight: 400;
-    font-size: 2.25rem;
-    line-height: 2.75rem;
-    letter-spacing: 0;
-    color: $green-300;
-  }
-
-  .rewardsInfo {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .rewardsCoverImgWrapper {
-    position: relative;
-
-    .rewardsCoverImgDisabled {
-      opacity: 0.3;
-    }
-    .rewardsCoverImg {
-      width: 7.3125rem;
-      height: 100%;
-      align-self: end;
-    }
-
-    .lockIcon {
-      position: absolute;
-      top: 2.5rem;
-      left: 0;
-      left: 3rem;
-      transform: translateX(-50%);
-      path:first-child {
-        fill: $red-400;
-        stroke: $red-400;
-      }
-      path:nth-child(2) {
-        fill: $neutral-700;
-      }
-    }
-  }
-}
 .wrapper {
   @include container;
   display: flex;
@@ -432,6 +310,10 @@
       }
     }
   }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
 }
 
 // Custom colors for the character background gradient
@@ -474,50 +356,4 @@
 }
 .wrapperorc {
   background: linear-gradient(147.96deg, $secondaryBackground 43.03%, rgba(#1c1e0f, 0.988) 87.21%);
-}
-
-@keyframes lagWs {
-  0% {
-    --dna-pointer-x: 90%;
-    --dna-pointer-y: 10%;
-  }
-  25% {
-    --dna-pointer-x: 10%;
-    --dna-pointer-y: 10%;
-  }
-  50% {
-    --dna-pointer-x: 10%;
-    --dna-pointer-y: 90%;
-  }
-  75% {
-    --dna-pointer-x: 90%;
-    --dna-pointer-y: 90%;
-  }
-  100% {
-    --dna-pointer-x: 90%;
-    --dna-pointer-y: 10%;
-  }
-}
-
-@keyframes _3wNqp {
-  0% {
-    --dna-angle-x: 10deg;
-    --dna-angle-y: 10deg;
-  }
-  25% {
-    --dna-angle-x: 10deg;
-    --dna-angle-y: -10deg;
-  }
-  50% {
-    --dna-angle-x: -10deg;
-    --dna-angle-y: -10deg;
-  }
-  75% {
-    --dna-angle-x: -10deg;
-    --dna-angle-y: 10deg;
-  }
-  100% {
-    --dna-angle-x: 10deg;
-    --dna-angle-y: 10deg;
-  }
 }

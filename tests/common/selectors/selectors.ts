@@ -1,5 +1,3 @@
-import { Settings } from 'react-native'
-
 import { buildSelector } from '../../common-helpers/buildSelector'
 
 export const TEST_IDS = {
@@ -119,8 +117,8 @@ export const TEST_IDS = {
   processButtonSab: 'proceed-btn',
   settingsAddNetworkManually: 'add-network-manually',
   settingsAddNetworkFromChainlist: 'add-network-from-chainlist',
-  removeNetworkButton: 'remove-network-btn',
-  removeNetworkConfirmButton: 'remove-network-confirm-btn'
+  disableNetworkButton: 'disable-network-btn',
+  disableNetworkConfirmButton: 'disable-network-confirm-btn'
 }
 
 type SelectorKey = keyof typeof TEST_IDS

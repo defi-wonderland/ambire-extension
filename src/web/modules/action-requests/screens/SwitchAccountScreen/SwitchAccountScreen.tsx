@@ -59,15 +59,7 @@ const SwitchAccountScreen = () => {
     return 'unknown request'
   }, [nextRequestType])
 
-  const dAppData = useMemo(
-    () =>
-      userRequest?.session || {
-        name: 'Unknown App',
-        origin: '',
-        icon: ''
-      },
-    [userRequest?.session]
-  )
+  const dAppData = useMemo(() => userRequest?.session, [userRequest?.session])
 
   const handleDenyButtonPress = useCallback(() => {
     if (!dAppAction) return
@@ -167,41 +159,47 @@ const SwitchAccountScreen = () => {
                 ...spacings.pbLg
               }}
             >
-              <View
-                style={[
-                  flexbox.center,
-                  {
-                    marginBottom: SPACING_SM * responsiveSizeMultiplier
-                  }
-                ]}
-              >
-                <ManifestImage
-                  uri={dAppData.icon}
-                  size={responsiveSizeMultiplier * 56}
-                  containerStyle={{
-                    backgroundColor: theme.secondaryBackground
-                  }}
-                  iconScale={0.85}
-                  imageStyle={{
-                    backgroundColor: theme.secondaryBackground
-                  }}
-                  fallback={() => (
-                    <ManifestFallbackIcon
-                      width={responsiveSizeMultiplier * 56}
-                      height={responsiveSizeMultiplier * 56}
-                    />
-                  )}
-                />
-              </View>
-              <Text appearance="secondaryText" style={[spacings.mbSm, text.center]} fontSize={16}>
-                <Text appearance="primaryText" fontSize={16} weight="medium">
-                  {dAppData.name}
-                </Text>{' '}
-                {t(`requires a ${nextRequestLabel} from `)}
-                <Text appearance="primaryText" fontSize={16} weight="medium">
-                  {nextAccountData?.preferences.label || nextAccountData?.addr || 'Unknown Account'}
+              {!!dAppData && (
+                <View
+                  style={[
+                    flexbox.center,
+                    {
+                      marginBottom: SPACING_SM * responsiveSizeMultiplier
+                    }
+                  ]}
+                >
+                  <ManifestImage
+                    uri={dAppData.icon}
+                    size={responsiveSizeMultiplier * 56}
+                    containerStyle={{
+                      backgroundColor: theme.secondaryBackground
+                    }}
+                    iconScale={0.85}
+                    imageStyle={{
+                      backgroundColor: theme.secondaryBackground
+                    }}
+                    fallback={() => (
+                      <ManifestFallbackIcon
+                        width={responsiveSizeMultiplier * 56}
+                        height={responsiveSizeMultiplier * 56}
+                      />
+                    )}
+                  />
+                </View>
+              )}
+              {!!dAppData && (
+                <Text appearance="secondaryText" style={[spacings.mbSm, text.center]} fontSize={16}>
+                  <Text appearance="primaryText" fontSize={16} weight="medium">
+                    {dAppData.name}
+                  </Text>{' '}
+                  {t(`requires a ${nextRequestLabel} from `)}
+                  <Text appearance="primaryText" fontSize={16} weight="medium">
+                    {nextAccountData?.preferences.label ||
+                      nextAccountData?.addr ||
+                      'Unknown Account'}
+                  </Text>
                 </Text>
-              </Text>
+              )}
 
               {account && <Account style={spacings.mbSm} {...account} />}
               <DownArrowLongIcon

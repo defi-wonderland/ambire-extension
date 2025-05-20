@@ -3,30 +3,60 @@ import Svg, { Defs, G, Path } from 'react-native-svg'
 
 import { LegendsSvgProps } from '@legends/types/svg'
 
-const LockIcon: FC<LegendsSvgProps> = ({ width = 45, height = 64, ...rest }) => {
+const LockIcon: FC<LegendsSvgProps> = ({ width = 55, height = 68, ...rest }) => {
   return (
-    <Svg width={width} height={height} viewBox="0 0 35 35" fill="none" {...rest}>
-      <Path
-        d="M28.31 17.239a4.666 4.666 0 011.166 2.656h-2.753c-.682.032-2.26.032-3.702 0l-4.407.032c-2.507 0-3.621 0-6.634-.032l-6.459.032c.156-1.947 1.575-3.607 3.469-4.094l.003-7.955c1.004-10.431 16.701-10.003 17.048.518l.003 7.42c.014.04.58.214.679.257.6.259 1.156.683 1.588 1.166zm-5.289-1.166V8.017c-.633-6.382-10.36-6.41-11.042-.035v8.09H23.02z"
-        fill="#E13A7B"
-      />
-      <G filter="url(#filter0_d_3597_2358)">
+    <Svg width={width} height={height} viewBox="0 0 55 68" fill="none" {...rest}>
+      <G filter="url(#filter0_d_3555_2361)">
         <Path
-          d="M28.814 17.255a4.562 4.562 0 011.22 2.653l.002 10.59c-.206 2.295-2.177 4.096-4.596 4.226l-15.877-.002c-2.381-.11-4.393-1.932-4.596-4.191l-.002-10.59c.163-1.946 1.647-3.604 3.63-4.091l7.156-.017h2.915l6.774.017c.014.04 1.253 0 1.253 0s1.05.26 2.121 1.405z"
+          d="M45.0205 29.5764C46.1018 30.7868 46.7387 32.2631 46.9092 33.8834H42.447C41.342 33.9354 38.7856 33.9354 36.4472 33.8834L29.3048 33.9354C25.2416 33.9354 23.4358 33.9354 18.5535 33.8834L8.08594 33.9354C8.33856 30.7778 10.6374 28.086 13.7071 27.296L13.7127 14.3969C15.3387 -2.51875 40.78 -1.82453 41.342 15.2367L41.3471 27.2686C41.3696 27.3347 42.2856 27.6157 42.447 27.6857C43.4204 28.1056 44.3211 28.7937 45.0205 29.5764ZM36.4472 27.6857V14.6214C35.4221 4.27347 19.6569 4.22812 18.5513 14.5654V27.6857H36.4472Z"
           fill="#E13A7B"
         />
+        <G filter="url(#filter1_d_3555_2361)">
+          <Path
+            d="M45.836 29.6025C46.9677 30.8118 47.6342 32.2867 47.8126 33.9055L47.8155 51.0788C47.4817 54.799 44.2875 57.7199 40.3673 57.9307L14.6353 57.9279C10.777 57.7484 7.51685 54.7945 7.18713 51.1314L7.18359 33.9575C7.44796 30.8028 9.85377 28.1135 13.0662 27.3243L24.6648 27.2969C24.6648 27.2969 26.5546 27.2969 29.3894 27.2969L40.3673 27.3243C40.3909 27.3903 42.3979 27.3243 42.3979 27.3243C42.3979 27.3243 44.1 27.7474 45.836 29.6025Z"
+            fill="#E13A7B"
+          />
+        </G>
+        <Path
+          d="M26.3191 34.778C30.7931 33.4427 33.4047 39.464 29.4821 41.816L29.4726 48.4414C29.2779 51.0363 25.7638 51.0061 25.5303 48.4973L25.5331 41.8445C22.6553 40.1985 23.102 35.7381 26.3191 34.778Z"
+          fill="#191A1F"
+        />
       </G>
-      <Path
-        d="M16.772 20.447c2.76-.824 4.372 2.89 1.951 4.34l-.006 4.085c-.12 1.6-2.288 1.582-2.432.035l.002-4.103c-1.776-1.015-1.5-3.765.485-4.357z"
-        fill="#191A1F"
-      />
       <Defs>
         <filter
-          id="filter0_d_3597_2358"
-          x="0.964844"
-          y="7.83307"
-          width="33.0703"
-          height="26.8909"
+          id="filter0_d_3555_2361"
+          x="0"
+          y="0"
+          width="55"
+          height="68"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="4" />
+          <feGaussianBlur stdDeviation="2" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3555_2361" />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_3555_2361"
+            result="shape"
+          />
+        </filter>
+        <filter
+          id="filter1_d_3555_2361"
+          x="3.18359"
+          y="19.2969"
+          width="48.6328"
+          height="38.6339"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
@@ -40,15 +70,12 @@ const LockIcon: FC<LegendsSvgProps> = ({ width = 45, height = 64, ...rest }) => 
           <feOffset dy="-4" />
           <feGaussianBlur stdDeviation="2" />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0.18109 0 0 0 0 0.129132 0 0 0 0 0.0107376 0 0 0 0.6 0"
-          />
-          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3597_2358" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3555_2361" />
           <feBlend
             mode="normal"
             in="SourceGraphic"
-            in2="effect1_dropShadow_3597_2358"
+            in2="effect1_dropShadow_3555_2361"
             result="shape"
           />
         </filter>

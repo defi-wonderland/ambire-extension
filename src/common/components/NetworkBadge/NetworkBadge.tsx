@@ -17,6 +17,7 @@ interface Props {
   fontSize?: number
   weight?: TextWeight
   iconSize?: number
+  withIcon?: boolean
   renderNetworkName?: (networkName: string) => React.ReactNode
 }
 
@@ -27,6 +28,7 @@ const NetworkBadge: FC<Props> = ({
   fontSize = 16,
   weight,
   iconSize = 32,
+  withIcon = true,
   renderNetworkName
 }) => {
   const { t } = useTranslation()
@@ -48,9 +50,11 @@ const NetworkBadge: FC<Props> = ({
         ...flexbox.alignCenter,
         ...spacings.pl,
         ...spacings.prTy,
-        ...spacings.pvMi,
-        borderRadius: BORDER_RADIUS_PRIMARY,
+        paddingVertical: 2,
+        borderRadius: 50,
         backgroundColor: theme.secondaryBackground,
+        borderWidth: 1,
+        borderColor: theme.tertiaryBackground,
         ...style
       }}
     >
@@ -62,12 +66,14 @@ const NetworkBadge: FC<Props> = ({
         ) : null}
         {!renderNetworkName ? networkName : renderNetworkName(networkName)}
       </Text>
-      <NetworkIcon
-        key={network?.chainId.toString() || networkName}
-        style={{ backgroundColor: 'transparent' }}
-        id={network?.chainId.toString() || networkName}
-        size={iconSize}
-      />
+      {withIcon && (
+        <NetworkIcon
+          key={network?.chainId.toString() || networkName}
+          style={{ backgroundColor: 'transparent' }}
+          id={network?.chainId.toString() || networkName}
+          size={iconSize}
+        />
+      )}
     </View>
   )
 }

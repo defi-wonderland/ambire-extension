@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
@@ -26,6 +25,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import { getUiType } from '@web/utils/uiType'
@@ -90,7 +90,7 @@ const AccountKey: React.FC<Props> = ({
 
   const handleCopy = async () => {
     try {
-      await Clipboard.setStringAsync(addr)
+      await setStringAsync(addr)
       addToast(t('Key address copied to clipboard'), { type: 'success' })
     } catch {
       addToast(t('Could not copy the key address to the clipboard'), { type: 'error' })

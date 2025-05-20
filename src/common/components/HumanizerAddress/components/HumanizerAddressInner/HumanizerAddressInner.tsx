@@ -17,12 +17,14 @@ interface Props extends TextProps {
   // example of highestPriorityAlias: a name coming from the humanizer's metadata
   highestPriorityAlias?: string
   humanizerInfo?: HumanizerMetaAddress
+  hideLinks?: boolean
 }
 
 const HumanizerAddressInner: FC<Props> = ({
   humanizerInfo,
   address,
   highestPriorityAlias,
+  hideLinks = false,
   ...rest
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
@@ -63,7 +65,7 @@ const HumanizerAddressInner: FC<Props> = ({
     tokenLabel
   )
     return (
-      <BaseAddress address={checksummedAddress} {...rest}>
+      <BaseAddress address={checksummedAddress} hideLinks={hideLinks} {...rest}>
         {highestPriorityAlias ||
           zeroAddressLabel ||
           contact?.name ||

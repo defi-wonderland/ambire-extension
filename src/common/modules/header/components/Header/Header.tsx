@@ -10,7 +10,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import BackButton, { DisplayIn } from '@common/modules/header/components/HeaderBackButton'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING_3XL, SPACING_MD } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
@@ -70,7 +70,7 @@ const Header = ({
   const paddingHorizontalStyle = useMemo(() => {
     if (isTab || isActionWindow) {
       return {
-        paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL
+        paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_MD
       }
     }
 

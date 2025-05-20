@@ -140,7 +140,7 @@ const InviteAcc: FC<Props> = ({
         addressState={addressState}
         setAddressState={setAddressState}
         validation={validation}
-        label="Ambire v1 or Basic Account address"
+        label="Ambire v1 or EOA account address"
         rightLabel={`Left invitations ${MAX_INVITATIONS - usedInvitationSlots}/2`}
       />
     </CardActionWrapper>

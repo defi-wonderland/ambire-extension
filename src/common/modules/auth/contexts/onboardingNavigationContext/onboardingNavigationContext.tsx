@@ -9,6 +9,7 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ONBOARDING_WEB_ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -54,6 +55,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
   const { authStatus } = useAuth()
   const { dispatch } = useBackgroundService()
   const { isSetupComplete } = useWalletStateController()
+  const { accounts } = useAccountsControllerState()
   const { isInitialized, subType, initParams, type } = useAccountPickerControllerState()
   const isOnboardingRoute = useMemo(
     () => ONBOARDING_WEB_ROUTES.includes((path || '').substring(1)),
@@ -73,7 +75,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
                     new RouteNode(
                       WEB_ROUTES.onboardingCompleted,
                       [new RouteNode('/')],
-                      isSetupComplete
+                      isSetupComplete || !accounts?.length
                     ),
                     new RouteNode('/')
                   ],
@@ -93,7 +95,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
                 new RouteNode(
                   WEB_ROUTES.onboardingCompleted,
                   [new RouteNode('/')],
-                  isSetupComplete
+                  isSetupComplete || !accounts?.length
                 ),
                 new RouteNode('/'),
                 new RouteNode(WEB_ROUTES.accountPicker, [new RouteNode('/')], false, false)
@@ -132,7 +134,7 @@ const OnboardingNavigationProvider = ({ children }: { children: React.ReactNode 
       authStatus !== AUTH_STATUS.NOT_AUTHENTICATED,
       false
     )
-  }, [hasPasswordSecret, authStatus, isSetupComplete, subType])
+  }, [hasPasswordSecret, authStatus, isSetupComplete, subType, accounts?.length])
 
   const loadHistory = () => {
     try {

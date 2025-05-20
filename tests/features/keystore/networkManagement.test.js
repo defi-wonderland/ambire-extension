@@ -1,7 +1,7 @@
 import { bootstrapWithStorage } from '../../common-helpers/bootstrapWithStorage'
 import { saParams } from '../../config/constants'
 
-import { addNetworkManually, editNetwork, deletNetwork } from './functions'
+import { addNetworkManually, editNetwork, disableNetwork } from './functions'
 
 describe('networkManagement', () => {
   let browser
@@ -24,7 +24,7 @@ describe('networkManagement', () => {
   it('adding network manually', async () => {
     await addNetworkManually(page, 'FLR')
     await editNetwork(page, 'FLR')
-    await deletNetwork(page, 'FLR')
+    await disableNetwork(page, 'FLR')
   })
 
   it.skip('adding network from Chainlist', async () => {

@@ -10,7 +10,7 @@ type LeaderboardContextType = {
   fullLeaderboardData: LeaderboardEntry
   season0LeaderboardData: LeaderboardEntry
   season1LeaderboardData: LeaderboardEntry
-  userLeaderboardData: LeaderboardEntry | null
+  userLeaderboardData: LeaderboardEntry['currentUser'] | null
   error: string | null
   updateLeaderboard: () => Promise<void>
 }

@@ -43,7 +43,7 @@ const Main = ({
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
   const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { maxWidthSize, minHeightSize } = useWindowSize()
   const { networks } = useNetworksControllerState()
   const network = useMemo(
     () =>
@@ -69,7 +69,7 @@ const Main = ({
   )
 
   return (
-    <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+    <TabLayoutWrapperMainContent style={spacings.mbLg}>
       <View
         style={[
           flexbox.directionRow,
@@ -102,7 +102,7 @@ const Main = ({
             <Alert
               type="error"
               title="This app has been flagged to not support Smart Account signatures."
-              text="If you encounter issues, please use a Basic Account and contact the app to resolve this."
+              text="If you encounter issues, please use an EOA account and contact the app to resolve this."
             />
           )}
         </View>
@@ -111,7 +111,13 @@ const Main = ({
             enableToggleExpand={!!visualizeHumanized}
             isInitiallyExpanded={!visualizeHumanized}
             hasArrow={!!visualizeHumanized}
-            style={{ ...spacings.mbTy, maxHeight: '100%' }}
+            style={{
+              ...spacings.mbTy,
+              // Setting maxHeight on larger screens introduced internal content scroll
+              // (which aligns the content better - with internal scrollbar).
+              ...(minHeightSize(660) ? {} : { maxHeight: '100%' }),
+              backgroundColor: theme.primaryBackground
+            }}
             content={
               visualizeHumanized &&
               // @TODO: Duplicate check. For some reason ts throws an error if we don't do this

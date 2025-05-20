@@ -1,6 +1,8 @@
 import { iconColors } from '@common/styles/themeConfig'
 
 export const SUBMENU_OPTIONS = [
-  { label: 'Manage Keys', value: 'keys' },
-  { label: 'Remove Account', value: 'remove', style: { color: iconColors.danger } }
+  { label: 'Manage keys', value: 'keys' },
+  { label: 'Remove account', value: 'remove', style: { color: iconColors.danger } }
 ]
+
+export const SUBMENU_OPTION_7702 = { label: 'Smart settings', value: 'toSmarter' }

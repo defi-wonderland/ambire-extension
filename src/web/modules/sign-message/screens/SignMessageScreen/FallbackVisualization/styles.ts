@@ -20,7 +20,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     container: {
       ...common.borderRadiusPrimary,
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor: theme.primaryBackground,
       ...flexbox.flex1,
       minHeight: 200,
       ...spacings.pvSm,

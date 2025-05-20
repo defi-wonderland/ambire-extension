@@ -1,15 +1,28 @@
 html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+html,
 body,
 #root {
   width: 100%;
   height: 100%;
-  /* For gecko, the `min-height` gets overwritten in the `webpack.config.js` */
-  /* This is a workaround, because here a constant can't be used.  */
-  min-height: 600px;
   -webkit-overflow-scrolling: touch;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+}
+
+/* Makes sure to fill the root element no matter the size of the window */
+#root {
+  display: flex;
+  flex: 1;
+}
+
+/* Sets specific size for the extension popup, otherwise, it shrinks to fit the content */
+.body-extension-popup {
+  width: 600px;
+  height: 600px;
 }
 
 html {
@@ -21,11 +34,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-#root {
-  display: flex;
-  flex: 1;
 }
 
 div {

@@ -16,10 +16,10 @@ interface Props {
 
 const TypeBadge: FC<Props> = ({ isSmart, size, showTooltip = false }) => {
   const { theme } = useTheme()
-  const badgePreset = isSmart ? BADGE_PRESETS['smart-account'] : BADGE_PRESETS['basic-account']
+  const badgePreset = BADGE_PRESETS['smart-account']
   const tooltipId = nanoid(6)
 
-  return (
+  return isSmart ? (
     <>
       <View
         // @ts-ignore
@@ -30,7 +30,7 @@ const TypeBadge: FC<Props> = ({ isSmart, size, showTooltip = false }) => {
           top: size === 'big' ? -SPACING_MI / 2 : -SPACING_MI,
           paddingHorizontal: 3,
           paddingVertical: 2,
-          backgroundColor: isSmart ? theme.successDecorative : theme.warningDecorative,
+          backgroundColor: theme.successDecorative,
           zIndex: 2,
           borderRadius: 50,
           borderWidth: size === 'big' ? 3 : 2,
@@ -38,12 +38,12 @@ const TypeBadge: FC<Props> = ({ isSmart, size, showTooltip = false }) => {
         }}
       >
         <Text color="#fff" weight="semiBold" fontSize={size === 'big' ? 10 : 9}>
-          {isSmart ? 'SA' : 'BA'}
+          SA
         </Text>
       </View>
       {showTooltip && <Tooltip id={tooltipId} content={badgePreset.tooltipText} />}
     </>
-  )
+  ) : null
 }
 
 export default TypeBadge

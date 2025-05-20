@@ -109,7 +109,7 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
         </View>
         <View style={styles.optionsWrapper}>
           <Option
-            text={t('Add from current recovery phrase')}
+            text={t('Add from stored recovery phrases')}
             disabled={!seeds.length}
             icon={AddFromCurrentRecoveryPhraseIcon}
             onPress={openBottomSheet as any}

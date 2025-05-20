@@ -20,7 +20,14 @@ type Props = {
   text?: string
 }
 
-const RepeatTransaction: FC<Props> = ({ text, accountAddr, chainId, rawCalls, textSize, iconSize }) => {
+const RepeatTransaction: FC<Props> = ({
+  text,
+  accountAddr,
+  chainId,
+  rawCalls,
+  textSize,
+  iconSize
+}) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
@@ -44,7 +51,7 @@ const RepeatTransaction: FC<Props> = ({ text, accountAddr, chainId, rawCalls, te
 
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
-      params: userRequest
+      params: { userRequest }
     })
   }, [accountAddr, dispatch, chainId, rawCalls])
 

@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -9,6 +8,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 interface Props {
@@ -30,7 +30,7 @@ const CopyTokenAddress: FC<Props> = ({ address, isRewards, isVesting }) => {
     <AnimatedPressable
       style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlMi, animStyle]}
       onPress={() => {
-        Clipboard.setStringAsync(address).catch(() => {
+        setStringAsync(address).catch(() => {
           addToast(t('Failed to copy address to clipboard'), { timeout: 2500 })
         })
         addToast(t('Address copied to clipboard!'), { timeout: 2500 })

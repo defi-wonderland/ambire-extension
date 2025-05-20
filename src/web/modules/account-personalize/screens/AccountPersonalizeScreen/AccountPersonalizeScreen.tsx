@@ -42,6 +42,7 @@ const AccountPersonalizeScreen = () => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const accountPickerState = useAccountPickerControllerState()
+  const accountsState = useAccountsControllerState()
   const { accounts } = useAccountsControllerState()
   const { isSetupComplete } = useWalletStateController()
   const { addToast } = useToast()
@@ -63,10 +64,12 @@ const AccountPersonalizeScreen = () => {
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT' })
   }, [dispatch, accountPickerState.isInitialized])
 
+  // hold the loading state for 1.1 seconds before displaying the accountsToPersonalize for better UX
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      await wait(1000)
+      await wait(1100)
+
       if (
         accountPickerState.isInitialized &&
         accountPickerState.selectNextAccountStatus === 'INITIAL' &&
@@ -79,33 +82,62 @@ const AccountPersonalizeScreen = () => {
       if (!accountPickerState.isInitialized && accountsToPersonalize.length) {
         setIsLoading(false)
       }
+
+      // this covers the case when the screen is opened via the browser navigation instead of the internal
+      // navigation. After 1.1 sec the loading state will be set to false and the hook below will be triggered
+      // that will navigate the user to the dashboard screen because there will be no accounts to personalize
+      if (
+        !accountPickerState.initParams &&
+        !accountPickerState.isInitialized &&
+        accountsState.statuses.addAccounts === 'INITIAL'
+      ) {
+        setIsLoading(false)
+      }
     })()
   }, [
+    accountPickerState.initParams,
     accountPickerState.isInitialized,
     accountPickerState.readyToRemoveAccounts.length,
     accountPickerState.selectNextAccountStatus,
     accountPickerState.selectedAccountsFromCurrentSession.length,
     accountsToPersonalize,
-    accountPickerState.addAccountsStatus
+    accountPickerState.addAccountsStatus,
+    accountsState.statuses.addAccounts
   ])
 
+  // the hook sets the accountsToPersonalize
   useEffect(() => {
-    if (accountPickerState.isInitialized && !accountsToPersonalize.length && !isLoading) {
+    if (isLoading) return
+
+    let state: Account[] = []
+    if (accountPickerState.isInitialized) {
+      state = accountPickerState.addedAccountsFromCurrentSession
+    }
+
+    if (!accountPickerState.isInitialized && newlyAddedAccounts.length) {
+      state = newlyAddedAccounts
+    }
+
+    if (state.length) {
+      setAccountsToPersonalize(state)
+    } else {
       goToNextRoute()
     }
-  }, [goToNextRoute, accountPickerState.isInitialized, accountsToPersonalize.length, isLoading])
-
-  useEffect(() => {
-    if (accountPickerState.isInitialized) {
-      setAccountsToPersonalize(accountPickerState.addedAccountsFromCurrentSession)
-    } else if (!accountPickerState.isInitialized && newlyAddedAccounts.length) {
-      setAccountsToPersonalize(newlyAddedAccounts)
-    }
   }, [
+    isLoading,
     accountPickerState.isInitialized,
     accountPickerState.addedAccountsFromCurrentSession,
-    newlyAddedAccounts
+    newlyAddedAccounts,
+    accountsState.statuses.addAccounts,
+    goToNextRoute
   ])
+
+  // prevents showing accounts to personalize from prev sessions
+  useEffect(() => {
+    if (newlyAddedAccounts.length && accountPickerState.isInitialized) {
+      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
+    }
+  }, [newlyAddedAccounts.length, accountPickerState.isInitialized, dispatch])
 
   useEffect(() => {
     setValue('accounts', accountsToPersonalize)
@@ -123,12 +155,6 @@ const AccountPersonalizeScreen = () => {
     },
     [dispatch, getValues]
   )
-
-  useEffect(() => {
-    if (newlyAddedAccounts.length && accountPickerState.isInitialized) {
-      dispatch({ type: 'ACCOUNTS_CONTROLLER_RESET_ACCOUNTS_NEWLY_ADDED_STATE' })
-    }
-  }, [newlyAddedAccounts.length, accountPickerState.isInitialized, dispatch])
 
   const handleGetStarted = useCallback(async () => {
     await handleSubmit(handleSave)()

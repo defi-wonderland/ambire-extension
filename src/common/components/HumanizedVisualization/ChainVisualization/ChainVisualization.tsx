@@ -13,9 +13,10 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 interface Props {
   chainId: bigint
   marginRight?: number
+  hideLinks?: boolean
 }
 
-const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
+const ChainVisualization: FC<Props> = ({ chainId, marginRight, hideLinks = false }) => {
   const { benzinNetworks, loadingBenzinNetworks = [] } = useNetworksContext()
   const { networks } = useNetworksControllerState()
   const actualNetworks = networks ?? benzinNetworks
@@ -35,7 +36,11 @@ const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
             id={destinationNetwork.chainId.toString()}
             benzinNetwork={destinationNetwork}
           />
-          <Text onPress={handleLink} weight="semiBold" style={spacings.mlMi}>
+          <Text
+            {...(!hideLinks && { onPress: handleLink })}
+            weight="semiBold"
+            style={spacings.mlMi}
+          >
             {destinationNetwork.name}
           </Text>
         </>
@@ -46,9 +51,11 @@ const ChainVisualization: FC<Props> = ({ chainId, marginRight }) => {
         </Text>
       )}
       {isNetworkLoading && <SkeletonLoader width={140} height={20} />}
-      <Pressable style={spacings.mlMi} onPress={handleLink}>
-        <InfoIcon width={14} height={14} />
-      </Pressable>
+      {!hideLinks && (
+        <Pressable style={spacings.mlMi} onPress={handleLink}>
+          <InfoIcon width={14} height={14} />
+        </Pressable>
+      )}
     </View>
   )
 }

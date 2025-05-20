@@ -85,6 +85,7 @@ const LeaderboardContainer: React.FC = () => {
 
   return (
     <Page
+      containerSize="lg"
       pageRef={pageRef}
       style={{
         backgroundImage: `url(${smokeAndLights})`,

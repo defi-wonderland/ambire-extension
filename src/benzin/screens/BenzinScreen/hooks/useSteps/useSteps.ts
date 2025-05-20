@@ -39,6 +39,7 @@ import {
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { EIP7702Auth } from '@ambire-common/consts/7702'
 import { decodeUserOp, entryPointTxnSplit, reproduceCallsFromTxn } from './utils/reproduceCalls'
 
 const REFETCH_TIME = 4000 // 4 seconds
@@ -79,6 +80,7 @@ export interface StepsData {
   from: string | null
   originatedFrom: string | null
   userOp: UserOperation | null
+  delegation?: EIP7702Auth
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -588,7 +590,7 @@ const useSteps = ({
     let address: string | undefined
     let amount = 0n
     let isGasTank = false
-    let tokenChainId = 1n
+    let tokenChainId = network.chainId
 
     // Smart account
     // Decode the fee call and get the token address and amount
@@ -620,7 +622,8 @@ const useSteps = ({
     }
 
     const isSponsored =
-      (amount === 0n && isGasTank) || (!!userOp && userOp.paymaster !== AMBIRE_PAYMASTER)
+      (amount === 0n && isGasTank) ||
+      (!!userOp && !!userOp.paymaster && userOp.paymaster !== AMBIRE_PAYMASTER)
     if (!address || (!amount && !isSponsored)) return
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -650,7 +653,7 @@ const useSteps = ({
       if (!isMounted) return
       setFeePaidWith({
         amount: address === ZeroAddress ? formatDecimals(parseFloat(formatUnits(amount, 18))) : '-',
-        symbol: address === ZeroAddress ? 'ETH' : '',
+        symbol: address === ZeroAddress ? network.nativeAssetSymbol : '',
         usdValue: '-$',
         isErc20: false,
         address: address as string,
@@ -725,7 +728,11 @@ const useSteps = ({
     txnId: foundTxnId,
     from: from || null,
     originatedFrom: txnReceipt.originatedFrom,
-    userOp
+    userOp,
+    delegation:
+      extensionAccOp && extensionAccOp.meta && extensionAccOp.meta.setDelegation !== undefined
+        ? extensionAccOp.meta.delegation
+        : undefined
   }
 }
 

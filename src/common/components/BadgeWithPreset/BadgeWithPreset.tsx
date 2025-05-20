@@ -8,9 +8,17 @@ import { Props } from './types'
 
 const BadgeWithPreset: FC<Props> = ({ preset, ...rest }) => {
   const { t } = useTranslation()
-  const { text, type, tooltipText } = BADGE_PRESETS[preset]
+  const { text, type, tooltipText, specialType } = BADGE_PRESETS[preset]
 
-  return <Badge {...rest} text={t(text)} type={type} tooltipText={t(tooltipText)} />
+  return (
+    <Badge
+      {...rest}
+      text={t(text)}
+      type={type}
+      specialType={specialType}
+      tooltipText={t(tooltipText)}
+    />
+  )
 }
 
 export default BadgeWithPreset

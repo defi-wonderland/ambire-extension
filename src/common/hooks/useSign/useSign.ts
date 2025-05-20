@@ -16,7 +16,7 @@ type Props = {
   handleBroadcast: () => void
   handleUpdate: (params: { signingKeyAddr?: string; signingKeyType?: string }) => void
   signAccountOpState: SignAccountOpController | null
-  isOneClickSwap?: boolean
+  isOneClickSign?: boolean
 }
 
 const useSign = ({
@@ -24,7 +24,7 @@ const useSign = ({
   signAccountOpState,
   handleBroadcast,
   handleUpdate,
-  isOneClickSwap
+  isOneClickSign
 }: Props) => {
   const mainState = useMainControllerState()
   const { networks } = useNetworksControllerState()
@@ -132,17 +132,24 @@ const useSign = ({
 
   const warningToPromptBeforeSign = useMemo(
     () =>
-      signAccountOpState?.warnings.find(
-        (warning) => warning.promptBeforeSign && !acknowledgedWarnings.includes(warning.id)
-      ),
-    [acknowledgedWarnings, signAccountOpState?.warnings]
+      signAccountOpState?.warnings.find((warning) => {
+        const signingType = isOneClickSign ? 'one-click-sign' : 'sign'
+        const shouldPrompt = warning.promptBefore?.includes(signingType)
+
+        if (!shouldPrompt) return false
+
+        const isWarningAcknowledged = acknowledgedWarnings.includes(warning.id)
+
+        return !isWarningAcknowledged
+      }),
+    [acknowledgedWarnings, isOneClickSign, signAccountOpState?.warnings]
   )
 
   const handleSign = useCallback(
     (_chosenSigningKeyType?: string, _warningAccepted?: boolean) => {
       // Prioritize warning(s) modals over all others
       // Warning modals are not displayed in the one-click swap flow
-      if (warningToPromptBeforeSign && !_warningAccepted && !isOneClickSwap) {
+      if (warningToPromptBeforeSign && !_warningAccepted) {
         openWarningModal()
         handleUpdateStatus(SigningStatus.UpdatesPaused)
         return
@@ -162,7 +169,6 @@ const useSign = ({
     },
     [
       warningToPromptBeforeSign,
-      isOneClickSwap,
       feePayerKeyType,
       isAtLeastOneOfTheKeysInvolvedLedger,
       isLedgerConnected,

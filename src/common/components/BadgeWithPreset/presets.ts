@@ -7,12 +7,6 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
     tooltipText:
       'Smart Accounts unlock the full potential of Ethereum and EVM networks, offering advanced features like paying gas fees in stablecoins, simulating transaction outcomes, and batching multiple actions into a single transaction.'
   },
-  'basic-account': {
-    text: 'Basic Account',
-    type: 'warning',
-    tooltipText:
-      'We refer to EOAs (Externally Owned Accounts) as Basic Accounts. These native accounts on Ethereum and EVM networks offer limited functionality compared to Smart Accounts.'
-  },
   'view-only': {
     text: 'View-only',
     type: 'info',
@@ -30,6 +24,12 @@ const BADGE_PRESETS: { [preset in Preset]: BadgePreset } = {
     type: 'info',
     tooltipText:
       'Smart Accounts were initially created with a given signer key, but another signer key is authorized for that account on one or more of the supported networks.'
+  },
+  metamask: {
+    text: 'Metamask',
+    type: 'warning',
+    tooltipText: 'This account has a Metamask EIP-7702 delegation',
+    specialType: 'metamask'
   }
 }
 

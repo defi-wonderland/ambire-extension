@@ -16,16 +16,17 @@ const getStyles = (theme: ThemeProps) =>
     image: {
       width: 48,
       height: 48,
-      alignSelf: 'flex-start'
+      alignSelf: 'flex-start',
+      borderRadius: BORDER_RADIUS_PRIMARY
     },
     fallbackIcon: {
       width: 48,
       height: 48,
       backgroundColor: theme.secondaryBackground,
       alignSelf: 'flex-start',
-      borderRadius: 4,
       ...spacings.pvMi,
-      ...spacings.phMi
+      ...spacings.phMi,
+      borderRadius: BORDER_RADIUS_PRIMARY
     },
     verifyingContract: {
       backgroundColor: theme.secondaryBackground,

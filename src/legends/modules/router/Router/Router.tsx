@@ -12,10 +12,9 @@ import { MidnightTimerContextProvider } from '@legends/contexts/midnightTimerCon
 import { PortfolioControllerStateProvider } from '@legends/contexts/portfolioControllerStateContext'
 import CharacterSelect from '@legends/modules/character/screens/CharacterSelect'
 import Home from '@legends/modules/Home'
-import Landing from '@legends/modules/landing/screens/Landing'
 import Leaderboard from '@legends/modules/leaderboard/screens/Leaderboard'
 import Legends from '@legends/modules/legends/screens/Legends'
-import Staking from '@legends/modules/Staking'
+import Wallet from '@legends/modules/wallet'
 
 import { LEGENDS_ROUTES } from '../constants'
 import { LEGENDS_LEGACY_ROUTES } from '../constants/routes'
@@ -82,8 +81,8 @@ const router = createHashRouter([
             element: <Home />
           },
           {
-            path: LEGENDS_ROUTES.staking,
-            element: <Staking />
+            path: LEGENDS_ROUTES.wallet,
+            element: <Wallet />
           },
           {
             path: LEGENDS_ROUTES['/'],

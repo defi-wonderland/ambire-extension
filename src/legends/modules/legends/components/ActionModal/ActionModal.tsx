@@ -17,6 +17,7 @@ import Rewards from '@legends/modules/legends/components/Card/CardContent/Reward
 import HowTo from '@legends/modules/legends/components/Card/HowTo'
 import { HowToProps } from '@legends/modules/legends/components/Card/HowTo/HowTo'
 import ClaimRewards from '@legends/modules/legends/components/ClaimRewardsModal/ClaimRewardsModal'
+import StakeWalletModal from '@legends/modules/legends/components/StakeWalletModal/StakeWalletModal'
 import TreasureChestComponentModal from '@legends/modules/legends/components/TreasureChestComponentModal'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardFromResponse } from '@legends/modules/legends/types'
@@ -145,6 +146,12 @@ const ActionModal: FC<ActionModalProps> = ({
 
   if (predefinedId === CARD_PREDEFINED_ID.wheelOfFortune) {
     return <WheelComponentModal isOpen={isOpen} handleClose={closeActionModalWrapped} />
+  }
+
+  if (predefinedId === CARD_PREDEFINED_ID.staking) {
+    return (
+      <StakeWalletModal isOpen={isOpen} action={action} handleClose={closeActionModalWrapped} />
+    )
   }
 
   if (predefinedId === CARD_PREDEFINED_ID.chest) {
