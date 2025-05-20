@@ -1,0 +1,229 @@
+@import '@legends/styles/base.scss';
+
+.backdrop {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $backdrop;
+  backdrop-filter: blur(0.5rem);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper {
+  position: relative;
+  width: 34.875rem;
+  display: flex;
+  flex-direction: column;
+  background-size: cover;
+  background-color: $neutral-700;
+  border-radius: $tertiaryBorderRadius;
+  border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                    linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
+}
+
+.closeButton {
+  font-size: inherit;
+  margin-right: .5625rem;
+  margin-top: 0.813em;
+  margin-left: auto;
+  display: block;
+  width: 2em;
+  height: 2em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  svg {
+    width: 2em;
+    height: 2em;
+  }
+}
+
+.contentWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem 2rem 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0 auto 2rem auto;
+  color: $whiteText;
+  text-align: center;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  background-color: $mainBg;
+  border-radius: 1rem;
+  padding: .5rem;
+
+  .tab-group {
+    display: flex;
+    border-radius: 2rem;
+    padding: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  button {
+    border: none;
+    background: transparent;
+    color: $mainText;
+    font-size: 1rem;
+    font-weight: 400;
+    padding: .75rem 1.625rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+
+    &.activeTab {
+      background: rgba($neutral-600, 0.3);
+      color: $mainText;
+      box-shadow: none;
+    }
+
+    &:not(.activeTab):hover {
+      color: #fff;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.infoWrapper {
+  min-width: 21.875rem;
+}
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  > div:nth-child(2) {
+    text-align: right;
+  }
+}
+
+.label {
+  font-size: 0.875rem;
+  color: $secondaryText;
+  margin-bottom: 0.25rem;
+  line-height: 1.5rem;
+}
+
+.stakeValueUsd, .stakeInputValueUsd {
+  font-size: 0.875rem;
+  color: $secondaryText;
+  margin-top: 0.25rem;
+}
+
+.stakeInputValueUsd {
+  text-align: right;
+}
+
+.value {
+  font-size: 1.25rem;
+  color: $mainText;
+  font-weight: 500;
+  line-height: 2.5rem;
+}
+
+
+.stakedTotalRow {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  .label {
+    flex: 1;
+    text-align: left;
+  }
+  
+}
+
+.stakeInputRow {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+.stakeInputRowWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+.stakeInputLabel {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: $secondaryText;
+  margin-bottom: .25rem;
+}
+.stakeInputMaxRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.stakeInputMax {
+  font-weight: 300;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: $mainText;
+}
+
+.stakeInputErrorWrapper {
+  display: flex;
+  justify-content: space-between;
+
+  .error {
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    color: $red-400;
+  }
+}
+
+.stakeInput {
+  display: flex;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba($neutral-600, 0.2);
+  background: rgba($neutral-600, 0.1);
+  color: $mainText;
+  font-size: 1.5rem;
+  outline: none;
+  text-align: right;
+  border-radius: 6.25rem;
+}
+
+.stakeButton {
+  @include primary-button;
+  min-width: 30.875rem;
+  width: max-content;
+  height: 4rem;
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-top: 2rem;
+}
+
+
+.stakeInputMaxButton {
+  color: $purple-500;
+}
+
+.activeTab {
+  background: linear-gradient(90deg, #A084FF 0%, #6F4AFF 100%);
+  color: $whiteText;
+} 

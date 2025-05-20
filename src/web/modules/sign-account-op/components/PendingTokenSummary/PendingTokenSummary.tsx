@@ -6,6 +6,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -25,7 +26,21 @@ const PendingTokenSummary = ({ token, chainId, hasBottomSpacing = true }: Props)
   const { styles } = useTheme(getStyles)
   const { networks } = useNetworksControllerState()
   const tokenId = getTokenId(token, networks)
-  const amount = formatUnits(BigIntMath.abs(token.simulationAmount!), token.decimals || 18)
+  const { formattedAmount, fullAmount } = useMemo(() => {
+    if (token.simulationAmount === undefined || token.decimals === undefined) {
+      return {
+        formattedAmount: 0,
+        fullAmount: 0
+      }
+    }
+    const numericAmount = parseFloat(
+      formatUnits(BigIntMath.abs(token.simulationAmount!), token.decimals)
+    )
+    return {
+      formattedAmount: formatDecimals(numericAmount, 'amount'),
+      fullAmount: numericAmount
+    }
+  }, [token.simulationAmount, token?.decimals])
 
   const priceInUsd = useMemo(() => {
     if (!token.decimals) return null
@@ -70,12 +85,20 @@ const PendingTokenSummary = ({ token, chainId, hasBottomSpacing = true }: Props)
         selectable
         fontSize={16}
         weight="medium"
-        color={amountToSendTextColor}
         dataSet={{
           tooltipId: `${amountToSendSign}token-summary-${tokenId}`
         }}
       >
-        {`${amountToSendSign}${amount}`}
+        <Text
+          weight="medium"
+          // @ts-ignore
+          style={{ cursor: 'pointer' }}
+          color={amountToSendTextColor}
+          dataSet={{
+            tooltipId: `${amountToSendSign}token-amount-${tokenId}`
+          }}
+        >{`${amountToSendSign}${formattedAmount}`}</Text>
+        <Tooltip content={String(fullAmount)} id={`${amountToSendSign}token-amount-${tokenId}`} />
         <Text fontSize={16} weight="medium">
           {` ${token.symbol}`}
         </Text>

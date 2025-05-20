@@ -15,9 +15,9 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     contentContainer: {
       height: '100%',
-      ...spacings.pbLg,
+      ...spacings.pbMd,
       ...spacings.ph0,
-      ...spacings.ptLg,
+      ...spacings.mtMd,
       ...flexbox.flex1
     },
     informationCircle: {

@@ -10,6 +10,9 @@ import TokenIcon from '@common/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import { EIP7702Auth } from '@ambire-common/consts/7702'
+import { ZERO_ADDRESS } from '@ambire-common/services/socket/constants'
+import DelegationHumanization from '@web/components/DelegationHumanization'
 import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
@@ -19,9 +22,10 @@ interface Props {
   userOpHash: string | null
   stepsState: StepsData
   summary: any
+  delegation?: EIP7702Auth
 }
 
-const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }) => {
+const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary, delegation }) => {
   const { blockData, finalizedStatus, feePaidWith, from, originatedFrom } = stepsState
 
   const stepRows: any = [
@@ -131,7 +135,13 @@ const Steps: FC<Props> = ({ activeStep, txnId, userOpHash, stepsState, summary }
           finalizedStatus={finalizedStatus}
           testID="txn-progress-step"
         >
-          {!!summary && summary}
+          {!delegation && !!summary && summary}
+          {delegation && (
+            <DelegationHumanization
+              setDelegation={delegation.address !== ZERO_ADDRESS}
+              delegatedContract={delegation.address}
+            />
+          )}
           {
             // if there's an userOpHash & txnId but no callData decoded,
             // it means handleOps has not been called directly and we cannot decode

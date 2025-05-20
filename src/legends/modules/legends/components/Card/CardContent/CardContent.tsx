@@ -94,6 +94,7 @@ const CardContent: FC<Props> = ({
             }}
           />
         </div>
+
         <div className={styles.actionAndRewards}>
           <div className={styles.rewardFrequencyWrapper}>
             {isTreasureChestCard && treasureChestStreak && !nonConnectedAcc ? (

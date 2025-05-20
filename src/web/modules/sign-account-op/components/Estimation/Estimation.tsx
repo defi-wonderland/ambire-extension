@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import { FeeSpeed, SpeedCalc } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Warning } from '@ambire-common/interfaces/signAccountOp'
@@ -21,7 +22,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 import EstimationSkeleton from './components/EstimationSkeleton'
 import { NO_FEE_OPTIONS } from './consts'
 import { getDefaultFeeOption, mapFeeOptions, sortFeeOptions } from './helpers'
@@ -292,7 +292,7 @@ const Estimation = ({
       {
         title: {
           icon: <AssetIcon color={theme.secondaryText} width={16} height={16} />,
-          text: t('With native assets of my basic accounts')
+          text: t('With native assets of my EOA accounts')
         },
         data: payOptionsPaidByEOA,
         key: 'eoa-tokens'
@@ -361,7 +361,7 @@ const Estimation = ({
   if (isSponsored) {
     return (
       <View>
-        {sponsor && (
+        {sponsor ? (
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {sponsor.icon && (
               <ManifestImage
@@ -373,6 +373,17 @@ const Estimation = ({
             <View style={spacings.ml}>
               <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
                 {sponsor.name}
+              </Text>
+              <Text fontSize={16} appearance="secondaryText">
+                {t('is 🪄 sponsoring 🪄 this transaction')}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <View style={spacings.ml}>
+              <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
+                {t("The dapp you're connected to")}
               </Text>
               <Text fontSize={16} appearance="secondaryText">
                 {t('is 🪄 sponsoring 🪄 this transaction')}

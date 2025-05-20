@@ -1,4 +1,3 @@
-import { setStringAsync } from 'expo-clipboard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
@@ -16,6 +15,7 @@ import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
+import { setStringAsync } from '@common/utils/clipboard'
 import { RELAYER_URL } from '@env'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 

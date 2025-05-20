@@ -17,7 +17,9 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
       ...flexbox.alignCenter,
-      marginHorizontal: 'auto'
+      marginHorizontal: 'auto',
+      ...flexbox.flex1,
+      maxWidth: 422
     },
     content: {
       ...common.fullWidth,

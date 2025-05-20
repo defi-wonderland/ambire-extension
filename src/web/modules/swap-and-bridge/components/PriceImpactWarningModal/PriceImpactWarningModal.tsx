@@ -7,6 +7,9 @@ import DualChoiceWarningModal from '@common/components/DualChoiceWarningModal'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
+
+const { isTab } = getUiType()
 
 type Props = {
   sheetRef: React.RefObject<any>
@@ -97,7 +100,7 @@ const PriceImpactWarningModal: FC<Props> = ({
         paddingVertical: 0,
         overflow: 'hidden'
       }}
-      type="bottom-sheet"
+      type={isTab ? 'modal' : 'bottom-sheet'}
       withBackdropBlur={false}
       shouldBeClosableOnDrag={false}
     >

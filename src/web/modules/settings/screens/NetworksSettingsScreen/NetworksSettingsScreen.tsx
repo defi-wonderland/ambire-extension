@@ -32,7 +32,7 @@ const NetworksSettingsScreen = () => {
   const { control, watch } = useForm({ defaultValues: { search: '' } })
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-  const { networks } = useNetworksControllerState()
+  const { allNetworks } = useNetworksControllerState()
 
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { theme } = useTheme()
@@ -51,8 +51,8 @@ const NetworksSettingsScreen = () => {
   }, [searchParams])
 
   const selectedNetwork = useMemo(
-    () => networks.find((n) => n.chainId === selectedChainId),
-    [networks, selectedChainId]
+    () => allNetworks.find((n) => n.chainId === selectedChainId),
+    [allNetworks, selectedChainId]
   )
 
   const search = watch('search')
@@ -62,8 +62,19 @@ const NetworksSettingsScreen = () => {
   }, [setCurrentSettingsPage])
 
   const filteredNetworkBySearch = useMemo(
-    () => networks.filter((network) => network.name.toLowerCase().includes(search.toLowerCase())),
-    [networks, search]
+    () =>
+      allNetworks.filter((network) => network.name.toLowerCase().includes(search.toLowerCase())),
+    [allNetworks, search]
+  )
+
+  const filteredEnabledNetworks = useMemo(
+    () => filteredNetworkBySearch.filter((network) => !network.disabled),
+    [filteredNetworkBySearch]
+  )
+
+  const filteredDisabledNetworks = useMemo(
+    () => filteredNetworkBySearch.filter((network) => network.disabled),
+    [filteredNetworkBySearch]
   )
 
   const handleSelectNetwork = useCallback((chainId: bigint) => {
@@ -87,14 +98,36 @@ const NetworksSettingsScreen = () => {
           />
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
             {filteredNetworkBySearch.length > 0 ? (
-              filteredNetworkBySearch.map((network) => (
-                <Network
-                  key={network.chainId.toString()}
-                  network={network}
-                  selectedChainId={selectedChainId}
-                  handleSelectNetwork={handleSelectNetwork}
-                />
-              ))
+              <>
+                {filteredEnabledNetworks.length > 0 && (
+                  <View style={spacings.mb}>
+                    {filteredEnabledNetworks.map((network) => (
+                      <Network
+                        key={network.chainId.toString()}
+                        network={network}
+                        selectedChainId={selectedChainId}
+                        handleSelectNetwork={handleSelectNetwork}
+                      />
+                    ))}
+                  </View>
+                )}
+                {filteredDisabledNetworks.length > 0 && (
+                  <>
+                    <Text weight="medium" fontSize={16} style={[spacings.mbTy]}>
+                      {t('Disabled networks')}
+                    </Text>
+
+                    {filteredDisabledNetworks.map((network) => (
+                      <Network
+                        key={network.chainId.toString()}
+                        network={network}
+                        selectedChainId={selectedChainId}
+                        handleSelectNetwork={handleSelectNetwork}
+                      />
+                    ))}
+                  </>
+                )}
+              </>
             ) : (
               <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Text weight="regular" fontSize={14} style={[text.center]}>
@@ -152,7 +185,6 @@ const NetworksSettingsScreen = () => {
                 nativeAssetName={selectedNetwork?.nativeAssetName || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
                 allowRemoveNetwork
-                predefined={selectedNetwork?.predefined}
               />
             </View>
             {!!selectedNetwork && !!selectedChainId && (

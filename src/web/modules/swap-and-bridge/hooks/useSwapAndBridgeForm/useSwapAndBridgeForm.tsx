@@ -424,12 +424,12 @@ const useSwapAndBridgeForm = () => {
   }, [hasBroadcasted, showAddedToBatch])
 
   useEffect(() => {
-    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+    const broadcastStatus = mainCtrlStatuses.signAndBroadcastAccountOp
 
     if (broadcastStatus === 'SUCCESS' && activeRoutes.length) {
       setHasBroadcasted(true)
     }
-  }, [activeRoutes.length, mainCtrlStatuses.broadcastSignedAccountOp])
+  }, [activeRoutes.length, mainCtrlStatuses.signAndBroadcastAccountOp])
 
   useEffect(() => {
     if (!signAccountOpController) {

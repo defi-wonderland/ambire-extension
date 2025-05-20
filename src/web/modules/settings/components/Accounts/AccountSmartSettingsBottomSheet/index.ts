@@ -1,0 +1,3 @@
+import AccountSmartSettingsBottomSheet from './AccountSmartSettingsBottomSheet'
+
+export default AccountSmartSettingsBottomSheet

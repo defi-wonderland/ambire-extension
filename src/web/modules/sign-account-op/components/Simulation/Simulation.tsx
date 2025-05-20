@@ -343,7 +343,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
           isTypeLabelHidden
           title={
             <Trans>
-              The RPC cannot perform simulations for Basic Accounts. Try changing the RPC from
+              The RPC cannot perform simulations for EOA accounts. Try changing the RPC from
               Settings. If you wish to proceed regardless, please carefully review the transaction
               preview below.
             </Trans>

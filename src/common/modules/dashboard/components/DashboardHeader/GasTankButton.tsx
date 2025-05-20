@@ -113,7 +113,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
           </View>
         )}
       </AnimatedPressable>
-      <Tooltip content="Not available for hardware wallets yet" id="gas-tank-soon" />
+      <Tooltip content="Not available for hardware wallets yet." id="gas-tank-soon" />
     </View>
   )
 }

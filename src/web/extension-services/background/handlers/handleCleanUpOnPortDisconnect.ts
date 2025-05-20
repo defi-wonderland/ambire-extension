@@ -18,7 +18,11 @@ export const handleCleanUpOnPortDisconnect = async ({
     const sessionId = url.searchParams.get('sessionId')!
 
     if (url.pathname.includes('swap-and-bridge')) {
-      mainCtrl.swapAndBridge.unloadScreen(sessionId)
+      if (port.name === 'action-window') {
+        mainCtrl.onOneClickSwapClose()
+      } else {
+        mainCtrl.swapAndBridge.unloadScreen(sessionId)
+      }
     }
 
     if (url.pathname.includes('dashboard') || url.pathname.includes('transactions')) {
@@ -38,12 +42,22 @@ export const handleCleanUpOnPortDisconnect = async ({
     mainCtrl.signMessage.reset()
   }
 
-  if (mainCtrl.accountPicker.isInitialized) {
-    const shouldResetAccountPicker = ONBOARDING_WEB_ROUTES.some(
-      (r) => url.pathname.includes(r) && port.name === 'tab'
-    )
+  const isOnboardingRoute = ONBOARDING_WEB_ROUTES.some(
+    (r) => url.pathname.includes(r) && port.name === 'tab'
+  )
 
-    if (shouldResetAccountPicker) await mainCtrl.accountPicker.reset()
+  // The logic below ensures that if the onboarding flow was forcefully closed,
+  // the AccountsPersonalize screen will not be shown the next time the extension is opened.
+  if (isOnboardingRoute) {
+    // handles the case when the accountPicker is initialized
+    if (mainCtrl.accountPicker.isInitialized) {
+      await mainCtrl.accountPicker.reset()
+    }
+
+    // handles the case when the accountPicker is not initialized e.g. "import JSON" or "view-only" flows
+    if (mainCtrl.accounts.accounts.filter((a) => a.newlyAdded).length) {
+      await mainCtrl.accounts.resetAccountsNewlyAddedState()
+    }
   }
 
   // In Firefox, we don't close the action window directly to avoid a bug where closing it also closes the extension popup.

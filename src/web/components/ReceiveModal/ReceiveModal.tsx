@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { FC, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -16,6 +15,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
@@ -46,7 +46,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const handleCopyAddress = () => {
     if (!account) return
 
-    Clipboard.setStringAsync(account.addr)
+    setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 

@@ -4,11 +4,10 @@ import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import wait from '@ambire-common/utils/wait'
-import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import { SPACING_LG } from '@common/styles/spacings'
+import Header from '@common/modules/header/components/Header'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import eventBus from '@web/extension-services/event/eventBus'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
@@ -115,7 +114,14 @@ const DappConnectScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      backgroundColor={theme.secondaryBackground}
+      backgroundColor={theme.quinaryBackground}
+      header={
+        <Header
+          mode="custom-inner-content"
+          withAmbireLogo
+          backgroundColor={theme.quinaryBackground as string}
+        />
+      }
       footer={
         <ActionFooter
           onReject={handleDenyButtonPress}
@@ -132,18 +138,7 @@ const DappConnectScreen = () => {
         />
       }
     >
-      <View
-        style={[
-          styles.container,
-          {
-            paddingVertical: SPACING_LG * responsiveSizeMultiplier,
-            width: responsiveSizeMultiplier * 458
-          }
-        ]}
-      >
-        <AmbireLogoHorizontal
-          style={{ marginBottom: SPACING_LG * responsiveSizeMultiplier, minHeight: 28 }}
-        />
+      <View style={[styles.container]}>
         <View style={styles.content}>
           <DAppConnectHeader
             name={userRequest?.session?.name}

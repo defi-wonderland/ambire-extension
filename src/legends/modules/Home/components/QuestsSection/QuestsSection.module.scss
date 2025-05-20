@@ -75,14 +75,13 @@
   }
 
   @include breakpoint-down-from(large-tablet) {
-    padding-left: 0;
-
     .titleAndButtons {
       margin-right: 0;
     }
   }
 
   @include breakpoint-down-from(tablet) {
+    padding-left: 0;
     .slide {
       width: 100%;
     }

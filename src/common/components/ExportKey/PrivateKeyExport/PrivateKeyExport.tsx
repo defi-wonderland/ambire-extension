@@ -1,4 +1,3 @@
-import { setStringAsync } from 'expo-clipboard'
 import React, { FC, useCallback } from 'react'
 import { View } from 'react-native'
 
@@ -14,6 +13,7 @@ import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_SM } from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 
 import getStyles from './styles'
 

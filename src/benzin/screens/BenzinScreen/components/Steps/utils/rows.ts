@@ -1,6 +1,6 @@
 import { Block } from 'ethers'
 
-import { Cost } from '@benzin/screens/BenzinScreen/hooks/useSteps'
+import { FeePaidWith } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 
 const doNotShow = ['dropped', 'rejected']
@@ -65,7 +65,7 @@ const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedSta
   return rows
 }
 
-const getFee = (cost: Cost | null, finalizedStatus: FinalizedStatusType) => {
+const getFee = (cost: FeePaidWith | null, finalizedStatus: FinalizedStatusType) => {
   if (cost) {
     return `${cost.amount} ${cost.symbol} (${cost.usdValue})`
   }
@@ -73,4 +73,4 @@ const getFee = (cost: Cost | null, finalizedStatus: FinalizedStatusType) => {
   return finalizedStatus && doNotShow.indexOf(finalizedStatus.status) !== -1 ? '-' : 'loading'
 }
 
-export { shouldShowTxnProgress, getTimestamp, getBlockNumber, getFinalizedRows, getFee }
+export { getBlockNumber, getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress }

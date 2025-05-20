@@ -27,6 +27,7 @@ interface Props extends Partial<ImageProps> {
   onGasTank?: boolean
   networkSize?: number
   uri?: string
+  networkWrapperStyle?: ViewStyle
   skeletonAppearance?: SkeletonLoaderProps['appearance']
 }
 
@@ -49,6 +50,7 @@ const TokenIcon: React.FC<Props> = ({
   height = 20,
   onGasTank = false,
   networkSize = 14,
+  networkWrapperStyle,
   skeletonAppearance = 'primaryBackground',
   ...props
 }) => {
@@ -147,10 +149,8 @@ const TokenIcon: React.FC<Props> = ({
         <View
           style={[
             styles.networkIconWrapper,
-            !withContainer && {
-              left: -3,
-              top: -3
-            }
+            !withContainer && { left: -3, top: -3 },
+            networkWrapperStyle
           ]}
         >
           <NetworkIcon

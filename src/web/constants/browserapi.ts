@@ -1,15 +1,18 @@
 /* eslint-disable import/no-mutable-exports */
 let browser: any = null
 let engine: 'webkit' | 'gecko' | null = null
+let platform: 'browser-webkit' | 'browser-gecko' | 'default' = 'default'
 let isExtension: boolean = false
 
 try {
   if (process.env.WEB_ENGINE?.startsWith('webkit')) {
     engine = 'webkit'
+    platform = 'browser-webkit'
   }
 
   if (process.env.WEB_ENGINE === 'gecko') {
     engine = 'gecko'
+    platform = 'browser-gecko'
   }
 
   if (['webkit-safari', 'webkit', 'gecko'].includes(process.env.WEB_ENGINE || '')) {
@@ -55,4 +58,4 @@ const isSafari = () => {
   }
 }
 
-export { engine, isExtension, browser, getFirefoxVersion, isOpera, isSafari }
+export { engine, platform, isExtension, browser, getFirefoxVersion, isOpera, isSafari }

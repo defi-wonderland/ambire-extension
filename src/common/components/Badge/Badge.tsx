@@ -11,6 +11,7 @@ import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
+import MetamaskIcon from '@common/assets/svg/Metamask/MetamaskIcon'
 import getStyles from './styles'
 import { Props } from './types'
 
@@ -60,7 +61,8 @@ const Badge = ({
   style,
   nativeID,
   children,
-  size = 'sm'
+  size = 'sm',
+  specialType
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
@@ -99,7 +101,7 @@ const Badge = ({
         </Text>
       )}
       {children}
-      {!!tooltipText && type !== 'new' && (
+      {!!tooltipText && type !== 'new' && !specialType && (
         <>
           <InformationIcon
             data-tooltip-id={tooltipId}
@@ -107,6 +109,18 @@ const Badge = ({
             width={sizeMultiplier * 14}
             height={sizeMultiplier * 14}
           />
+          <Tooltip id={tooltipId} content={tooltipText} />
+        </>
+      )}
+      {!!tooltipText && type !== 'new' && specialType && specialType === 'metamask' && (
+        <>
+          {text === 'Metamask' && (
+            <MetamaskIcon
+              data-tooltip-id={tooltipId}
+              width={sizeMultiplier * 14}
+              height={sizeMultiplier * 14}
+            />
+          )}
           <Tooltip id={tooltipId} content={tooltipText} />
         </>
       )}

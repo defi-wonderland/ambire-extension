@@ -51,7 +51,7 @@ const AddTokenBottomSheet: FC<Props> = ({ sheetRef, handleClose }) => {
   const { portfolio: selectedAccountPortfolio } = useSelectedAccountControllerState()
 
   const [network, setNetwork] = useState<Network>(
-    networks.filter((n) => n.chainId.toString() === '1')[0]
+    networks.find((n) => n.chainId.toString() === '1') || networks[0]
   )
 
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)

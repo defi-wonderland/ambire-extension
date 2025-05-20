@@ -2,7 +2,8 @@ import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import {
   AccountOpAction,
   Action as ActionFromActionsQueue,
-  ActionExecutionType
+  ActionExecutionType,
+  ActionPosition
 } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
@@ -137,11 +138,6 @@ type MainControllerAddNetwork = {
   params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
-  params: { chainId: ChainId }
-}
-
 type AccountsControllerUpdateAccountPreferences = {
   type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
   params: { addr: string; preferences: AccountPreferences }[]
@@ -186,7 +182,12 @@ type MainControllerUpdateNetworkAction = {
 
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
-  params: UserRequest
+  params: {
+    userRequest: UserRequest
+    actionPosition?: ActionPosition
+    actionExecutionType?: ActionExecutionType
+    allowAccountSwitch?: boolean
+  }
 }
 type MainControllerBuildTransferUserRequest = {
   type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST'
@@ -744,7 +745,6 @@ export type Action =
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork
-  | MainControllerRemoveNetwork
   | KeystoreControllerUpdateKeyPreferencesAction
   | MainControllerUpdateNetworkAction
   | MainControllerAccountPickerSetPageAction

@@ -1,11 +1,13 @@
 import { Signature, toBeHex, Transaction } from 'ethers'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
+import { EIP7702Auth } from '@ambire-common/consts/7702'
 import { Hex } from '@ambire-common/interfaces/hex'
 import {
   ExternalKey,
   ExternalSignerController,
-  KeystoreSignerInterface
+  KeystoreSignerInterface,
+  TxnRequest
 } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import {
@@ -278,6 +280,12 @@ class TrezorSigner implements KeystoreSignerInterface {
   // eslint-disable-next-line class-methods-use-this
   sign7702(hex: string): { yParity: Hex; r: Hex; s: Hex } {
     throw new Error('not support', { cause: hex })
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  signTransactionTypeFour(txnRequest: TxnRequest, eip7702Auth: EIP7702Auth): Hex {
+    throw new Error('not supported', { cause: txnRequest })
   }
 }
 

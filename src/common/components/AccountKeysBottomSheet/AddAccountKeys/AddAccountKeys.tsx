@@ -22,7 +22,7 @@ const AddAccountKeys: FC<Props> = ({ isSmartAccount, importedAccountKeys }) => {
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys } = useKeystoreControllerState()
 
-  // Since Basic accounts have only 1 key, if the internal key is imported,
+  // Since EOAs have only 1 key, if the internal key is imported,
   // we should not show the option to import another key with a private key or
   // seed phrase, since it is irrelevant for this case.
   const isBasicAccWithImportedOneInternalKey =
@@ -55,7 +55,7 @@ const AddAccountKeys: FC<Props> = ({ isSmartAccount, importedAccountKeys }) => {
                 'Re-import this account to add more keys or to use the same key from multiple sources. A key with the same address could originate from either a private key, seed or a hardware wallet.'
               )
             : t(
-                'Basic accounts have one key, sourced from a private key, seed, or a hardware wallet. Re-import the account from a different source to use its key from multiple sources.'
+                'EOA accounts have one key, sourced from a private key, seed, or a hardware wallet. Re-import the account from a different source to use its key from multiple sources.'
               )
         }
         style={spacings.mbSm}
@@ -76,7 +76,7 @@ const AddAccountKeys: FC<Props> = ({ isSmartAccount, importedAccountKeys }) => {
               isTypeLabelHidden
               style={spacings.mtTy}
               text={t(
-                "Although importing a key from a hardware wallet to this Basic account is possible - it's discouraged due to account's private key already being imported. Remember, the primary purpose of hardware wallets is to serve as cold storage, keeping your keys securely offline."
+                "Although importing a key from a hardware wallet to this EOA account is possible - it's discouraged due to account's private key already being imported. Remember, the primary purpose of hardware wallets is to serve as cold storage, keeping your keys securely offline."
               )}
             />
           )}

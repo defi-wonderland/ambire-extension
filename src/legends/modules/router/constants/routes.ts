@@ -4,7 +4,7 @@ const LEGENDS_ROUTES = {
   home: '/home',
   characterSelect: '/character-select',
   leaderboard: '/leaderboard',
-  staking: '/staking'
+  wallet: '/wallet'
 }
 
 const LEGENDS_LEGACY_ROUTES = {

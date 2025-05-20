@@ -11,8 +11,8 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...spacings.phLg,
-      ...spacings.pvLg,
+      ...spacings.phMd,
+      ...spacings.pvMd,
       ...common.borderRadiusPrimary,
       borderWidth: 1,
       borderColor: theme.featureDecorative,

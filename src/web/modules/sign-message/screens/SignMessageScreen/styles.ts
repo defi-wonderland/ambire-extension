@@ -19,7 +19,6 @@ const getStyles = (theme: ThemeProps) =>
     noKeysToSignAlert: {
       ...common.shadowSecondary,
       position: 'absolute',
-      right: 0,
       bottom: SPACING_MD,
       zIndex: 10,
       borderRadius: BORDER_RADIUS_PRIMARY

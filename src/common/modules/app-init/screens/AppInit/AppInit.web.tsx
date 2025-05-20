@@ -6,7 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import ErrorComponent from '@common/components/ErrorBoundary'
-import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
@@ -93,12 +92,10 @@ const AppInit = () => {
                                                                           <NetInfoProvider>
                                                                             <AuthProvider>
                                                                               <OnboardingNavigationProvider>
-                                                                                <BiometricsProvider>
-                                                                                  <PrivateModeProvider>
-                                                                                    <AppRouter />
-                                                                                  </PrivateModeProvider>
-                                                                                  <PortalHost name="global" />
-                                                                                </BiometricsProvider>
+                                                                                <PrivateModeProvider>
+                                                                                  <AppRouter />
+                                                                                </PrivateModeProvider>
+                                                                                <PortalHost name="global" />
                                                                               </OnboardingNavigationProvider>
                                                                             </AuthProvider>
                                                                           </NetInfoProvider>

@@ -1,11 +1,11 @@
 import React from 'react'
 
-import LockIcon from '@legends/common/assets/svg/LockIcon'
+import OverachieverBanner from '@legends/components/OverachieverBanner'
 import Page from '@legends/components/Page'
 import Spinner from '@legends/components/Spinner'
 import useLegendsContext from '@legends/hooks/useLegendsContext'
 import Card from '@legends/modules/legends/components/Card'
-import { CardGroup, CardGroupNameMapping, CardStatus } from '@legends/modules/legends/types'
+import { CardGroup, CardGroupNameMapping } from '@legends/modules/legends/types'
 
 import styles from './Legends.module.scss'
 
@@ -22,9 +22,6 @@ const GROUP_SORT = [
 const Legends = () => {
   const { legends, isLoading } = useLegendsContext()
 
-  const isOverachieverReached = legends.some(
-    (card) => card.id === 'overachiever' && card.card.status === CardStatus.completed
-  )
   const processedLegends = legends
     .sort((a, b) => {
       const indexA = GROUP_SORT.indexOf(a.group)
@@ -42,15 +39,7 @@ const Legends = () => {
 
   return (
     <Page containerSize="lg">
-      {isOverachieverReached && (
-        <div className={styles.overachieverBanner}>
-          <LockIcon className={styles.lockIcon} width={29} height={37} />
-          <p className={styles.overachieverText}>
-            Daily limit of 20 transactions reached. Every other transaction for the rest of the day
-            earns you 1XP.
-          </p>
-        </div>
-      )}
+      <OverachieverBanner />
       {!isLoading ? (
         <div>
           {Object.entries(processedLegends).map(([groupName, cards]) => (

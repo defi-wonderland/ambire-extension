@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View } from 'react-native'
@@ -16,6 +15,7 @@ import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
@@ -44,7 +44,7 @@ const AccountButton = () => {
 
   const handleCopyText = async () => {
     try {
-      await Clipboard.setStringAsync(account.addr)
+      await setStringAsync(account.addr)
       addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy address to clipboard!') as string, {

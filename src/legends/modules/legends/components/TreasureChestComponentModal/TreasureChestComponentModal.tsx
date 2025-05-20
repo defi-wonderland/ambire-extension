@@ -159,8 +159,8 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
       )
       if (!transactionFound) {
         const checkStatusWithTimeout = async (attempts: number) => {
-          if (attempts >= 10) {
-            console.error('Failed to fetch transaction status after 10 attempts')
+          if (attempts >= 15) {
+            console.error('Failed to fetch transaction status after 15 attempts')
             addToast(
               "We are unable to retrieve your prize at the moment. No worries, it will be displayed in your account's activity shortly.",
               { type: 'error' }
@@ -175,7 +175,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
           )
 
           if (!found) {
-            setTimeout(() => checkStatusWithTimeout(attempts + 1), 1000)
+            setTimeout(() => checkStatusWithTimeout(attempts + 1), 2000)
           }
         }
 
