@@ -25,7 +25,7 @@ import { SelectValue } from '@common/components/Select/types'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import Select from '@common/components/Select'
-import { InteropAddressProvider } from '@interop-sdk/addresses/src/providers/InteropAddressProvider'
+// import { InteropAddressProvider } from '@interop-sdk/addresses/src/providers/InteropAddressProvider'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import getStyles from './styles'
 
@@ -55,16 +55,17 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const [isInteropAddressAgreed] = useState(true)
 
   const payloadAddress = useMemo(() => {
-    const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
-    const interopAddress = InteropAddressProvider.buildFromPayload({
-      version: 1,
-      chainType: 'eip155',
-      chainReference: fromNumberToHex(selectedChain.chainId),
-      address: account?.addr || ''
-    })
+    // const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
+    // const interopAddress = InteropAddressProvider.buildFromPayload({
+    //   version: 1,
+    //   chainType: 'eip155',
+    //   chainReference: fromNumberToHex(selectedChain.chainId),
+    //   address: account?.addr || ''
+    // })
 
-    return interopAddress
-  }, [selectedChain, account?.addr])
+    // return interopAddress
+    return account?.addr || ''
+  }, [account?.addr])
 
   const fromNetworkOptions: SelectValue[] = useMemo(() => {
     const availableOptions: SelectValue[] = networks.map((n) => {
@@ -100,8 +101,9 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   }, [networks, supportedChainIds, theme.primaryBackground])
 
   const userAddress = useMemo(() => {
-    return InteropAddressProvider.binaryToHumanReadable(payloadAddress)
-  }, [payloadAddress])
+    // return InteropAddressProvider.binaryToHumanReadable(payloadAddress)
+    return `${payloadAddress}@eip155:${selectedChain.chainId}`
+  }, [payloadAddress, selectedChain.chainId])
 
   const handleCopyAddress = () => {
     if (!userAddress) return
