@@ -4,12 +4,10 @@ import {
   ExtendedAddressState,
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
-// import { resolveENSDomain } from '@ambire-common/services/ensDomains'
-import { ToastOptions } from '@common/contexts/toastContext'
 
+import { ToastOptions } from '@common/contexts/toastContext'
 import getAddressInputValidation from './utils/validation'
-// import { resolveInteropAddress } from '../../utils/resolveInteropAddress'
-import { resolveDomains, ResolverContext } from '../../utils/resolvers'
+import { resolveAddress } from '../../utils/resolvers'
 
 interface Props {
   addressState: ExtendedAddressState
@@ -60,57 +58,6 @@ const useAddressInput = ({
     ]
   )
 
-  // const resolveDomains = useCallback(
-  //   (trimmedAddress: string) => {
-  //     let ensAddress = ''
-  //     let interopAddress = ''
-  //
-  //     // Keep the promise all as we may add more domain resolvers in the future
-  //     Promise.all([
-  //       resolveENSDomain(trimmedAddress)
-  //         .then((newEnsAddress: string) => {
-  //           ensAddress = newEnsAddress
-  //
-  //           if (ensAddress) {
-  //             handleCacheResolvedDomain(ensAddress, fieldValue, 'ens')
-  //           }
-  //         })
-  //         .catch(() => {
-  //           ensAddress = ''
-  //           addToast('Something went wrong while attempting to resolve the ENS domain.', {
-  //             type: 'error'
-  //           })
-  //         }),
-  //       resolveInteropAddress(trimmedAddress)
-  //         .then((newInteropAddress: string) => {
-  //           ensAddress = newInteropAddress
-  //         })
-  //         .catch(() => {
-  //           interopAddress = ''
-  //           addToast('Something went wrong while attempting to resolve the Interop address.', {
-  //             type: 'error'
-  //           })
-  //         })
-  //     ])
-  //       .catch(() => {
-  //         ensAddress = ''
-  //         addToast('Something went wrong while resolving domain.', { type: 'error' })
-  //       })
-  //       .finally(() => {
-  //         // The promises may resolve after the component is unmounted.
-  //         if (fieldValueRef.current !== fieldValue) return
-  //
-  //         setAddressState({
-  //           ensAddress,
-  //           interopAddress,
-  //           isDomainResolving: false
-  //         })
-  //       })
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [addToast, handleCacheResolvedDomain, fieldValue]
-  // )
-
   useEffect(() => {
     const { isError, message: latestMessage } = validation
     const { isError: debouncedIsError, message: debouncedMessage } = debouncedValidation
@@ -148,23 +95,10 @@ const useAddressInput = ({
     validation
   ])
 
-  const canBeInteropAddress = (address: string): boolean => {
-    // Format: <address>@<namespace>:<chainId>#<checksum>
-    const pattern = /^0x[a-fA-F0-9]{40}@[^:#]+:[^#]+#[a-fA-F0-9]+$/
-    return pattern.test(address)
-  }
-
   useEffect(() => {
     const trimmedAddress = fieldValue.trim()
-    const dotIndexInAddress = trimmedAddress.indexOf('.')
 
-    // There is a dot and it is not the first or last character
-    const canBeDomain =
-      dotIndexInAddress !== -1 &&
-      dotIndexInAddress !== 0 &&
-      dotIndexInAddress !== trimmedAddress.length - 1
-
-    if (!trimmedAddress || (!canBeDomain && !canBeInteropAddress(trimmedAddress))) {
+    if (!trimmedAddress) {
       setAddressState({
         ensAddress: '',
         interopAddress: '',
@@ -174,22 +108,21 @@ const useAddressInput = ({
       return
     }
 
-    setAddressState({ isDomainResolving: true })
-
-    const context: ResolverContext = {
-      fieldValue,
-      handleCacheResolvedDomain,
-      addToast,
-      setAddressState
-    }
     // Debounce domain resolving
-    const timeout = setTimeout(() => {
-      resolveDomains(trimmedAddress, context).catch(console.error)
+    const timeout = setTimeout(async () => {
+      await resolveAddress(trimmedAddress, {
+        fieldValue,
+        handleCacheResolvedDomain,
+        addToast,
+        setAddressState
+      })
     }, 300)
 
-    return () => clearTimeout(timeout)
+    return () => {
+      clearTimeout(timeout)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fieldValue, handleCacheResolvedDomain, addToast])
+  }, [fieldValue, resolveAddress, addToast, handleCacheResolvedDomain])
 
   useEffect(() => {
     fieldValueRef.current = addressState.fieldValue
@@ -205,6 +138,7 @@ const useAddressInput = ({
     setAddressState({
       fieldValue: '',
       ensAddress: '',
+      interopAddress: '',
       isDomainResolving: false
     })
   }, [setAddressState])
@@ -230,7 +164,7 @@ const useAddressInput = ({
     validation: debouncedValidation,
     RHFValidate,
     resetAddressInput: reset,
-    address: addressState.ensAddress || fieldValue
+    address: addressState.ensAddress || addressState.interopAddress || fieldValue
   }
 }
 

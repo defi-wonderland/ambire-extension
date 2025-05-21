@@ -31,7 +31,6 @@ export const createResolvers = (context: ResolverContext): Resolver[] => [
     resolve: async (address: string) => {
       try {
         const resolvedAddress = await resolveInteropAddress(address)
-        console.log('Front: Resolved interop address:', resolvedAddress)
 
         if (resolvedAddress) {
           context.setAddressState({ interopAddress: resolvedAddress })
@@ -73,11 +72,9 @@ export const createResolvers = (context: ResolverContext): Resolver[] => [
   }
 ]
 
-export const resolveDomains = async (address: string, context: ResolverContext): Promise<void> => {
+export const resolveAddress = async (address: string, context: ResolverContext): Promise<void> => {
   const resolvers = createResolvers(context)
   const applicableResolvers = resolvers.filter((r) => r.canResolve(address))
-
-  console.log('Front: resolvers', applicableResolvers)
 
   // If no resolvers apply, reset state
   if (applicableResolvers.length === 0) {
@@ -90,14 +87,17 @@ export const resolveDomains = async (address: string, context: ResolverContext):
   }
 
   try {
-    await Promise.all(applicableResolvers.map((resolver) => resolver.resolve(address)))
+    context.setAddressState({ isDomainResolving: true })
+    // If only one resolver applies, use it
+    if (applicableResolvers.length === 1) {
+      await applicableResolvers[0].resolve(address)
+    } else {
+      // If multiple resolvers apply (unlikely but possible in the future), run them in parallel
+      await Promise.all(applicableResolvers.map((r) => r.resolve(address)))
+    }
   } catch (error) {
     context.addToast('Something went wrong while resolving domain.', { type: 'error' })
   } finally {
-    if (context.fieldValue.trim() === address.trim()) {
-      context.setAddressState({
-        isDomainResolving: false
-      })
-    }
+    context.setAddressState({ isDomainResolving: false })
   }
 }
