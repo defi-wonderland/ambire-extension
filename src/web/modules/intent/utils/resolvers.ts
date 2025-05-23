@@ -86,7 +86,6 @@ export const resolveAddress = async (address: string, context: ResolverContext):
   try {
     const results = await Promise.all(applicableResolvers.map((r) => r.resolve(address)))
 
-    console.log('Front: results', results)
     const combined = results.reduce<Partial<ExtendedAddressState>>((acc, curr) => {
       return { ...acc, ...curr }
     }, {})
