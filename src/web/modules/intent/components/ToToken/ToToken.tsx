@@ -8,7 +8,7 @@ import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridg
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
+// import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
@@ -21,7 +21,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+// import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwitchTokensButton from '@web/modules/intent/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/intent/components/ToToken/ToTokenSelect'
@@ -61,7 +61,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  // const { portfolio } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -107,33 +107,33 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     isToToken: true
   })
 
-  const toTokenInPortfolio = useMemo(() => {
-    const [address] = toTokenValue.value.split('.')
+  // const toTokenInPortfolio = useMemo(() => {
+  //   const [address] = toTokenValue.value.split('.')
 
-    if (!address || !toChainId) return null
+  //   if (!address || !toChainId) return null
 
-    const bigintChainId = BigInt(toChainId)
+  //   const bigintChainId = BigInt(toChainId)
 
-    const tokenInPortfolio = portfolio?.tokens.find(
-      (token) =>
-        token.address === address &&
-        token.chainId === bigintChainId &&
-        !token.flags.onGasTank &&
-        !token.flags.rewardsType
-    )
+  //   const tokenInPortfolio = portfolio?.tokens.find(
+  //     (token) =>
+  //       token.address === address &&
+  //       token.chainId === bigintChainId &&
+  //       !token.flags.onGasTank &&
+  //       !token.flags.rewardsType
+  //   )
 
-    if (!tokenInPortfolio) return null
+  //   if (!tokenInPortfolio) return null
 
-    const amountFormatted = formatDecimals(
-      parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
-      'amount'
-    )
+  //   const amountFormatted = formatDecimals(
+  //     parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
+  //     'amount'
+  //   )
 
-    return {
-      ...tokenInPortfolio,
-      amountFormatted
-    }
-  }, [portfolio?.tokens, toChainId, toTokenValue.value])
+  //   return {
+  //     ...tokenInPortfolio,
+  //     amountFormatted
+  //   }
+  // }, [portfolio?.tokens, toChainId, toTokenValue.value])
 
   const shouldShowAmountOnEstimationFailure = useMemo(() => {
     return (
@@ -250,27 +250,27 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     return quote.selectedRoute.toAmount
   }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
 
-  const changeToNetworkByInteropAddress = useCallback(
-    async (interopAddress: string) => {
-      const interopChain = await getInteropAddressChain(interopAddress)
-      const interopNetwork = networks.find((n) => Number(n.chainId) === interopChain)
-
-      if (!interopNetwork) return
-
-      const toNetwork = toNetworksOptions.filter((opt) => opt.value === String(interopChain))[0]
-
-      if (!toNetwork) return
-
-      handleSetToNetworkValue(toNetwork)
-    },
-    [networks, toNetworksOptions, handleSetToNetworkValue]
-  )
-
   useEffect(() => {
     if (addressState.interopAddress) {
-      changeToNetworkByInteropAddress(addressState.interopAddress)
+      getInteropAddressChain(addressState.interopAddress)
+        .then((interopChainId) => {
+          const interopNetwork = networks.find((n) => Number(n.chainId) === interopChainId)
+
+          if (!interopNetwork) return
+
+          const toNetwork = toNetworksOptions.filter(
+            (opt) => opt.value === String(interopChainId)
+          )[0]
+
+          if (!toNetwork) return
+
+          handleSetToNetworkValue(toNetwork)
+        })
+        .catch(() => {
+          // TODO: advice the user to add the network
+        })
     }
-  }, [addressState, changeToNetworkByInteropAddress])
+  }, [addressState, networks, toNetworksOptions, handleSetToNetworkValue])
 
   return (
     <View>
@@ -353,7 +353,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             )}
           </View>
         </View>
-        <View
+        {/* Temporarily disabled */}
+        {/* <View
           style={[
             flexbox.directionRow,
             spacings.ptSm,
@@ -364,23 +365,23 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             }
           ]}
         >
-          {toTokenInPortfolio && (
-            <>
-              <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
-              <Text
-                testID="max-available-amount"
-                numberOfLines={1}
-                fontSize={12}
-                style={spacings.mlMi}
-                weight="medium"
-                appearance="tertiaryText"
-                ellipsizeMode="tail"
-              >
-                {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
-              </Text>
-            </>
-          )}
-        </View>
+            {toTokenInPortfolio && (
+              <>
+                <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
+                <Text
+                  testID="max-available-amount"
+                  numberOfLines={1}
+                  fontSize={12}
+                  style={spacings.mlMi}
+                  weight="medium"
+                  appearance="tertiaryText"
+                  ellipsizeMode="tail"
+                >
+                  {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                </Text>
+              </>
+            )}
+        </View> */}
       </View>
     </View>
   )
