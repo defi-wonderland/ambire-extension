@@ -1,5 +1,5 @@
 import { formatUnits, isAddress } from 'ethers'
-import React, { FC, memo, useCallback, useMemo } from 'react'
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -30,6 +30,7 @@ import { getTokenId } from '@web/utils/token'
 
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
+import { getInteropAddressChain } from '../../utils/interopSdkService'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
   isAutoSelectRouteDisabled: boolean
@@ -48,7 +49,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     fromSelectedToken,
     fromTokenValue,
     transactionType,
-    fromAmount
+    fromAmount,
+    addressState
   } = useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
@@ -248,6 +250,28 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     return quote.selectedRoute.toAmount
   }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
 
+  const changeToNetworkByInteropAddress = useCallback(
+    async (interopAddress: string) => {
+      const interopChain = await getInteropAddressChain(interopAddress)
+      const interopNetwork = networks.find((n) => Number(n.chainId) === interopChain)
+
+      if (!interopNetwork) return
+
+      const toNetwork = toNetworksOptions.filter((opt) => opt.value === String(interopChain))[0]
+
+      if (!toNetwork) return
+
+      handleSetToNetworkValue(toNetwork)
+    },
+    [networks, toNetworksOptions, handleSetToNetworkValue]
+  )
+
+  useEffect(() => {
+    if (addressState.interopAddress) {
+      changeToNetworkByInteropAddress(addressState.interopAddress)
+    }
+  }, [addressState, changeToNetworkByInteropAddress])
+
   return (
     <View>
       <View
@@ -270,6 +294,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {t('Receive')}
         </Text>
         <Select
+          disabled={!!addressState.interopAddress}
           setValue={handleSetToNetworkValue}
           containerStyle={{ ...spacings.mb0, width: 142 }}
           options={toNetworksOptions}
