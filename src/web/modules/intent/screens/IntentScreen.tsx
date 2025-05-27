@@ -15,7 +15,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwapAndBridgeEstimation from '@web/modules/intent/components/Estimation'
@@ -30,6 +29,7 @@ import {
 } from '@interop-sdk/cross-chain'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import { InteropAddressProvider } from '@interop-sdk/addresses'
+import { parseUnits, ZeroAddress } from 'ethers'
 import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
 import TrackProgress from '../components/Estimation/TrackProgress'
@@ -39,6 +39,7 @@ import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
 import Recipient from '../components/Recipient'
+import { SUPPORTED_ETH_BY_CHAIN_ID } from '../utils/tokenAddresses'
 
 const { isTab, isActionWindow } = getUiType()
 
@@ -132,11 +133,20 @@ const IntentScreen = () => {
         address: params.recipient || ''
       })
 
+      // TODO: migrate this logic to ambire-common
+      const isEth = params.inputTokenAddress === ZeroAddress
+      const inputTokenAddress = isEth
+        ? SUPPORTED_ETH_BY_CHAIN_ID[params.inputChainId]
+        : params.inputTokenAddress
+      const outputTokenAddress = isEth
+        ? SUPPORTED_ETH_BY_CHAIN_ID[params.outputChainId]
+        : params.outputTokenAddress
+
       const newParams = {
         sender: InteropAddressProvider.binaryToHumanReadable(senderPayload),
         recipient: InteropAddressProvider.binaryToHumanReadable(recipientPayload),
-        inputTokenAddress: params.inputTokenAddress,
-        outputTokenAddress: params.outputTokenAddress,
+        inputTokenAddress,
+        outputTokenAddress,
         amount: params.inputAmount
       }
 
@@ -146,6 +156,14 @@ const IntentScreen = () => {
       console.log({ quotes })
 
       const transactions = await executor.execute(quotes[0] as any)
+
+      if (isEth) {
+        transactions.unshift({
+          value: parseUnits(params.inputAmount, 18),
+          to: SUPPORTED_ETH_BY_CHAIN_ID[params.inputChainId] as `0x${string}`,
+          data: '0x'
+        })
+      }
 
       console.log({ transactions })
       dispatch({
