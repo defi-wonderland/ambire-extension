@@ -80,13 +80,11 @@ const IntentScreen = () => {
     formStatus,
     isHealthy,
     shouldEnableRoutesSelection,
-    updateQuoteStatus,
     signAccountOpController,
     isAutoSelectRouteDisabled
   } = useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
@@ -198,20 +196,6 @@ const IntentScreen = () => {
     (!signAccountOpController ||
       signAccountOpController.estimation.status === EstimationStatus.Loading)
 
-  const isNotReadyToProceed = useMemo(() => {
-    return (
-      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-      mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-      updateQuoteStatus === 'LOADING' ||
-      isEstimatingRoute
-    )
-  }, [
-    isEstimatingRoute,
-    formStatus,
-    mainCtrlStatuses.buildSwapAndBridgeUserRequest,
-    updateQuoteStatus
-  ])
-
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
@@ -239,13 +223,13 @@ const IntentScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          isNotReadyToProceed={isNotReadyToProceed || isLoading}
+          isNotReadyToProceed={isLoading}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed, isLoading])
+  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading])
 
   if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen
