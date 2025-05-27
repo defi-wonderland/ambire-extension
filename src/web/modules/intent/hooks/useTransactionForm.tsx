@@ -14,6 +14,13 @@ import {
 } from '@ambire-common/interfaces/interop'
 import { isEqual } from 'lodash'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
+import {
+  BasicOpenParams,
+  createCrossChainProvider,
+  createProviderExecutor,
+  GetQuoteResponse,
+  ValidActions
+} from '@interop-sdk/cross-chain'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 
@@ -24,7 +31,9 @@ const useTransactionForm = () => {
   const { isPopup, isActionWindow } = getUiType()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState, transactionType } = state
+  const { formState, transactionType, intent } = state
+  const userAddress = (state as any).dependencies.accounts.accounts[0].addr
+  const { params, publicClient } = intent as any
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -164,6 +173,42 @@ const useTransactionForm = () => {
     addToast,
     handleCacheResolvedDomain
   })
+
+  const getQuotes = useCallback(async () => {
+    const acrossProvider = createCrossChainProvider(
+      'across',
+      {
+        userAddress
+      },
+      { publicClient }
+    )
+
+    const executor = createProviderExecutor([acrossProvider])
+    // const params = {
+    //   sender: '0x80B7064b28cD538FaD771465984aa799d87A1187',
+    //   recipient: '0x0000000000000000000000000000000000000000',
+    //   inputAmount: '10000',
+    //   inputTokenAddress: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+    //   outputTokenAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    //   inputChainId: 11155111,
+    //   outputChainId: 84532
+    // }
+
+    const quotes = await executor.getQuotes('crossChainTransfer', params)
+
+    const transactions = await executor.execute(
+      quotes[0] as GetQuoteResponse<ValidActions, BasicOpenParams>
+    )
+
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+      params: { quote: quotes[0], transactions }
+    })
+  }, [userAddress, publicClient, params, dispatch])
+
+  useEffect(() => {
+    if (transactionType === 'intent') getQuotes().catch(console.error)
+  }, [getQuotes, transactionType])
 
   // This is a temporary fix meanwhile the intent logic is implemented
   useEffect(() => {
