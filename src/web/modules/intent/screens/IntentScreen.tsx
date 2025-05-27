@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+/* eslint-disable no-console */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -22,6 +23,13 @@ import RoutesModal from '@web/modules/intent/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import {
+  createCrossChainProvider,
+  createProviderExecutor,
+  InteropAddressParamsParser
+} from '@interop-sdk/cross-chain'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
+import { InteropAddressProvider } from '@interop-sdk/addresses'
 import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
 import TrackProgress from '../components/Estimation/TrackProgress'
@@ -82,6 +90,80 @@ const IntentScreen = () => {
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const state = useTransactionControllerState()
+  const { transactionType, intent } = state
+  const { params } = intent as any
+
+  const getQuotes = useCallback(async () => {
+    if (transactionType !== 'intent') return
+
+    if (
+      !params.sender ||
+      !params.recipient ||
+      !params.inputTokenAddress ||
+      !params.outputTokenAddress ||
+      !params.inputAmount
+    ) {
+      console.error('Insufficient params')
+      return
+    }
+    setIsLoading(true)
+    try {
+      const paramParser = new InteropAddressParamsParser()
+      const acrossProvider = createCrossChainProvider('across')
+
+      const executor = createProviderExecutor([acrossProvider], {
+        paramParser
+      })
+
+      const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
+
+      const senderPayload = InteropAddressProvider.buildFromPayload({
+        version: 1,
+        chainType: 'eip155',
+        chainReference: fromNumberToHex(params.inputChainId),
+        address: params.sender || ''
+      })
+
+      const recipientPayload = InteropAddressProvider.buildFromPayload({
+        version: 1,
+        chainType: 'eip155',
+        chainReference: fromNumberToHex(params.outputChainId),
+        address: params.recipient || ''
+      })
+
+      const newParams = {
+        sender: InteropAddressProvider.binaryToHumanReadable(senderPayload),
+        recipient: InteropAddressProvider.binaryToHumanReadable(recipientPayload),
+        inputTokenAddress: params.inputTokenAddress,
+        outputTokenAddress: params.outputTokenAddress,
+        amount: params.inputAmount
+      }
+
+      console.log({ newParams })
+      const quotes = await executor.getQuotes('crossChainTransfer', newParams)
+
+      console.log({ quotes })
+
+      const transactions = await executor.execute(quotes[0] as any)
+
+      console.log({ transactions })
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+        params: { quote: quotes[0], transactions }
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [params, dispatch, transactionType])
+
+  useEffect(() => {
+    if (transactionType === 'intent') getQuotes().catch(console.error)
+  }, [getQuotes, transactionType])
 
   useEffect(() => {
     if (!signAccountOpController || isAutoSelectRouteDisabled) return
@@ -157,13 +239,13 @@ const IntentScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          isNotReadyToProceed={isNotReadyToProceed}
+          isNotReadyToProceed={isNotReadyToProceed || isLoading}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
+  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed, isLoading])
 
   if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen

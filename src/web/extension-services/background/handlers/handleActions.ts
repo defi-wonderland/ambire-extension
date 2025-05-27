@@ -602,9 +602,9 @@ export const handleActions = async (
       return mainCtrl.transactionManager.formState.update(params)
 
     case 'TRANSACTION_CONTROLLER_SET_QUOTE': {
-      // const { quote, transactions } = params
-      // mainCtrl.transactionManager.intent.setQuote(quote)
-      // mainCtrl.transactionManager.intent.setTransaction(transactions)
+      const { quote, transactions } = params
+      mainCtrl.transactionManager.intent.setQuote(quote)
+      mainCtrl.transactionManager.intent.setTransaction(transactions)
 
       break
     }
