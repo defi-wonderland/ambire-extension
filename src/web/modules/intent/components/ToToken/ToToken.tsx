@@ -30,7 +30,7 @@ import { getTokenId } from '@web/utils/token'
 
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
-import { getInteropAddressChain } from '../../utils/interopSdkService'
+import { getInteropAddressChainId } from '../../utils/interopSdkService'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
   isAutoSelectRouteDisabled: boolean
@@ -252,7 +252,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
 
   useEffect(() => {
     if (addressState.interopAddress) {
-      getInteropAddressChain(addressState.interopAddress)
+      getInteropAddressChainId(addressState.interopAddress)
         .then((interopChainId) => {
           const interopNetwork = networks.find((n) => Number(n.chainId) === interopChainId)
 
@@ -270,7 +270,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           // TODO: advice the user to add the network
         })
     }
-  }, [addressState, networks, toNetworksOptions, handleSetToNetworkValue])
+  }, [addressState.interopAddress])
 
   return (
     <View>
