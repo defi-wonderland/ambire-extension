@@ -1,11 +1,6 @@
 import { getAddress } from 'ethers'
 import { isValidAddress } from '@ambire-common/services/address'
-import {
-  getChainId,
-  humanReadableToBinary,
-  buildFromPayload,
-  binaryToHumanReadable
-} from '@interop-sdk/addresses'
+import { getChainId } from '@interop-sdk/addresses'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 
 type AddressInputValidation = {
@@ -58,9 +53,7 @@ const getAddressInputValidation = async ({
 
   if (isInteropAddress) {
     try {
-      // TODO: Change this when getChainId support humanRedeableAddress as param
-      const binaryAddress = await humanReadableToBinary(address)
-      const chainId = getChainId(binaryAddress)
+      const chainId = await getChainId(address)
       const isSupportedChain = testnetNetworks.find(
         (network) => Number(network.chainId) === chainId
       )
