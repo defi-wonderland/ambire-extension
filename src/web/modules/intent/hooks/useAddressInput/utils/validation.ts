@@ -1,7 +1,7 @@
 import { getAddress } from 'ethers'
 import { isValidAddress } from '@ambire-common/services/address'
-import { getChainId } from '@interop-sdk/addresses'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
+import { getInteropAddressChainId } from '@web/modules/intent/utils/interopSdkService'
 
 type AddressInputValidation = {
   address: string
@@ -53,7 +53,7 @@ const getAddressInputValidation = async ({
 
   if (isInteropAddress) {
     try {
-      const chainId = await getChainId(address)
+      const chainId = await getInteropAddressChainId(address)
       const isSupportedChain = testnetNetworks.find(
         (network) => Number(network.chainId) === chainId
       )
