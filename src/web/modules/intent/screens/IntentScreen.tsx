@@ -137,6 +137,7 @@ const IntentScreen = () => {
     }
 
     setIsLoading(true)
+
     try {
       const paramParser = new InteropAddressParamsParser()
       const acrossProvider = createCrossChainProvider('across')
