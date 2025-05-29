@@ -217,7 +217,6 @@ const IntentScreen = () => {
     inputAmount,
     inputChainId,
     outputChainId,
-    addressState.interopAddress,
     dispatch,
     setOutputAmount
   ])
