@@ -226,9 +226,13 @@ const IntentScreen = () => {
   ])
 
   useEffect(() => {
-    if (transactionType === 'intent' && allParamsAvailable) {
-      getQuotes().catch(console.error)
-      return
+    if (transactionType === 'intent') {
+      if (allParamsAvailable) {
+        getQuotes().catch(console.error)
+        return
+      }
+
+      setOutputAmount(0)
     }
 
     dispatch({
