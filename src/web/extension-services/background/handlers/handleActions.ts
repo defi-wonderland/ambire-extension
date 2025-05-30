@@ -580,7 +580,8 @@ export const handleActions = async (
       if (transactionType === 'intent') {
         await mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
         mainCtrl.transactionManager.formState.resetForm()
-        mainCtrl.transactionManager.intent.setQuoteAndTransaction([], [])        return
+        mainCtrl.transactionManager.intent.setQuoteAndTransaction([], [])
+        return
       }
 
       if (transactionType === 'swapAndBridge') {
