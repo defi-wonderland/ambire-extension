@@ -580,9 +580,7 @@ export const handleActions = async (
       if (transactionType === 'intent') {
         await mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
         mainCtrl.transactionManager.formState.resetForm()
-        mainCtrl.transactionManager.intent.setQuote([])
-        mainCtrl.transactionManager.intent.setTransaction([])
-        return
+        mainCtrl.transactionManager.intent.setQuoteAndTransaction([], [])        return
       }
 
       if (transactionType === 'swapAndBridge') {
@@ -607,9 +605,7 @@ export const handleActions = async (
 
     case 'TRANSACTION_CONTROLLER_SET_QUOTE': {
       const { quote, transactions } = params
-      mainCtrl.transactionManager.intent.setQuote(quote)
-      mainCtrl.transactionManager.intent.setTransaction(transactions)
-      break
+      return mainCtrl.transactionManager.intent.setQuoteAndTransaction(quote, transactions)
     }
 
     case 'TRANSACTION_CONTROLLER_INIT_FORM':
