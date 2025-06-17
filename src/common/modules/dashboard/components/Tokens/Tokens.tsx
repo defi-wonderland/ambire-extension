@@ -110,76 +110,94 @@ const Tokens = ({
     [tokens]
   )
 
-  const sortedTokens = useMemo(
-    () =>
-      tokens
-        .filter((token) => {
-          if (isGasTankTokenOnCustomNetwork(token, networks)) return false
-          if (token?.flags.isHidden) return false
+  const sortedTokens = useMemo(() => {
+    const filteredTokens = tokens
+      .filter((token) => {
+        if (isGasTankTokenOnCustomNetwork(token, networks)) return false
+        if (token?.flags.isHidden) return false
 
-          const hasTokenAmount = hasAmount(token)
-          const isCustom = customTokens.find(
-            ({ address, chainId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
-          )
-          const isPinned = PINNED_TOKENS.find(
-            ({ address, chainId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
-          )
+        const hasTokenAmount = hasAmount(token)
+        const isCustom = customTokens.find(
+          ({ address, chainId }) =>
+            token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
+        )
+        const isPinned = PINNED_TOKENS.find(
+          ({ address, chainId }) =>
+            token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
+        )
 
-          return (
-            hasTokenAmount ||
-            isCustom ||
-            // Don't display pinned tokens until we are sure the user has no balance
-            (isPinned && userHasNoBalance && portfolio?.isAllReady)
-          )
-        })
-        .sort((a, b) => {
-          // pending tokens go on top
-          if (
-            typeof a.amountPostSimulation === 'bigint' &&
-            a.amountPostSimulation !== BigInt(a.amount)
-          ) {
-            return -1
-          }
-          if (
-            typeof b.amountPostSimulation === 'bigint' &&
-            b.amountPostSimulation !== BigInt(b.amount)
-          ) {
-            return 1
-          }
+        return (
+          hasTokenAmount ||
+          isCustom ||
+          // Don't display pinned tokens until we are sure the user has no balance
+          (isPinned && userHasNoBalance && portfolio?.isAllReady)
+        )
+      })
+      .sort((a, b) => {
+        // pending tokens go on top
+        if (
+          typeof a.amountPostSimulation === 'bigint' &&
+          a.amountPostSimulation !== BigInt(a.amount)
+        ) {
+          return -1
+        }
+        if (
+          typeof b.amountPostSimulation === 'bigint' &&
+          b.amountPostSimulation !== BigInt(b.amount)
+        ) {
+          return 1
+        }
 
-          // If a is a rewards token and b is not, a should come before b.
-          if (a.flags.rewardsType && !b.flags.rewardsType) {
-            return -1
-          }
-          if (!a.flags.rewardsType && b.flags.rewardsType) {
-            // If b is a rewards token and a is not, b should come before a.
-            return 1
-          }
+        // If a is a rewards token and b is not, a should come before b.
+        if (a.flags.rewardsType && !b.flags.rewardsType) {
+          return -1
+        }
+        if (!a.flags.rewardsType && b.flags.rewardsType) {
+          // If b is a rewards token and a is not, b should come before a.
+          return 1
+        }
 
-          const aBalance = getTokenBalanceInUSD(a)
-          const bBalance = getTokenBalanceInUSD(b)
+        const aBalance = getTokenBalanceInUSD(a)
+        const bBalance = getTokenBalanceInUSD(b)
 
-          if (a.flags.rewardsType === b.flags.rewardsType) {
-            if (aBalance === bBalance) {
-              return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
-            }
-
-            return bBalance - aBalance
+        if (a.flags.rewardsType === b.flags.rewardsType) {
+          if (aBalance === bBalance) {
+            return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
           }
 
-          if (a.flags.onGasTank && !b.flags.onGasTank) {
-            return -1
-          }
-          if (!a.flags.onGasTank && b.flags.onGasTank) {
-            return 1
-          }
+          return bBalance - aBalance
+        }
 
-          return 0
-        }),
-    [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady]
-  )
+        if (a.flags.onGasTank && !b.flags.onGasTank) {
+          return -1
+        }
+        if (!a.flags.onGasTank && b.flags.onGasTank) {
+          return 1
+        }
+
+        return 0
+      })
+
+    filteredTokens.unshift({
+      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      amount: 999989n,
+      chainId: 1n,
+      decimals: 6,
+      flags: {
+        onGasTank: false,
+        rewardsType: null,
+        canTopUpGasTank: true,
+        isFeeToken: true,
+        isCustom: false
+      },
+      latestAmount: 999989n,
+      name: 'USD Coin',
+      priceIn: [{ baseCurrency: 'usd', price: 0.999771 }],
+      symbol: 'TEST-USDC'
+    })
+
+    return filteredTokens
+  }, [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady])
 
   const hiddenTokensCount = useMemo(
     () => tokens.filter((token) => token.flags.isHidden).length,
