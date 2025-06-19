@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
+import { THEME_TYPES, ThemeProps, ThemeType } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -11,13 +11,13 @@ interface Style {
   footer: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const getStyles = (theme: ThemeProps, themeType: ThemeType) =>
   StyleSheet.create<Style>({
     contentContainer: {
       height: '100%',
-      ...spacings.pbLg,
+      ...spacings.pbMd,
       ...spacings.ph0,
-      ...spacings.ptLg,
+      ...spacings.mtMd,
       ...flexbox.flex1
     },
     informationCircle: {
@@ -28,13 +28,10 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1,
       maxHeight: 80,
       ...spacings.ph3Xl,
-      backgroundColor: theme.primaryBackground,
-      shadowColor: '#B8BDE080',
-      shadowOffset: {
-        width: 0,
-        height: -2
-      },
-      shadowOpacity: 1,
+      backgroundColor:
+        themeType === THEME_TYPES.DARK ? theme.tertiaryBackground : theme.primaryBackground,
+      shadowColor: themeType === THEME_TYPES.DARK ? '#00000052' : '#B8BDE080',
+      shadowOffset: { width: 0, height: -2 },
       shadowRadius: 4,
       elevation: 7
     },

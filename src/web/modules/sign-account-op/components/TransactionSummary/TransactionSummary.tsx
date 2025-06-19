@@ -28,6 +28,7 @@ interface Props {
   enableExpand?: boolean
   rightIcon?: React.ReactNode
   onRightIconPress?: () => void
+  hideLinks?: boolean
 }
 
 export const sizeMultiplier = {
@@ -45,7 +46,8 @@ const TransactionSummary = ({
   index,
   enableExpand = true,
   rightIcon,
-  onRightIconPress
+  onRightIconPress,
+  hideLinks = false
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const imageSize = 32 * sizeMultiplier[size]
@@ -56,7 +58,7 @@ const TransactionSummary = ({
     let foundSigHash: string | undefined
     Object.values(humanizerInfo.abis).some((abi) => {
       Object.values(abi).some((s) => {
-        if (s.selector === call.data.slice(0, 10)) {
+        if (call.data && s.selector === call.data.slice(0, 10)) {
           foundSigHash = s.signature
           return true
         }
@@ -102,6 +104,7 @@ const TransactionSummary = ({
               isHistory={isHistory}
               testID={`recipient-address-${index}`}
               hasPadding={enableExpand}
+              hideLinks={hideLinks}
             />
           ) : (
             <FallbackVisualization

@@ -1,9 +1,8 @@
 import { getAddress, ZeroAddress } from 'ethers'
-import React, { FC, useMemo } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 
 import { HumanizerMetaAddress } from '@ambire-common/libs/humanizer/interfaces'
 import { Props as TextProps } from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
 import { isExtension } from '@web/constants/browserapi'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
@@ -17,59 +16,65 @@ interface Props extends TextProps {
   // example of highestPriorityAlias: a name coming from the humanizer's metadata
   highestPriorityAlias?: string
   humanizerInfo?: HumanizerMetaAddress
+  hideLinks?: boolean
+  chainId: bigint
 }
 
 const HumanizerAddressInner: FC<Props> = ({
   humanizerInfo,
   address,
   highestPriorityAlias,
+  hideLinks = false,
+  chainId,
   ...rest
 }) => {
   const { portfolio } = useSelectedAccountControllerState()
   const accountsState = useAccountsControllerState()
-  const { t } = useTranslation()
   const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = useMemo(() => getAddress(address), [address])
+  const [fetchedAddressLabel, setFetchedAddressLabel] = useState<null | string>(null)
 
-  const account = useMemo(() => {
-    if (!accountsState?.accounts) return undefined
-    return accountsState.accounts.find((a) => a.addr === checksummedAddress)
-  }, [accountsState?.accounts, checksummedAddress])
-  const tokenInPortfolio = useMemo(() => {
-    if (!portfolio?.tokens) return undefined
-    return portfolio.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase())
-  }, [portfolio?.tokens, address])
-
-  const hardcodedTokenSymbol = useMemo(() => humanizerInfo?.token?.symbol, [humanizerInfo])
-  const hardcodedName = useMemo(() => humanizerInfo?.name, [humanizerInfo?.name])
-
-  let tokenLabel = ''
-
-  if (tokenInPortfolio) {
-    tokenLabel = `Token ${tokenInPortfolio?.symbol} Contract`
-  } else if (hardcodedTokenSymbol) {
-    tokenLabel = t(`Token ${hardcodedTokenSymbol} Contract`)
-  }
-
-  const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
-  const zeroAddressLabel = address === ZeroAddress && 'Zero Address'
-  // highestPriorityAlias and account labels are of higher priority than domains
-  if (
-    highestPriorityAlias ||
-    zeroAddressLabel ||
-    contact?.name ||
-    account?.preferences?.label ||
-    hardcodedName ||
-    tokenLabel
-  )
+  const localAddressLabel = useMemo(() => {
+    const zeroAddressLabel = address === ZeroAddress && 'Zero Address'
+    const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
+    const account =
+      accountsState?.accounts && accountsState.accounts.find((a) => a.addr === checksummedAddress)
+    const hardcodedName = humanizerInfo?.name
+    const tokenSymbol =
+      portfolio?.tokens?.find((token) => token.address.toLowerCase() === address.toLowerCase())
+        ?.symbol || humanizerInfo?.token?.symbol
     return (
-      <BaseAddress address={checksummedAddress} {...rest}>
-        {highestPriorityAlias ||
-          zeroAddressLabel ||
-          contact?.name ||
-          account?.preferences?.label ||
-          hardcodedName ||
-          tokenLabel}
+      highestPriorityAlias ||
+      zeroAddressLabel ||
+      contact?.name ||
+      account?.preferences?.label ||
+      hardcodedName ||
+      tokenSymbol
+    )
+  }, [
+    highestPriorityAlias,
+    contacts,
+    humanizerInfo?.name,
+    humanizerInfo?.token?.symbol,
+    portfolio?.tokens,
+    address,
+    checksummedAddress,
+    accountsState?.accounts
+  ])
+
+  useEffect(() => {
+    if (!localAddressLabel && chainId)
+      fetch(`https://cena.ambire.com/api/v3/contracts/${address}/${chainId}`)
+        .then((r) => r.json())
+        .then((r) => setFetchedAddressLabel(r.name))
+        .catch(console.error)
+  }, [address, chainId, localAddressLabel])
+
+  // highestPriorityAlias and account labels are of higher priority than domains
+  if (localAddressLabel || fetchedAddressLabel)
+    return (
+      <BaseAddress address={checksummedAddress} hideLinks={hideLinks} {...rest}>
+        {localAddressLabel || fetchedAddressLabel}
       </BaseAddress>
     )
 

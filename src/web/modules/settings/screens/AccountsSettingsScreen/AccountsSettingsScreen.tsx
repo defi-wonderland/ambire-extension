@@ -13,13 +13,16 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useAccountsList from '@common/hooks/useAccountsList'
 import useElementSize from '@common/hooks/useElementSize'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
+import AccountSmartSettingsBottomSheet from '@web/modules/settings/components/Accounts/AccountSmartSettingsBottomSheet'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import { getUiType } from '@web/utils/uiType'
@@ -33,6 +36,7 @@ const AccountsSettingsScreen = () => {
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { dispatch } = useBackgroundService()
+  const { themeType } = useTheme()
   const {
     ref: sheetRefExportImportKey,
     open: openExportImportKey,
@@ -45,12 +49,19 @@ const AccountsSettingsScreen = () => {
     close: closeRemoveAccount
   } = useModalize()
 
+  const {
+    ref: sheetRefAccountSmartSettings,
+    open: openAccountSmartSettings,
+    close: closeAccountSmartSettings
+  } = useModalize()
+
   useEffect(() => {
     setCurrentSettingsPage('accounts')
   }, [setCurrentSettingsPage])
 
   const [exportImportAccount, setExportImportAccount] = useState<AccountInterface | null>(null)
   const [accountToRemove, setAccountToRemove] = useState<AccountInterface | null>(null)
+  const [smartSettingsAccount, setSmartSettingsAccount] = useState<AccountInterface | null>(null)
 
   useEffect(() => {
     if (exportImportAccount) openExportImportKey()
@@ -59,6 +70,10 @@ const AccountsSettingsScreen = () => {
   useEffect(() => {
     if (accountToRemove) openRemoveAccount()
   }, [openRemoveAccount, accountToRemove])
+
+  useEffect(() => {
+    if (smartSettingsAccount) openAccountSmartSettings()
+  }, [openAccountSmartSettings, smartSettingsAccount])
 
   const shortenAccountAddr = useCallback(() => {
     if (maxElementWidthSize(800)) return undefined
@@ -88,6 +103,7 @@ const AccountsSettingsScreen = () => {
           options={{
             withOptionsButton: true,
             setAccountToImportOrExport: setExportImportAccount,
+            setSmartSettingsAccount,
             setAccountToRemove
           }}
           isSelectable={false}
@@ -129,6 +145,14 @@ const AccountsSettingsScreen = () => {
         text="+ Add account"
         hasBottomSpacing={false}
       />
+      <AccountSmartSettingsBottomSheet
+        sheetRef={sheetRefAccountSmartSettings}
+        closeBottomSheet={() => {
+          setSmartSettingsAccount(null)
+          closeAccountSmartSettings()
+        }}
+        account={smartSettingsAccount}
+      />
       <AccountKeysBottomSheet
         sheetRef={sheetRefExportImportKey}
         account={exportImportAccount}
@@ -143,7 +167,9 @@ const AccountsSettingsScreen = () => {
         id="remove-account-seed-sheet"
         type="modal"
         sheetRef={sheetRefRemoveAccount}
-        backgroundColor="primaryBackground"
+        backgroundColor={
+          themeType === THEME_TYPES.DARK ? 'secondaryBackground' : 'primaryBackground'
+        }
         closeBottomSheet={() => {
           setAccountToRemove(null)
           closeRemoveAccount()

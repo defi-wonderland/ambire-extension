@@ -36,6 +36,7 @@ interface Props {
   testID?: string
   hasPadding?: boolean
   imageSize?: number
+  hideLinks?: boolean
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -46,7 +47,8 @@ const HumanizedVisualization: FC<Props> = ({
   isHistory,
   testID,
   hasPadding = true,
-  imageSize = 36
+  imageSize = 36,
+  hideLinks = false
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { theme } = useTheme()
@@ -75,6 +77,7 @@ const HumanizedVisualization: FC<Props> = ({
               address={item.address!}
               textSize={textSize}
               chainId={chainId}
+              hideLinks={hideLinks}
             />
           )
         }
@@ -82,11 +85,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'address' && item.address) {
           return (
             <View key={key} style={{ marginRight }}>
-              <HumanizerAddress
-                fontSize={textSize}
-                address={item.address}
-                explorerChainId={chainId}
-              />
+              <HumanizerAddress fontSize={textSize} address={item.address} chainId={chainId} />
             </View>
           )
         }
@@ -101,7 +100,14 @@ const HumanizedVisualization: FC<Props> = ({
             />
           )
         if (item.type === 'chain' && item.chainId)
-          return <ChainVisualization chainId={item.chainId} key={key} marginRight={marginRight} />
+          return (
+            <ChainVisualization
+              chainId={item.chainId}
+              key={key}
+              marginRight={marginRight}
+              hideLinks={hideLinks}
+            />
+          )
 
         if (item.type === 'message' && item.messageContent) {
           return (
@@ -141,7 +147,7 @@ const HumanizedVisualization: FC<Props> = ({
             />
           )
         }
-        if (item.type === 'link') {
+        if (item.type === 'link' && !hideLinks) {
           return (
             <a
               onClick={stopPropagation}

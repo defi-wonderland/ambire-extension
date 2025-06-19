@@ -1,8 +1,8 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Animated, Pressable, View, ViewStyle } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { canBecomeSmarter, isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import AccountKeyIcons from '@common/components/AccountKeyIcons'
@@ -20,11 +20,11 @@ import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-import { SUBMENU_OPTIONS } from './submenuOptions'
 
 const { isTab } = getUiType()
 
@@ -51,6 +51,7 @@ const Account = ({
   options?: {
     withOptionsButton: boolean
     setAccountToImportOrExport?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
+    setSmartSettingsAccount?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
     setAccountToRemove?: React.Dispatch<React.SetStateAction<AccountInterface | null>>
   }
   containerStyle?: ViewStyle
@@ -63,6 +64,7 @@ const Account = ({
   const { account: selectedAccount } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
   const { ens, isLoading } = useReverseLookup({ address: addr })
+  const { keys } = useKeystoreControllerState()
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -108,8 +110,38 @@ const Account = ({
 
     if (item.value === 'keys') {
       !!options.setAccountToImportOrExport && options.setAccountToImportOrExport(account)
+      return
+    }
+
+    if (item.value === 'toSmarter') {
+      !!options.setSmartSettingsAccount && options.setSmartSettingsAccount(account)
     }
   }
+
+  const getAccKeys = useCallback(
+    (acc: any) => {
+      return keys.filter((key) => acc?.associatedKeys.includes(key.addr))
+    },
+    [keys]
+  )
+
+  const add7702option = useMemo(() => {
+    return canBecomeSmarter(account, getAccKeys(account))
+  }, [account, getAccKeys])
+
+  const submenuOptions = useMemo(
+    () => [
+      { label: 'Manage keys', value: 'keys' },
+      { label: 'Remove account', value: 'remove', style: { color: theme.errorDecorative } }
+    ],
+    [theme.errorDecorative]
+  )
+
+  const submenuOptions7702 = useMemo(() => ({ label: 'Smart settings', value: 'toSmarter' }), [])
+
+  const submenu = useMemo(() => {
+    return add7702option ? [submenuOptions7702, ...submenuOptions] : submenuOptions
+  }, [add7702option, submenuOptions, submenuOptions7702])
 
   const Container = React.memo(({ children }: any) => {
     return isSelectable ? (
@@ -186,7 +218,7 @@ const Account = ({
           {renderRightChildren && renderRightChildren()}
           {!!options.withOptionsButton && (
             <Dropdown
-              data={SUBMENU_OPTIONS}
+              data={submenu}
               externalPosition={dropdownPosition}
               setExternalPosition={setDropdownPosition}
               onSelect={onDropdownSelect}

@@ -46,7 +46,8 @@ const SelectContainer: FC<Props> = ({
   size = DEFAULT_SELECT_SIZE,
   mode = 'select',
   testID,
-  renderSelectedOption
+  renderSelectedOption,
+  setIsMenuOpen
 }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
@@ -129,9 +130,14 @@ const SelectContainer: FC<Props> = ({
           </MenuContainer>
         )
       ) : (
-        <BottomSheetContainer id={id} isMenuOpen={isMenuOpen} toggleMenu={toggleMenu}>
+        <BottomSheetContainer
+          id={id}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          toggleMenu={toggleMenu}
+        >
           <BottomSheetHeader label={bottomSheetTitle} toggleMenu={toggleMenu} />
-          <View style={[spacings.phMd, flexbox.flex1, { height: 600 }]}>
+          <View style={[spacings.phMd, spacings.pvMd, flexbox.flex1, { height: 600 }]}>
             <Search
               placeholder={searchPlaceholder || t('Search...')}
               // When autoFocus is enabled, the BottomSheet animation breaks.

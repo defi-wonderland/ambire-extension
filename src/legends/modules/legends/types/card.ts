@@ -68,7 +68,8 @@ export enum CardGroup {
   GasTank = 'gas-tank',
   Transactions = 'transactions',
   Seasonal = 'seasonal',
-  MiniGame = 'mini-game'
+  MiniGame = 'mini-game',
+  Partners = 'partners'
 }
 
 export enum CardGroupNameMapping {
@@ -78,7 +79,8 @@ export enum CardGroupNameMapping {
   'gas-tank' = 'Gas Tank',
   'transactions' = 'Transactions',
   'seasonal' = 'Seasonal',
-  'mini-game' = 'Daily Quests'
+  'mini-game' = 'Daily Quests',
+  'partners' = 'Partners'
 }
 
 export interface CardFromResponse {
@@ -113,6 +115,7 @@ export interface CardFromResponse {
     usedInvitationSlots?: number
     accountLinkingHistory: { invitedEoaOrV1: string; date: string }[]
     availableToClaim?: BigInt
+    notMetLvlThreshold?: true
   }
   contentSteps?: string[]
   contentImageV2?: string

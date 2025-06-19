@@ -1,26 +1,19 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { DEFAULT_THEME, ThemeType } from '@common/styles/themeConfig'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false
 
-  #isPinned: boolean = true
+  isPinned: boolean = false
 
-  #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
+  #isPinnedTimeout: ReturnType<typeof setTimeout> | undefined = undefined
 
   #isSetupComplete: boolean = false
 
-  get isPinned() {
-    return this.#isPinned
-  }
-
-  set isPinned(newValue: boolean) {
-    this.#isPinned = newValue
-    storage.set('isPinned', newValue)
-    this.emitUpdate()
-  }
+  themeType: ThemeType = DEFAULT_THEME
 
   get isSetupComplete() {
     return this.#isSetupComplete
@@ -28,11 +21,6 @@ export class WalletStateController extends EventEmitter {
 
   set isSetupComplete(newValue: boolean) {
     this.#isSetupComplete = newValue
-    if (!newValue) {
-      this.#initCheckIsPinned()
-    } else {
-      clearTimeout(this.#isPinnedInterval)
-    }
     storage.set('isSetupComplete', newValue)
     this.emitUpdate()
   }
@@ -44,22 +32,45 @@ export class WalletStateController extends EventEmitter {
   }
 
   async #init(): Promise<void> {
-    this.#isPinned = isSafari() || (await storage.get('isPinned', false))
-    this.#initCheckIsPinned()
-
     this.#isSetupComplete = await storage.get('isSetupComplete', false)
+    this.themeType = await storage.get('themeType', DEFAULT_THEME)
+    this.isPinned = await this.#checkIsPinned()
+    if (!this.isPinned) this.#initContinuousCheckIsPinned()
 
     this.isReady = true
     this.emitUpdate()
   }
 
-  async #initCheckIsPinned() {
-    if (this.isPinned && this.#isPinnedInterval) clearTimeout(this.#isPinnedInterval)
-    if (this.isPinned) return
-    // @ts-ignore
-    const userSettings = await browser.action.getUserSettings()
-    if (userSettings.isOnToolbar) this.isPinned = true
-    this.#isPinnedInterval = setTimeout(this.#initCheckIsPinned.bind(this), 500)
+  async #checkIsPinned() {
+    if (isSafari()) return false
+
+    try {
+      const userSettings = await browser.action.getUserSettings()
+      return (userSettings.isOnToolbar as boolean) || false
+    } catch (error) {
+      return false
+    }
+  }
+
+  async #initContinuousCheckIsPinned() {
+    const isPinned = await this.#checkIsPinned()
+
+    if (isPinned) {
+      this.isPinned = true
+      !!this.#isPinnedTimeout && clearTimeout(this.#isPinnedTimeout)
+      this.emitUpdate()
+
+      return
+    }
+
+    this.#isPinnedTimeout = setTimeout(this.#initContinuousCheckIsPinned.bind(this), 1000)
+  }
+
+  async setThemeType(type: ThemeType) {
+    this.themeType = type
+    await storage.set('themeType', type)
+
+    this.emitUpdate()
   }
 
   toJSON() {

@@ -38,7 +38,7 @@ const useLedger = () => {
   }, [])
 
   const requestLedgerDeviceAccess = useCallback(async () => {
-    const isSupported = await LedgerController.isSupported()
+    const isSupported = LedgerController.isSupported()
     if (!isSupported) {
       const message =
         "Your browser doesn't support WebHID, which is required for the Ledger device. Please try using a different browser."

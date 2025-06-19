@@ -1,25 +1,29 @@
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
+import { EIP7702Auth } from '@ambire-common/consts/7702'
 import { Hex } from '@ambire-common/interfaces/hex'
-import { ExternalKey, KeystoreSignerInterface } from '@ambire-common/interfaces/keystore'
-import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
+import {
+  ExternalKey,
+  KeystoreSignerInterface,
+  TxnRequest
+} from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import hexStringToUint8Array from '@ambire-common/utils/hexStringToUint8Array'
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import LedgerController, {
-  LedgerDeviceModels,
-  ledgerService
+  LedgerSignature
 } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSignerInterface {
-  key: ExternalKey
+  key: ExternalKey & { isExternallyStored: boolean }
 
   controller: LedgerController | null = null
 
   constructor(_key: ExternalKey) {
-    this.key = _key
+    this.key = { ..._key, isExternallyStored: true }
   }
 
   // TODO: the ExternalSignerController type is missing some properties from
@@ -60,12 +64,10 @@ class LedgerSigner implements KeystoreSignerInterface {
     }
   }
 
-  async #withNormalizedError<T>(operation: () => Promise<T>): Promise<T> {
-    try {
-      return await operation()
-    } catch (error: any) {
-      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-    }
+  #normalizeSignature(rawSignature: LedgerSignature): string {
+    const strippedR = stripHexPrefix(rawSignature.r)
+    const strippedS = stripHexPrefix(rawSignature.s)
+    return addHexPrefix(`${strippedR}${strippedS}${rawSignature.v.toString(16)}`)
   }
 
   signRawTransaction: KeystoreSignerInterface['signRawTransaction'] = async (txnRequest) => {
@@ -77,46 +79,17 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const unsignedTxn: TransactionLike = { ...txnRequest, type }
-
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
-
-      // Sending NFTs is NOT available for Ledger Nano S users via Ledger Live
-      // (and probably to Ledger Blue users, both devices are considered legacy).
-      // As a magic workaround, disabling "clearer" signing makes it work,
-      // otherwise, the Ledger SDK fails with "EthAppNftNotSupported" error.
-      const shouldResolveNFTs =
-        !!this.key.meta.deviceModel &&
-        ![LedgerDeviceModels.nanoS, LedgerDeviceModels.blue, 'unknown'].includes(
-          this.key.meta.deviceModel as LedgerDeviceModels
-        )
-      // Look for resolutions for external plugins and ERC20 for "clearer" signing.
-      // Without this step, Ledger may just show a generic "Contract call" screen.
-      const resolution = await ledgerService.resolveTransaction(
-        stripHexPrefix(unsignedSerializedTxn),
-        this.controller!.walletSDK!.loadConfig,
-        {
-          externalPlugins: true, // enable support for DeFi dapps via plugins
-          erc20: true, // enable ERC20 parsing so token info is shown
-          nft: shouldResolveNFTs // enable NFT parsing so names/images are shown
-        }
-      )
+      const strippedTxn = stripHexPrefix(unsignedSerializedTxn)
+      const transactionBytes = hexStringToUint8Array(strippedTxn)
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-
-      const res = await LedgerController.withDisconnectProtection(() =>
-        this.#withNormalizedError(() =>
-          this.controller!.walletSDK!.signTransaction(
-            path,
-            stripHexPrefix(unsignedSerializedTxn),
-            resolution
-          )
-        )
-      )
+      const res = await this.controller!.signTransaction(path, transactionBytes)
 
       const signature = Signature.from({
-        r: addHexPrefix(res.r),
-        s: addHexPrefix(res.s),
-        v: Signature.getNormalizedV(addHexPrefix(res.v))
+        r: res.r,
+        s: res.s,
+        v: Signature.getNormalizedV(res.v)
       })
       const signedSerializedTxn = Transaction.from({
         ...unsignedTxn,
@@ -134,17 +107,12 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await LedgerController.withDisconnectProtection(() =>
-        this.#withNormalizedError(() =>
-          this.controller!.signEIP712MessageWithHashFallback({
-            path,
-            signTypedData
-          })
-        )
-      )
+      const signature = await this.controller!.signTypedData({
+        path,
+        signTypedData
+      })
 
-      const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
-      return signature
+      return this.#normalizeSignature(signature)
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
@@ -164,14 +132,9 @@ class LedgerSigner implements KeystoreSignerInterface {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await LedgerController.withDisconnectProtection(() =>
-        this.#withNormalizedError(() =>
-          this.controller!.walletSDK!.signPersonalMessage(path, stripHexPrefix(hex))
-        )
-      )
+      const signature = await this.controller!.signPersonalMessage(path, stripHexPrefix(hex))
 
-      const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
-      return signature
+      return this.#normalizeSignature(signature)
     } catch (e: any) {
       throw new ExternalSignerError(
         e?.message ||
@@ -183,6 +146,12 @@ class LedgerSigner implements KeystoreSignerInterface {
   // eslint-disable-next-line class-methods-use-this
   sign7702(hex: string): { yParity: Hex; r: Hex; s: Hex } {
     throw new Error('not support', { cause: hex })
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  signTransactionTypeFour(txnRequest: TxnRequest, eip7702Auth: EIP7702Auth): Hex {
+    throw new Error('not supported', { cause: txnRequest })
   }
 }
 

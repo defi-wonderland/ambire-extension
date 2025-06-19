@@ -1,5 +1,5 @@
 // The 'react-native-dotenv' package doesn't work in the NodeJS context (and
-// with commonjs imports), so alternatively, use 'dotend' package to load the
+// with commonjs imports), so alternatively, use 'dotenv' package to load the
 // environment variables from the .env file.
 require('dotenv').config()
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
@@ -21,7 +21,7 @@ const isSafari = process.env.WEB_ENGINE === 'webkit-safari'
 const outputPath = process.env.WEBPACK_BUILD_OUTPUT_PATH
 const isExtension =
   outputPath.includes('webkit') || outputPath.includes('gecko') || outputPath.includes('safari')
-const isBenzin = outputPath.includes('benzin')
+const isAmbireExplorer = outputPath.includes('benzin')
 const isLegends = outputPath.includes('legends')
 
 // style.css output file for WEB_ENGINE: GECKO
@@ -119,6 +119,10 @@ module.exports = async function (env, argv) {
   // Global configuration
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
   config.resolve.alias.dns = 'dns-js'
+  config.resolve.alias['@metamask/eth-sig-util'] = path.resolve(
+    __dirname,
+    'shim.metamask-eth-sig-util.js'
+  )
 
   // The files in the /web directory should be transpiled not just copied
   const excludeCopyPlugin = config.plugins.findIndex(
@@ -240,7 +244,8 @@ module.exports = async function (env, argv) {
     // Defaults to using 'auto', but this is causing problems in some environments
     // like in certain browsers, when building (and running) in extension context.
     publicPath: '',
-    environment: { dynamicImport: true }
+    environment: { dynamicImport: true },
+    hashSalt: 'ambire-salt'
   }
 
   if (isGecko) {
@@ -259,6 +264,7 @@ module.exports = async function (env, argv) {
 
   // Environment specific configurations
   if (isExtension) {
+    // eslint-disable-next-line no-console
     console.log('Building extension with relayer:', process.env.RELAYER_URL)
     if (process.env.IS_TESTING !== 'true') {
       validateEnvVariables(process.env.APP_ENV)
@@ -275,15 +281,22 @@ module.exports = async function (env, argv) {
     }
     locations.template = templatePaths
 
-    config.entry = {
-      main: config.entry[0], // the app entry
-      // extension services
-      background: './src/web/extension-services/background/background.ts',
-      'content-script':
-        './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
-      'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
-      'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts'
-    }
+    config.entry = Object.fromEntries(
+      Object.entries({
+        main: config.entry[0],
+        background: './src/web/extension-services/background/background.ts',
+        'content-script':
+          './src/web/extension-services/content-script/content-script-messenger-bridge.ts',
+        'ambire-inpage': './src/web/extension-services/inpage/ambire-inpage.ts',
+        'ethereum-inpage': './src/web/extension-services/inpage/ethereum-inpage.ts',
+        ...(isGecko && {
+          'content-script-ambire-injection':
+            './src/web/extension-services/content-script/content-script-ambire-injection.ts',
+          'content-script-ethereum-injection':
+            './src/web/extension-services/content-script/content-script-ethereum-injection.ts'
+        })
+      }).sort(([a], [b]) => a.localeCompare(b)) // different order (based on OS) makes the build non-deterministic
+    )
 
     if (isGecko) {
       config.entry['content-script-ambire-injection'] =
@@ -381,11 +394,21 @@ module.exports = async function (env, argv) {
     }
 
     if (config.mode === 'production') {
-      config.optimization.chunkIds = 'named' // Ensures same id for chunks across builds
-      config.optimization.moduleIds = 'named' // Ensures same id for modules across builds
-      config.optimization.splitChunks.maxSize = 4 * 1024 * 1024 // ensures max file size of 4MB
+      config.cache = false
+      // In production mode, we need to ensure that the chunks are deterministic
+      // in order to comply with the Firefox requirements for extension submission.
+      config.optimization.chunkIds = 'deterministic' // Ensures same id for chunks across builds
+      config.optimization.moduleIds = 'deterministic' // Ensures same id for modules across builds
+      // Disables auto-generated runtime chunks, because they cause ID drift
+      config.optimization.runtimeChunk = false
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
+        // Since v5.0.1 we're no longer setting maxSize (4 * 1024 * 1024) to ensure max file size that
+        // complies with Firefox requirements. This is because it turns on automatic chunk splitting
+        // which creates random chunk names, making the build non-deterministic.
+        // maxSize = 4 * 1024 * 1024
+        maxSize: undefined,
+        minSize: 0, // prevents merging small modules together automatically
         chunks(chunk) {
           // do not split into chunks the files that should be injected
           return (
@@ -393,7 +416,43 @@ module.exports = async function (env, argv) {
             chunk.name !== 'ethereum-inpage' &&
             chunk.name !== 'content-script'
           )
+        },
+        // Disable random cache groups (resulting non-deterministic chunk names)
+        cacheGroups: {
+          default: false,
+          vendors: false
         }
+      }
+
+      // Find and configure TerserPlugin in the minimizer array
+      const terserPlugin = config.optimization.minimizer?.find(
+        (minimizer) => minimizer.constructor.name === 'TerserPlugin'
+      )
+      if (terserPlugin) {
+        const terserRealOptions = terserPlugin.options.minimizer?.options
+
+        if (terserRealOptions) {
+          terserRealOptions.compress = {
+            ...(terserRealOptions.compress || {}),
+            pure_getters: true,
+            passes: 3
+          }
+
+          terserRealOptions.output = {
+            ...(terserRealOptions.output || {}),
+            ascii_only: true,
+            comments: false
+          }
+
+          // Disable mangling to ensure bit-for-bit deterministic builds across platforms (e.g. x64 vs arm64)
+          // This avoids differences in variable/function names (e.g. P vs x) that can cause review rejections
+          // The drawback is larger bundle size, so we only do it for Gecko
+          // TODO: Temporarily disabled for testing
+          if (isGecko) terserRealOptions.mangle = false
+        }
+
+        // Disable parallel to avoid nondeterminism in some environments
+        terserPlugin.options.parallel = false
       }
     }
 
@@ -404,7 +463,7 @@ module.exports = async function (env, argv) {
 
     return config
   }
-  if (isBenzin) {
+  if (isAmbireExplorer) {
     if (process.env.APP_ENV === 'development') {
       config.optimization = { minimize: false }
     } else {

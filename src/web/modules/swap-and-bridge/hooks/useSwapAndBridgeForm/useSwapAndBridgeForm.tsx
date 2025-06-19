@@ -42,7 +42,7 @@ const useSwapAndBridgeForm = () => {
     sessionIds,
     toSelectedToken
   } = useSwapAndBridgeControllerState()
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
+  const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   /**
@@ -94,6 +94,16 @@ const useSwapAndBridgeForm = () => {
     return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
   }, [fromSelectedToken, toSelectedToken])
 
+  const networkUserRequests = useMemo(() => {
+    if (!fromSelectedToken || !account || !userRequests.length) return []
+    return userRequests.filter(
+      (r) =>
+        r.action.kind === 'calls' &&
+        r.meta.accountAddr === account.addr &&
+        r.meta.chainId === fromSelectedToken.chainId
+    )
+  }, [fromSelectedToken, userRequests, account])
+
   const handleSetFromAmount = useCallback(
     (val: string) => {
       setFromAmountValue(val)
@@ -123,7 +133,10 @@ const useSwapAndBridgeForm = () => {
         }
 
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+          type: 'CLOSE_SIGNING_ACTION_WINDOW',
+          params: {
+            type: 'swapAndBridge'
+          }
         })
         navigate(ROUTES.dashboard)
 
@@ -243,7 +256,7 @@ const useSwapAndBridgeForm = () => {
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: portfolioTokenList,
-    token: fromSelectedToken ? getTokenId(fromSelectedToken, networks) : '',
+    token: fromSelectedToken ? getTokenId(fromSelectedToken) : '',
     isLoading: isTokenListLoading,
     networks,
     supportedChainIds
@@ -337,10 +350,23 @@ const useSwapAndBridgeForm = () => {
     closePriceImpactModal()
 
     if (isOneClickModeDuringPriceImpact) {
-      openEstimationModalAndDispatch()
+      if (networkUserRequests.length > 0) {
+        dispatch({
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          params: {
+            openActionWindow: true
+          }
+        })
+        window.close()
+      } else {
+        openEstimationModalAndDispatch()
+      }
     } else {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+        params: {
+          openActionWindow: false
+        }
       })
       setShowAddedToBatch(true)
     }
@@ -349,7 +375,8 @@ const useSwapAndBridgeForm = () => {
     openEstimationModalAndDispatch,
     dispatch,
     isOneClickModeDuringPriceImpact,
-    setShowAddedToBatch
+    setShowAddedToBatch,
+    networkUserRequests
   ])
 
   const handleSubmitForm = useCallback(
@@ -364,10 +391,23 @@ const useSwapAndBridgeForm = () => {
       // open the estimation modal on one click method;
       // build/add a swap user request on batch
       if (isOneClickMode) {
-        openEstimationModalAndDispatch()
+        if (networkUserRequests.length > 0) {
+          dispatch({
+            type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+            params: {
+              openActionWindow: true
+            }
+          })
+          window.close()
+        } else {
+          openEstimationModalAndDispatch()
+        }
       } else {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST'
+          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          params: {
+            openActionWindow: false
+          }
         })
         setShowAddedToBatch(true)
       }
@@ -377,7 +417,8 @@ const useSwapAndBridgeForm = () => {
       highPriceImpactOrSlippageWarning,
       openEstimationModalAndDispatch,
       openPriceImpactModal,
-      quote
+      quote,
+      networkUserRequests
     ]
   )
 
@@ -424,12 +465,12 @@ const useSwapAndBridgeForm = () => {
   }, [hasBroadcasted, showAddedToBatch])
 
   useEffect(() => {
-    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+    const broadcastStatus = mainCtrlStatuses.signAndBroadcastAccountOp
 
     if (broadcastStatus === 'SUCCESS' && activeRoutes.length) {
       setHasBroadcasted(true)
     }
-  }, [activeRoutes.length, mainCtrlStatuses.broadcastSignedAccountOp])
+  }, [activeRoutes.length, mainCtrlStatuses.signAndBroadcastAccountOp])
 
   useEffect(() => {
     if (!signAccountOpController) {
@@ -462,7 +503,8 @@ const useSwapAndBridgeForm = () => {
     estimationModalRef,
     setIsAutoSelectRouteDisabled,
     isBridge,
-    setShowAddedToBatch
+    setShowAddedToBatch,
+    networkUserRequests
   }
 }
 

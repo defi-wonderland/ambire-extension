@@ -18,7 +18,7 @@
     "default_title": "Ambire",
     "default_popup": "index.html"
   },
-  "host_permissions": ["http://*/*", "https://*/*", "wss://*/*", "*://connect.trezor.io/9/*"],
+  "host_permissions": ["http://*/*", "https://*/*", "file://*/*", "wss://*/*"],
   "externally_connectable": {
     "ids": ["*"]
   },

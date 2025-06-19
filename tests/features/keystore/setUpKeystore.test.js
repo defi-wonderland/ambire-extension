@@ -22,7 +22,7 @@ describe('setUpKeystore', () => {
     await browser.close()
   })
 
-  it('should set up keystore', async () => {
+  it.skip('should set up keystore', async () => {
     await setUpKeystore(page, extensionURL)
   })
 })

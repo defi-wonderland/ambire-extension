@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { BrowserProvider, formatUnits } from 'ethers'
+import { BrowserProvider } from 'ethers'
 import React, { useCallback } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -12,11 +12,11 @@ import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
 import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
-import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
 import { CardActionCalls, CardActionPredefined, CardFromResponse, CardStatus } from '../../types'
@@ -45,10 +45,10 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
   const { character } = useCharacterContext()
   const { claimableRewards } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
-  const { onComplete } = useCardActionContext()
   const formatXp = (xp: number) => {
     return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
+  const { onLegendComplete } = useLegendsContext()
 
   const cardDisabled = card?.status === CardStatus.disabled
 
@@ -81,14 +81,26 @@ const ClaimRewardsModal: React.FC<ClaimRewardsModalProps> = ({
         false
       )
       const receipt = await getCallsStatus(sendCallsIdentifier)
-      onComplete(receipt.transactionHash)
+      if (receipt.transactionHash) {
+        addToast('Transaction completed successfully', { type: 'success' })
+      }
+      onLegendComplete()
       handleClose()
     } catch (e: any) {
       const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
       console.error(e)
       addToast(message, { type: 'error' })
     }
-  }, [switchNetwork, action, sendCalls, chainId, getCallsStatus, onComplete, handleClose, addToast])
+  }, [
+    switchNetwork,
+    action,
+    onLegendComplete,
+    sendCalls,
+    chainId,
+    getCallsStatus,
+    handleClose,
+    addToast
+  ])
 
   if (!isOpen) return null
   if (!character)

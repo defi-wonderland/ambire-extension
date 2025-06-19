@@ -1,15 +1,27 @@
-import * as sigUtil from 'eth-sig-util'
+import { Observable, Subscription } from 'rxjs'
 
 import ExternalSignerError from '@ambire-common/classes/ExternalSignerError'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
-import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import { DeviceModelId as LedgerDeviceModels, ledgerUSBVendorId } from '@ledgerhq/devices'
-import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
-import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+import { getHdPathFromTemplate, getHdPathWithoutRoot } from '@ambire-common/utils/hdPath'
+import hexStringToUint8Array from '@ambire-common/utils/hexStringToUint8Array'
+import { ContextModuleBuilder } from '@ledgerhq/context-module'
+import {
+  DeviceManagementKitBuilder,
+  DeviceModelId as LedgerDeviceModels,
+  DiscoveredDevice,
+  LEDGER_VENDOR_ID,
+  UserInteractionRequired
+} from '@ledgerhq/device-management-kit'
+import {
+  Signature as LedgerSignature,
+  SignerEthBuilder,
+  TypedDataDomain
+} from '@ledgerhq/device-signer-kit-ethereum'
+import { webHidTransportFactory } from '@ledgerhq/device-transport-kit-web-hid'
 
-export { LedgerDeviceModels }
+export { LedgerDeviceModels, type LedgerSignature }
 
 const TIMEOUT_FOR_RETRIEVING_FROM_LEDGER = 5000
 
@@ -20,9 +32,9 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  transport: TransportWebHID | null
+  signerEth: ReturnType<SignerEthBuilder['build']> | null = null
 
-  walletSDK: null | Eth
+  walletSDK: ReturnType<DeviceManagementKitBuilder['build']> | null = null
 
   type = 'ledger'
 
@@ -30,13 +42,11 @@ class LedgerController implements ExternalSignerController {
 
   deviceId = ''
 
-  static vendorId = ledgerUSBVendorId
+  static vendorId = LEDGER_VENDOR_ID
 
   constructor() {
-    // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
+    // TODO: Bluetooth support?
     this.isWebHID = true
-    this.transport = null
-    this.walletSDK = null
 
     // When the `cleanUpListener` method gets passed to the navigator.hid listeners
     // the `this` context gets lost, so we need to bind it here. The `this` context
@@ -57,15 +67,18 @@ class LedgerController implements ExternalSignerController {
   }
 
   /**
-   * Checks if WebUSB transport is supported by the browser. Does not work in the
-   * service worker (background) in manifest v3, because it needs a `window` ref.
+   * Checks if WebHID transport is supported by the browser.
+   * Note: This API is not available in service workers in manifest v3.
    */
-  static isSupported = TransportWebHID.isSupported
+  static isSupported = () =>
+    typeof navigator !== 'undefined' && navigator !== null && 'hid' in navigator
 
   /**
    * Checks if at least one Ledger device is connected.
    */
   static isConnected = async () => {
+    if (!('hid' in navigator)) return false
+
     const devices = await navigator.hid.getDevices()
     return devices.filter((device) => device.vendorId === LedgerController.vendorId).length > 0
   }
@@ -80,28 +93,42 @@ class LedgerController implements ExternalSignerController {
     // reselect it again. The service worker than can access the device.
     if (await LedgerController.isConnected()) return
 
-    const filters = [{ vendorId: LedgerController.vendorId }]
-    const devices = await navigator.hid.requestDevice({ filters })
+    const dmk = new DeviceManagementKitBuilder()
+      // .addLogger(new ConsoleLogger()) // for debugging only
+      .addTransport(webHidTransportFactory)
+      .build()
 
-    if (devices.length === 0)
-      throw new ExternalSignerError('Ledger device connection request was canceled.')
-
-    const device = devices[0]
-    await device.open()
+    return new Promise((resolve, reject) => {
+      // Start discovering - this will scan for any connected devices
+      let subscription: Subscription // so it is always defined inside the subscribe callback
+      // eslint-disable-next-line prefer-const
+      subscription = dmk.startDiscovering({}).subscribe({
+        next: async (device) => {
+          subscription.unsubscribe()
+          dmk.close()
+          resolve(device)
+        },
+        error: (error) => {
+          subscription.unsubscribe()
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
+      })
+    })
   }
 
   /**
    * This function is designed to handle the scenario where Ledger device loses
    * connectivity during an operation. Without this method, if the Ledger device
-   * disconnects, the Ledger SDK hangs indefinitely because the promise
-   * associated with the operation never resolves or rejects.
+   * disconnects, the observable returned by the Ledger SDK throws an error,
+   * but with an awkward delay.
    */
-  static withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
+  withDisconnectProtection = async <T>(operation: () => Promise<T>): Promise<T> => {
     let listenerCbRef: (...args: Array<any>) => any = () => {}
     const disconnectHandler =
       (reject: (reason?: any) => void) =>
-      ({ device }: { device: HIDDevice }) => {
+      async ({ device }: { device: HIDDevice }) => {
         if (LedgerController.vendorId === device.vendorId) {
+          await this.cleanUp() // the communication with the initiated walletSDK drops
           reject(new ExternalSignerError('Ledger device got disconnected.'))
         }
       }
@@ -159,174 +186,269 @@ class LedgerController implements ExternalSignerController {
     if (this.walletSDK) return
 
     try {
-      // @ts-ignore types mismatch, not sure why
-      this.transport = await TransportWebHID.create()
-      if (!this.transport) throw new ExternalSignerError('Transport failed to get initialized')
+      this.walletSDK = new DeviceManagementKitBuilder()
+        // .addLogger(new ConsoleLogger()) // for debugging only
+        .addTransport(webHidTransportFactory)
+        .build()
+
+      const device = await this.#findDevice()
+      if (!device) throw new Error('No Ledger device detected.')
+      if (!this.walletSDK) throw new Error('Connection to Ledger device lost.')
+
+      // Get device information
+      const sessionId = await this.walletSDK.connect({ device })
+      const connectedDevice = this.walletSDK.getConnectedDevice({ sessionId })
+      this.deviceModel = connectedDevice.modelId
+      this.deviceId = connectedDevice.id
+
+      // Create the signer using the dynamically imported constructor
+      const contextModule = new ContextModuleBuilder({ originToken: 'ambire' }).build()
+      this.signerEth = new SignerEthBuilder({ dmk: this.walletSDK, sessionId })
+        .withContextModule(contextModule)
+        .build()
+
+      // To clean up no matter if the device is in the middle of an operation or not
       navigator.hid.addEventListener('disconnect', this.cleanUpListener)
-
-      this.walletSDK = new Eth(this.transport)
-
-      // Transport is glitchy and its types mismatch, so overprotect by optional chaining
-      this.deviceModel = this.transport.deviceModel?.id || 'unknown'
-      this.deviceId = this.transport.device?.productId?.toString() || ''
     } catch (e: any) {
       throw new ExternalSignerError(normalizeLedgerMessage(e?.message))
     }
   }
 
-  async unlock(path: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+  #findDevice = () =>
+    new Promise<DiscoveredDevice>((resolve, reject) => {
+      let subscription: Subscription // so it is always defined inside the subscribe callback
+      // eslint-disable-next-line prefer-const
+      subscription = this.walletSDK!.listenToAvailableDevices({}).subscribe({
+        next: (devices) => {
+          if (devices && devices.length) {
+            subscription.unsubscribe()
+            // TODO: Multiple devices found?
+            resolve(devices[0])
+          }
+        },
+        error: (error) => {
+          subscription.unsubscribe()
+          reject(new Error(error?.message))
+        }
+      })
+    })
+
+  /**
+   * Helper method to handle common Ledger observable subscription patterns
+   */
+  #handleLedgerSubscription<T>(
+    observable: Observable<any>,
+    options: {
+      onCompleted: (output: any) => T
+      errorMessage: string
+    }
+  ): Promise<T> {
+    const { onCompleted, errorMessage } = options
+
+    const subscriptionPromise = new Promise<T>((resolve, reject) => {
+      let subscription: Subscription // so it is always defined inside the subscribe callback
+      // eslint-disable-next-line prefer-const
+      subscription = observable.subscribe({
+        next: (response: any) => {
+          // TODO: If we communicate this to the user in the UI better, we can
+          // wait for the user to do all required interactions instead of rejecting.
+          const missingRequiredUserInteraction =
+            response.status === 'pending' &&
+            [UserInteractionRequired.UnlockDevice, UserInteractionRequired.ConfirmOpenApp].includes(
+              response.intermediateValue.requiredUserInteraction
+            )
+
+          if (missingRequiredUserInteraction) {
+            subscription.unsubscribe()
+            reject(
+              new ExternalSignerError(
+                normalizeLedgerMessage(response.intermediateValue.requiredUserInteraction)
+              )
+            )
+          }
+
+          if (response.status === 'error') {
+            subscription.unsubscribe()
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceMessage = response.error?.message || 'no response from device'
+            // @ts-ignore Ledger types not being resolved correctly in the SDK
+            const deviceErrorCode = response.error?.errorCode
+            let message = `<${deviceMessage}>`
+            message = deviceErrorCode ? `${message}, error code: <${deviceErrorCode}>` : message
+            return reject(new ExternalSignerError(normalizeLedgerMessage(message)))
+          }
+
+          if (response.status !== 'completed') return
+
+          subscription.unsubscribe()
+          if (response?.output) {
+            resolve(onCompleted(response.output))
+          } else {
+            reject(new ExternalSignerError(normalizeLedgerMessage(errorMessage)))
+          }
+        },
+        error: (error: any) => {
+          subscription.unsubscribe()
+          reject(new ExternalSignerError(normalizeLedgerMessage(error?.message)))
+        }
+      })
+    })
+
+    return this.withDisconnectProtection(() => subscriptionPromise)
+  }
+
+  async unlock(
+    path: ReturnType<typeof getHdPathFromTemplate>,
+    expectedKeyOnThisPath?: string
+  ): Promise<'ALREADY_UNLOCKED' | 'JUST_UNLOCKED'> {
     await this.#initSDKSessionIfNeeded()
 
-    if (this.isUnlocked(path, expectedKeyOnThisPath)) {
-      return 'ALREADY_UNLOCKED'
-    }
+    if (this.isUnlocked(path, expectedKeyOnThisPath)) return 'ALREADY_UNLOCKED'
 
-    if (!this.isWebHID) {
+    if (!this.isWebHID)
       throw new ExternalSignerError(
         'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
       )
-    }
 
-    if (!this.walletSDK) {
-      throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
-    }
+    if (!this.walletSDK || !this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
 
-    try {
-      const response = await this.walletSDK.getAddress(
-        path,
-        false // prioritize having less steps for the user
-      )
-      this.unlockedPath = path
-      this.unlockedPathKeyAddr = response.address
+    const address = await this.#handleLedgerSubscription(
+      this.signerEth!.getAddress(getHdPathWithoutRoot(path), {
+        checkOnDevice: false,
+        returnChainCode: false
+      }).observable,
+      {
+        onCompleted: (output) => output.address,
+        errorMessage: 'Failed to get address from Ledger device'
+      }
+    )
 
-      return 'JUST_UNLOCKED'
-    } catch (error: any) {
-      throw new ExternalSignerError(normalizeLedgerMessage(error?.message))
-    }
+    // Save unlocked state
+    this.unlockedPath = path
+    this.unlockedPathKeyAddr = address
+
+    return 'JUST_UNLOCKED' as const
   }
 
-  async retrieveAddresses(paths: string[]) {
-    return LedgerController.withDisconnectProtection(async () => {
-      await this.#initSDKSessionIfNeeded()
+  retrieveAddresses = async (paths: string[]) => {
+    await this.#initSDKSessionIfNeeded() // could happen if user retries
 
-      if (!this.walletSDK) {
-        throw new ExternalSignerError(normalizeLedgerMessage()) // no message, indicating no connection
+    if (!this.walletSDK || !this.signerEth) {
+      throw new ExternalSignerError(normalizeLedgerMessage())
+    }
+
+    const keys: string[] = []
+    let latestGetAddressError: ExternalSignerError | undefined
+
+    for (let i = 0; i < paths.length; i++) {
+      try {
+        // Purposely await in loop to avoid sending multiple requests at once.
+        // Send them 1 by 1, the Ledger device can't handle them in parallel,
+        // it throws a "device busy" error.
+        // eslint-disable-next-line no-await-in-loop
+        const key = await this.#handleLedgerSubscription(
+          this.signerEth!.getAddress(getHdPathWithoutRoot(paths[i]), {
+            checkOnDevice: false,
+            returnChainCode: false
+          }).observable,
+          {
+            onCompleted: (output) => output.address,
+            errorMessage: 'Failed to get address from Ledger device'
+          }
+        )
+
+        keys.push(key)
+      } catch (e: any) {
+        latestGetAddressError = e
+        break
       }
+    }
 
-      const keys: string[] = []
-      let latestGetAddressError: ExternalSignerError | undefined
-      for (let i = 0; i < paths.length; i++) {
-        try {
-          // Purposely await in loop to avoid sending multiple requests at once.
-          // Send them 1 by 1, the Ledger device can't handle them in parallel,
-          // it throws a "device busy" error.
-          // eslint-disable-next-line no-await-in-loop
-          const key = await LedgerController.withTimeoutProtection(() =>
-            this.walletSDK!.getAddress(
-              paths[i],
-              false, // no need to show on display
-              false // no need for the chain code
-            )
-          )
+    // Corner-case: if user interacts with Ambire, then interacts with another
+    // wallet app (installed on the computer or a web app) and then comes back
+    // to Ambire, the Ledger device might not respond to all requests. Therefore
+    // we might receive only some of the keys, but not all of them.
+    // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
+    // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
+    // Ambire and try importing accounts again.
+    const notAllKeysGotRetrieved = keys.length !== paths.length
+    if (notAllKeysGotRetrieved) {
+      throw (
+        latestGetAddressError ||
+        new ExternalSignerError('Failed to get all address from Ledger device.')
+      )
+    }
 
-          if (key) keys.push(key.address)
-        } catch (e: any) {
-          latestGetAddressError = e
-        }
+    return keys
+  }
+
+  async signPersonalMessage(derivationPath: string, messageHex: string) {
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
+
+    const messageBytes = hexStringToUint8Array(messageHex)
+
+    return this.#handleLedgerSubscription<LedgerSignature>(
+      this.signerEth.signMessage(getHdPathWithoutRoot(derivationPath), messageBytes).observable,
+      {
+        onCompleted: (output) => output,
+        errorMessage: 'Failed to sign message with Ledger device'
       }
+    )
+  }
 
-      // Corner-case: if user interacts with Ambire, then interacts with another
-      // wallet app (installed on the computer or a web app) and then comes back
-      // to Ambire, the Ledger device might not respond to all requests. Therefore
-      // we might receive only some of the keys, but not all of them.
-      // To reproduce: 1. Plug in and unlock Ledger, open Ambire, import accounts;
-      // 2. Now switch to Ledger Live and connect (My Ledger); 3. Switch back to
-      // Ambire and try importing accounts again.
-      const notAllKeysGotRetrieved = keys.length !== paths.length
-      if (notAllKeysGotRetrieved) {
-        throw new ExternalSignerError(normalizeLedgerMessage(latestGetAddressError?.message))
+  async signTransaction(derivationPath: string, transaction: Uint8Array) {
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
+
+    return this.#handleLedgerSubscription<LedgerSignature>(
+      this.signerEth.signTransaction(getHdPathWithoutRoot(derivationPath), transaction).observable,
+      {
+        onCompleted: (output) => output,
+        errorMessage: 'Failed to sign transaction with Ledger device'
       }
-
-      return keys
-    })
+    )
   }
 
   /**
-   * Attempts to sign an EIP-712 message using the Ledger device. If the device
-   * does not support direct (clear) EIP-712 signing, it falls back to signing
-   * hashes of the message (that works across all Ledger devices).
+   * Attempts to sign an EIP-712 message using the Ledger device. With Ledger DSK lib,
+   * if the device does not support direct (clear) EIP-712 signing, it should internally
+   * fallback to signing hashes of the message, no additional steps needed.
    */
-  signEIP712MessageWithHashFallback = async ({
+  signTypedData = async ({
     path,
     signTypedData: { domain, types, message, primaryType }
   }: {
     path: string
     signTypedData: TypedMessage
   }) => {
-    let res: { v: number; s: string; r: string }
-    try {
-      res = await this.walletSDK!.signEIP712Message(path, {
-        domain,
+    if (!this.signerEth) throw new ExternalSignerError(normalizeLedgerMessage())
+
+    // TODO: Slight mismatch between TypedMessage type and Ledger's TypedDataDomain
+    // for the empty values (string | null | undefined vs string | undefined)
+    const ledgerDomain = { ...domain } as TypedDataDomain
+
+    return this.#handleLedgerSubscription<LedgerSignature>(
+      this.signerEth.signTypedData(getHdPathWithoutRoot(path), {
+        domain: ledgerDomain,
         types,
         message,
         primaryType
-      })
-    } catch {
-      // NOT all Ledger devices support clear signing EIP-721 message (via
-      // `signEIP712Message`), example: Ledger Nano S. The alternative is signing
-      // hashes - that works across all Ledger devices.
-      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
-        'EIP712Domain',
-        domain,
-        types,
-        true
-      ).toString('hex')
-      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-        primaryType,
-        message,
-        types,
-        true
-      ).toString('hex')
-
-      res = await this.walletSDK!.signEIP712HashedMessage(
-        path,
-        domainSeparatorHex,
-        hashStructMessageHex
-      )
-    }
-
-    if (!res)
-      throw new ExternalSignerError(
-        'Your Ledger device returned an empty signature, which is unexpected. Please try signing again.'
-      )
-
-    return res
+      }).observable,
+      {
+        onCompleted: (output) => output,
+        errorMessage: 'Failed to sign typed data with Ledger device'
+      }
+    )
   }
 
   cleanUp = async () => {
-    if (!this.walletSDK) return
+    if (this.walletSDK) this.walletSDK.close()
 
     this.walletSDK = null
+    this.signerEth = null
     this.unlockedPath = ''
     this.unlockedPathKeyAddr = ''
 
-    navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
-
-    try {
-      // Might hang! If user interacts with Ambire, then interacts with another
-      // wallet app (installed on the computer or a web app) and then comes back
-      // to Ambire, closing the current transport hangs indefinitely.
-      await Promise.race([
-        // Might fail if the transport was already closed, which is fine.
-        this.transport?.close(),
-        new Promise((_, reject) => {
-          const message = normalizeLedgerMessage('No response received from the Ledger device.')
-          setTimeout(() => reject(message), 3000)
-        })
-      ])
-    } finally {
-      this.transport = null
-    }
+    if ('hid' in navigator) navigator.hid.removeEventListener('disconnect', this.cleanUpListener)
   }
 
   async cleanUpListener({ device }: { device: HIDDevice }) {
@@ -334,5 +456,4 @@ class LedgerController implements ExternalSignerController {
   }
 }
 
-export { Eth, ledgerService }
 export default LedgerController

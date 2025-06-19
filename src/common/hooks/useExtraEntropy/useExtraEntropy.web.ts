@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+
+import { generateUuid } from '@ambire-common/utils/uuid'
 
 const useExtraEntropy = () => {
   const [mousePos, setMousePos] = useState<{ x: number; y: number; timestamp: number } | null>(null)
@@ -18,7 +19,8 @@ const useExtraEntropy = () => {
 
   const getExtraEntropy = useCallback(() => {
     const mouseEntropy = mousePos ? `${mousePos.x}-${mousePos.y}-${mousePos.timestamp}` : null
-    const extraEntropy = `${mouseEntropy || uuidv4()}-${performance.now()}`
+    const uuid = generateUuid()
+    const extraEntropy = `${mouseEntropy || uuid}-${performance.now()}`
 
     return extraEntropy
   }, [mousePos])

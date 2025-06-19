@@ -7,13 +7,12 @@ import PendingToBeConfirmedIcon from '@common/assets/svg/PendingToBeConfirmedIco
 import Banner, { BannerButton } from '@common/components/Banner'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
+import DashboardBannerBottomSheet from '@common/modules/dashboard/components/DashboardBanners/DashboardBannerBottomSheet'
 import { ROUTES } from '@common/modules/router/constants/common'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
-
-import DashboardBannerBottomSheet from '../DashboardBannerBottomSheet'
 
 const ERROR_ACTIONS = [
   'reject-accountOp',
@@ -204,11 +203,12 @@ const DashboardBanner = ({ banner }: { banner: BannerType }) => {
             isReject={isReject}
             text={actionText}
             disabled={isDisabled}
+            type={type}
             onPress={() => handleActionPress(action)}
           />
         )
       }),
-    [actions, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
+    [actions, type, handleActionPress, portfolio.isAllReady, statuses.buildSwapAndBridgeUserRequest]
   )
 
   return (

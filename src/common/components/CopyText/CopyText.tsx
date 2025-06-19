@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ColorValue, ViewStyle } from 'react-native'
@@ -6,6 +5,7 @@ import { ColorValue, ViewStyle } from 'react-native'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 interface Props {
@@ -25,7 +25,7 @@ const CopyText: React.FC<Props> = ({ text, style, iconColor, iconWidth = 15, ico
   })
 
   const handleCopyText = () => {
-    Clipboard.setStringAsync(text)
+    setStringAsync(text)
     addToast(t('Copied to clipboard!') as string, { timeout: 2500 })
   }
 

@@ -10,7 +10,7 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
@@ -36,7 +36,7 @@ const RouteStepsPreview = ({
   isSelected?: boolean
   isDisabled?: boolean
 }) => {
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { t } = useTranslation()
 
   const shouldWarnForLongEstimation = useMemo(() => {
@@ -183,7 +183,7 @@ const RouteStepsPreview = ({
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               {!!shouldWarnForLongEstimation && (
                 <WarningIcon
-                  color={iconColors.warning}
+                  color={theme.warningDecorative}
                   width={14}
                   height={14}
                   style={spacings.mrMi}
@@ -206,7 +206,13 @@ const RouteStepsPreview = ({
             <Text
               fontSize={12}
               weight="medium"
-              appearance={!isDisabled ? 'primary' : 'warningText'}
+              color={
+                !isDisabled
+                  ? themeType === THEME_TYPES.DARK
+                    ? theme.primaryLight
+                    : theme.primary
+                  : theme.warningText
+              }
               style={[
                 spacings.phTy,
                 {

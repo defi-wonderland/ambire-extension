@@ -20,7 +20,7 @@ type Props = {
   text: string
   containerStyle?: any
   address: CustomToken['address']
-  network: Network
+  network?: Network
 }
 
 const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Props) => {

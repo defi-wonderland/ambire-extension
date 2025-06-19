@@ -69,7 +69,7 @@ const Step = ({
     </BrowserRouter>
   )
 }
-
+// Note: We're not using it anymore, but it should be better to keep it for future use.
 const STEPS = [
   {
     element: `#${SmartAccountIntroId}`,
@@ -81,19 +81,6 @@ const STEPS = [
         // WARNING: Don't use display badge tooltips, it will crash the extension because
         // there is no portal host in the intro.js context
         titleRightChildren={<Badge type="success" text="Smart Account" />}
-      />
-    )
-  },
-  {
-    element: `#${BasicAccountIntroId}`,
-    position: 'top',
-    intro: (
-      <Step
-        title="Basic Account"
-        text="We refer to EOAs (Externally Owned Accounts) as Basic Accounts. These native accounts on Ethereum and EVM networks offer limited functionality compared to Smart Accounts."
-        // WARNING: Don't use display badge tooltips, it will crash the extension because
-        // there is no portal host in the intro.js context
-        titleRightChildren={<Badge type="warning" text="Basic Account" />}
       />
     )
   }

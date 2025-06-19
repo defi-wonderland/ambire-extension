@@ -22,6 +22,7 @@ interface Props {
   sizeMultiplierSize?: number
   textSize?: number
   chainId: bigint
+  hideLinks?: boolean
 }
 
 const TokenOrNft: FC<Props> = ({
@@ -29,7 +30,8 @@ const TokenOrNft: FC<Props> = ({
   address,
   textSize = 16,
   chainId,
-  sizeMultiplierSize = 1
+  sizeMultiplierSize = 1,
+  hideLinks = false
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { addToast } = useToast()
@@ -101,7 +103,6 @@ const TokenOrNft: FC<Props> = ({
       }).catch((e) => {
         fetchFallbackNameIfNeeded({}).catch(console.error)
         console.error(e)
-        addToast(t('We were unable to fetch token info'), { type: 'error' })
       })
   }, [
     fetchFallbackNameIfNeeded,
@@ -125,6 +126,8 @@ const TokenOrNft: FC<Props> = ({
           highestPriorityAlias={`${fallbackName} #${value}`}
           marginRight={marginRight}
           fontSize={textSize}
+          hideLinks={hideLinks}
+          chainId={chainId}
         />
       )
     else
@@ -136,6 +139,7 @@ const TokenOrNft: FC<Props> = ({
           amount={value}
           tokenInfo={assetInfo?.tokenInfo}
           marginRight={marginRight}
+          hideLinks={hideLinks}
         />
       )
 
@@ -159,6 +163,7 @@ const TokenOrNft: FC<Props> = ({
       amount={value}
       tokenInfo={assetInfo?.tokenInfo}
       marginRight={marginRight}
+      hideLinks={hideLinks}
     />
   )
 }

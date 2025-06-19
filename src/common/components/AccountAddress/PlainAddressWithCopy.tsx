@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
@@ -7,6 +6,7 @@ import CopyIcon from '@common/assets/svg/CopyIcon'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import PlainAddress from './PlainAddress'
@@ -28,7 +28,7 @@ const PlainAddressWithCopy: FC<Props> = ({ maxLength, address, style, hideParent
 
   const handleCopy = async () => {
     try {
-      await Clipboard.setStringAsync(address)
+      await setStringAsync(address)
       addToast(t('Address copied to clipboard'))
     } catch {
       addToast(t('Failed to copy address'))

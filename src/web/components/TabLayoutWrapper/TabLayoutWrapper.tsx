@@ -2,14 +2,12 @@ import React, { ReactElement, ReactNode, useMemo } from 'react'
 import { ColorValue, View, ViewStyle } from 'react-native'
 
 import ScrollableWrapper, { WrapperProps } from '@common/components/ScrollableWrapper'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { breakpointsByWindowWidth } from '@common/hooks/useWindowSize/breakpoints'
 import { WindowSizes } from '@common/hooks/useWindowSize/types'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING_3XL, SPACING_MD } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TAB_CONTENT_WIDTH, TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
@@ -45,7 +43,7 @@ type TabLayoutContainerProps = {
 export const getTabLayoutPadding = (maxWidthSize: (size: WindowSizes) => boolean) => {
   if (isTab || isActionWindow) {
     return {
-      paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL
+      paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_MD
     }
   }
 
@@ -126,7 +124,6 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
 }: TabLayoutWrapperMainContentProps) => {
   const { styles } = useTheme(getStyles)
   const { isOnboardingRoute } = useOnboardingNavigation()
-  const { path } = useRoute()
   const { minHeightSize } = useWindowSize()
 
   if (withScroll) {

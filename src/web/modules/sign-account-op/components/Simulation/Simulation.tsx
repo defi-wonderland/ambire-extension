@@ -318,10 +318,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
       )}
 
       {simulationView === 'error' && (
-        <Alert
-          type="error"
-          title={`We were unable to simulate the transaction: ${simulationErrorMsg}`}
-        />
+        <Alert type="error" title={t('Unable to simulate the transaction. Proceed with caution')} />
       )}
       {simulationView === 'no-changes' && (
         <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
@@ -343,7 +340,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
           isTypeLabelHidden
           title={
             <Trans>
-              The RPC cannot perform simulations for Basic Accounts. Try changing the RPC from
+              The RPC cannot perform simulations for EOA accounts. Try changing the RPC from
               Settings. If you wish to proceed regardless, please carefully review the transaction
               preview below.
             </Trans>

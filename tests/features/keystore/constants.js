@@ -11,6 +11,9 @@ export const GREEN_MSG_NETWORK_ADDED = 'Network successfully added!'
 export const GREEN_MSG_NETWORK_SAVED = ' settings saved!'
 export const AMBIRE_SMART_ACCOUNTS_MSG =
   '//div[.//div[text()="?"] and .//div[contains(text(), "Ambire Smart Accounts")]]'
+export const CHAINLIST_SEARCH_PLACEHOLDER = 'input[placeholder="ETH, Fantom, ..."]'
+export const CONNECT_WALLET_BTN =
+  "//div[.//span[text()='Include Testnets']]//button[normalize-space()='Connect Wallet']"
 
 export const NETWORKS_LIST = {
   FLR: {
@@ -19,5 +22,12 @@ export const NETWORKS_LIST = {
     ccyName: 'Flare',
     rpcUrl: 'https://rpc.au.cc/flare',
     explorerUrl: 'https://flarescan.com'
+  },
+  FLOW: {
+    networkName: 'Flow EVM Mainnet',
+    ccySymbol: 'FLOW',
+    ccyName: 'FLOW',
+    rpcUrl: 'https://mainnet.evm.nodes.onflow.org',
+    explorerUrl: 'https://evm.flowscan.io'
   }
 }

@@ -85,7 +85,7 @@ export async function prepareTransaction(
   }
 
   if (shouldSendButtonBeDisabled) {
-    const isDisabled = await isAriaDisabled(page, SELECTORS.transferButtonConfirm)
+    const isDisabled = await isAriaDisabled(page, SELECTORS.proceedBtn)
 
     expect(isDisabled).toBe(true)
   }
@@ -130,7 +130,7 @@ async function handleTransaction(
     page,
     extensionURL,
     browser,
-    SELECTORS.transferButtonConfirm
+    SELECTORS.proceedBtn
   )
 
   if (shouldQueueAndSignLater) {
@@ -492,7 +492,7 @@ export async function sendFundsGreaterThanBalance(page, extensionURL) {
   await typeText(page, amountField, balance1)
 
   // Verify that the message "The amount is greater than the asset's balance:" exist on the page
-  const targetText = "The amount is greater than the asset's balance:"
+  const targetText = 'Insufficient amount.'
   // Wait until the specified text appears on the page
   await page.waitForFunction(
     (text) => {

@@ -76,6 +76,8 @@ const FilterButton = React.memo(({ value, active, style, onPress }: FilterButton
 const { isPopup } = getUiType()
 
 const sortDApps = (a?: Dapp, b?: Dapp) => {
+  if (a?.url.startsWith('https://rewards.ambire.com')) return -1
+
   // Display favorite dApps first
   if (a?.favorite && !b?.favorite) return -1
   if (!a?.favorite && b?.favorite) return 1

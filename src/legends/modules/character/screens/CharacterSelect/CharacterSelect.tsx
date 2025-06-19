@@ -18,6 +18,7 @@ const CharacterSelect = () => {
   const [characterId, setCharacterId] = useState(1)
   const { connectedAccount, v1Account } = useAccountContext()
   const [errorMessage, setErrorMessage] = useState('')
+  const [hasStartedMinting, setHasStartedMinting] = useState(false)
 
   const { character, isLoading } = useCharacterContext()
   const { isMinting, mintedAt, isMinted, loadingMessage, isCheckingMintStatus, mintCharacter } =
@@ -37,7 +38,16 @@ const CharacterSelect = () => {
         'Character is already minted but could not be retrieved. Please try again or refresh the page.'
       )
     }
-  }, [character, isMinted, isLoading, isMintedAndNotCaughtByRelayer, mintedAt, isMinting, navigate])
+  }, [
+    character,
+    isMinted,
+    connectedAccount,
+    isLoading,
+    isMintedAndNotCaughtByRelayer,
+    mintedAt,
+    isMinting,
+    navigate
+  ])
 
   const onCharacterChange = (id: number) => {
     setCharacterId(id)
@@ -78,7 +88,10 @@ const CharacterSelect = () => {
       {!isMintedAndNotCaughtByRelayer && !isCheckingMintStatus && (
         <button
           onClick={() => {
-            !isButtonDisabled && mintCharacter(characterId)
+            if (!isButtonDisabled) {
+              setHasStartedMinting(true)
+              mintCharacter(characterId)
+            }
           }}
           type="button"
           disabled={isButtonDisabled}
@@ -91,11 +104,11 @@ const CharacterSelect = () => {
 
       <CharacterLoadingModal
         isOpen={
-          !!character ||
+          hasStartedMinting &&
           // Currently minting
-          isMinting ||
-          // Minted a short time ago and not caught by the relayer
-          (isMinted && !character && !isMintedAndNotCaughtByRelayer)
+          (isMinting ||
+            // Minted a short time ago and not caught by the relayer
+            (isMinted && !character && !isMintedAndNotCaughtByRelayer))
         }
         loadingMessage={loadingMessage}
         errorMessage={errorMessage}

@@ -105,7 +105,7 @@ const LedgerConnectScreen = () => {
             ]}
           >
             <DriveIcon style={spacings.mrLg} />
-            <LeftPointerArrowIcon style={spacings.mrLg} />
+            <LeftPointerArrowIcon style={spacings.mrLg} color={theme.iconPrimary} />
             <AmbireDevice />
           </View>
           <Text style={[spacings.mbLg, text.center]} appearance="secondaryText">

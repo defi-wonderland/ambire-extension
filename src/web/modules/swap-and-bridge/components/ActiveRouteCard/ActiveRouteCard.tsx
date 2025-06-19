@@ -55,7 +55,7 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
     if (activeRoute.routeStatus === 'completed')
       panelStyles = {
         borderWidth: 1,
-        backgroundColor: '#edf6f1',
+        backgroundColor: theme.successBackground,
         borderColor: theme.successDecorative
       }
 

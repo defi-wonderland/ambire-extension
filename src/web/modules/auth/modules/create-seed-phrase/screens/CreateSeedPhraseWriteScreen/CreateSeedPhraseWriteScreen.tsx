@@ -1,6 +1,5 @@
-import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
 import { KeystoreSeed } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -16,6 +15,7 @@ import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -165,30 +165,21 @@ const CreateSeedPhraseWriteScreen = () => {
                   flexbox.directionRow,
                   flexbox.justifyCenter,
                   flexbox.alignCenter,
-                  spacings.pvMi,
+                  spacings.ptTy,
                   common.borderRadiusPrimary,
-                  spacings.mtMd,
-                  spacings.mb2Xl
+                  spacings.mbXl
                 ]}
               >
-                <TouchableOpacity
+                <Button
+                  type="ghost"
+                  text={t('Copy recovery phrase')}
+                  hasBottomSpacing={false}
+                  size="small"
+                  testID="copy-recovery-phrase"
                   onPress={handleCopyToClipboard}
-                  style={[
-                    flexbox.directionRow,
-                    flexbox.justifyCenter,
-                    flexbox.alignCenter,
-                    spacings.pvTy,
-                    common.borderRadiusPrimary,
-                    spacings.phSm,
-                    { backgroundColor: theme.secondaryBackground }
-                  ]}
                 >
-                  <Text fontSize={14} weight="medium" appearance="secondaryText">
-                    {t('Copy recovery phrase')}
-                  </Text>
-
-                  <CopyIcon style={{ marginLeft: 8 }} color={theme.secondaryText} />
-                </TouchableOpacity>
+                  <CopyIcon style={spacings.mlTy} />
+                </Button>
               </View>
               <Button
                 testID="create-seed-phrase-write-continue-btn"

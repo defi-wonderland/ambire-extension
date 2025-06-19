@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+
+import { generateUuid } from '@ambire-common/utils/uuid'
 
 const useExtraEntropy = () => {
   const getExtraEntropy = useCallback(() => {
@@ -9,7 +10,8 @@ const useExtraEntropy = () => {
     // if (typeof performance === "undefined") {
     //   global.performance = { now }
     // }
-    const extraEntropy = `${uuidv4()}-${performance.now()}`
+    const uuid = generateUuid()
+    const extraEntropy = `${uuid}-${performance.now()}`
 
     return extraEntropy
   }, [])

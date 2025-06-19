@@ -1,15 +1,38 @@
 html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+html,
 body,
 #root {
   width: 100%;
   height: 100%;
-  /* For gecko, the `min-height` gets overwritten in the `webpack.config.js` */
-  /* This is a workaround, because here a constant can't be used.  */
-  min-height: 600px;
   -webkit-overflow-scrolling: touch;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+}
+
+/* Makes sure to fill the root element no matter the size of the window */
+#root {
+  display: flex;
+  flex: 1;
+}
+
+.light-scrollbar {
+  --scroll-thumb-color: #6770b360;
+  --scroll-track-color: #dddff766;
+}
+
+.dark-scrollbar {
+  --scroll-thumb-color: #ffffff1f;
+  --scroll-track-color: #202022;
+}
+
+/* Sets specific size for the extension popup, otherwise, it shrinks to fit the content */
+.body-extension-popup {
+  width: 600px;
+  height: 600px;
 }
 
 html {
@@ -21,11 +44,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-#root {
-  display: flex;
-  flex: 1;
 }
 
 div {
@@ -41,11 +59,11 @@ input {
 }
 
 ::-webkit-scrollbar-track {
-  background: #dddff766;
+  background: var(--scroll-track-color);
   border-radius: 13px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6770b360;
+  background: var(--scroll-thumb-color);
   border-radius: 13px;
 }

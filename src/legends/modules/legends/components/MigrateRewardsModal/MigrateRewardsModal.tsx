@@ -9,19 +9,16 @@ import CloseIcon from '@legends/components/CloseIcon'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
+import useLegendsContext from '@legends/hooks/useLegendsContext'
 import usePortfolioControllerState from '@legends/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSwitchNetwork from '@legends/hooks/useSwitchNetwork'
 import useToast from '@legends/hooks/useToast'
-import smokeAndLights from '@legends/modules/leaderboard/screens/Leaderboard/Smoke-and-lights.png'
-import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
 import { humanizeError } from '@legends/modules/legends/utils/errors/humanizeError'
 
-import { CardActionCalls, CardActionPredefined, CardFromResponse, CardStatus } from '../../types'
+import { CardActionCalls, CardActionPredefined, CardFromResponse } from '../../types'
 import CardActionButton from '../Card/CardAction/actions/CardActionButton'
-import rewardsCoverImg from './assets/rewards-cover.png'
 import styles from './MigrateRewardsModal.module.scss'
 
 type Action = CardActionPredefined & {
@@ -49,7 +46,7 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 }) => {
   const { xWalletClaimableBalance } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
-  const { onComplete } = useCardActionContext()
+  const { onLegendComplete } = useLegendsContext()
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
@@ -58,12 +55,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   const [walletBalance, setWalletBalance] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-
+  const [isSigning, setIsSigning] = useState(false)
   const closeModal = async () => {
     handleClose()
   }
 
-  useEffect(() => {
+  const getWalletBalance = useCallback(async () => {
     if (!connectedAccount) return
     const ethereumProvider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
     const walletContract = new Contract(X_WALLET_TOKEN, walletIface, ethereumProvider)
@@ -75,7 +72,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
         addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
-  }, [connectedAccount, addToast, switchNetwork])
+  }, [connectedAccount, addToast])
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    getWalletBalance()
+  }, [getWalletBalance])
 
   // Close Modal on ESC
   useEscModal(isOpen, closeModal)
@@ -92,21 +94,41 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
         return { to, value, data }
       })
 
+      setIsSigning(true)
+
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
         formattedCalls,
         false
       )
+
       const receipt = await getCallsStatus(sendCallsIdentifier)
-      onComplete(receipt.transactionHash)
-      handleClose()
+      if (receipt.transactionHash) {
+        addToast('Transaction completed successfully', { type: 'success' })
+        setIsSigning(false)
+        getWalletBalance()
+        onLegendComplete()
+        handleClose()
+      }
     } catch (e: any) {
       const message = humanizeError(e, ERROR_MESSAGES.transactionProcessingFailed)
       console.error(e)
+      setIsSigning(false)
+
       addToast(message, { type: 'error' })
     }
-  }, [switchNetwork, action, sendCalls, chainId, getCallsStatus, onComplete, handleClose, addToast])
+  }, [
+    switchNetwork,
+    action,
+    getCallsStatus,
+    onLegendComplete,
+    sendCalls,
+    getWalletBalance,
+    chainId,
+    handleClose,
+    addToast
+  ])
 
   if (!isOpen) return null
 
@@ -119,38 +141,47 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
         <div className={styles.contentWrapper}>
           <h2 className={styles.title}>Migrate xWALLET</h2>
-          <div className={styles.content}>
-            <div>
-              <p className={styles.sectionTitle}>Your xWALLET</p>
-              <div className={styles.sectionContent}>
-                <p>
-                  {formatDecimals(
-                    Number(
-                      parseFloat(formatUnits(walletBalance, xWalletClaimableBalance.decimals))
-                    ),
-                    'amount'
-                  )}
-                </p>
-                <p className={styles.usdValue}>
-                  {
-                    getAndFormatTokenDetails(
-                      {
-                        ...xWalletClaimableBalance,
-                        amount: walletBalance,
-                        flags: { rewardsType: 'wallet-rewards' }
-                      },
-                      [{ chainId: 1 }]
-                    ).balanceUSDFormatted
-                  }{' '}
-                </p>
+          {walletBalance ? (
+            <div className={styles.content}>
+              <div>
+                <p className={styles.sectionTitle}>Your xWALLET</p>
+                <div className={styles.sectionContent}>
+                  <p>
+                    {walletBalance &&
+                      formatDecimals(
+                        Number(
+                          parseFloat(formatUnits(walletBalance, xWalletClaimableBalance.decimals))
+                        ),
+                        'amount'
+                      )}
+                  </p>
+                  <p className={styles.usdValue}>
+                    {walletBalance &&
+                      getAndFormatTokenDetails(
+                        {
+                          ...xWalletClaimableBalance,
+                          amount: walletBalance,
+                          flags: { rewardsType: 'wallet-rewards' }
+                        },
+                        [{ chainId: 1 }]
+                      ).balanceUSDFormatted}{' '}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <p className={styles.noWalletTitle}>No xWALLET found</p>
+          )}
 
           <CardActionButton
             onButtonClick={onButtonClick}
-            buttonText="Migrate xWALLET"
+            buttonText={
+              disabledButton
+                ? 'Switch to a new account to unlock Rewards quests.'
+                : 'Migrate xWALLET'
+            }
             className={styles.button}
+            disabled={disabledButton || isSigning || isLoading}
           />
         </div>
       </div>

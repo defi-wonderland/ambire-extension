@@ -1,4 +1,3 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -21,12 +20,13 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { setStringAsync } from '@common/utils/clipboard'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import {
   AccountPickerIntroStepsContext,
-  BasicAccountIntroId,
   SmartAccountIntroId
 } from '@web/modules/account-picker/contexts/accountPickerIntroStepsContext'
 
@@ -44,7 +44,6 @@ const Account = ({
   isDisabled,
   importStatus,
   displayTypeBadge = true,
-  withQuaternaryBackground = false,
   displayTypePill = true,
   shouldBeDisplayedAsNew = false
 }: {
@@ -66,7 +65,7 @@ const Account = ({
   const { isLoading: isDomainResolving, ens } = useReverseLookup({ address: account.addr })
   const domainName = ens
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles, theme, themeType } = useTheme(getStyles)
   const { setShowIntroSteps } = useContext(AccountPickerIntroStepsContext)
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
@@ -98,7 +97,7 @@ const Account = ({
   }, [shouldAddIntroStepsIds, setShowIntroSteps])
 
   const handleCopyAddress = useCallback(() => {
-    Clipboard.setStringAsync(account.addr)
+    setStringAsync(account.addr)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }, [account.addr, addToast, t])
 
@@ -115,22 +114,19 @@ const Account = ({
         flexbox.alignCenter,
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
-        { borderWidth: 1, borderColor: theme.secondaryBackground },
-        ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithTheSameKeys) && {
-          borderColor: theme.secondaryBorder
+        common.hidden,
+        {
+          borderWidth: 1,
+          borderColor: theme.quaternaryBackground
+        },
+        ((hovered && !isDisabled) || isSelected) && {
+          borderColor: themeType === THEME_TYPES.DARK ? theme.primaryLight80 : theme.primary20
         }
       ]}
       onPress={isDisabled ? undefined : toggleSelectedState}
       testID={`add-account-${account.addr}`}
     >
-      <View
-        style={[
-          styles.container,
-          withQuaternaryBackground
-            ? { backgroundColor: theme.quaternaryBackground }
-            : { backgroundColor: theme.secondaryBackground }
-        ]}
-      >
+      <View style={[styles.container, { backgroundColor: theme.quaternaryBackground }]}>
         <Toggle
           isOn={isSelected}
           onToggle={toggleSelectedState}
@@ -200,14 +196,6 @@ const Account = ({
             </View>
             {displayTypePill && (
               <>
-                {type === 'basic' && (
-                  <BadgeWithPreset
-                    withRightSpacing
-                    preset="basic-account"
-                    {...(shouldAddIntroStepsIds && { nativeID: BasicAccountIntroId })}
-                  />
-                )}
-
                 {type === 'smart' && (
                   <BadgeWithPreset
                     withRightSpacing
@@ -243,7 +231,7 @@ const Account = ({
                       key={n.chainId.toString()}
                     >
                       <NetworkIcon
-                        style={{ backgroundColor: theme.primaryBackground }}
+                        style={{ backgroundColor: '#fff' }}
                         id={n.chainId.toString()}
                         size={18}
                       />

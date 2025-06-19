@@ -6,7 +6,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text, { TextWeight } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { THEME_TYPES } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
@@ -17,6 +17,7 @@ interface Props {
   fontSize?: number
   weight?: TextWeight
   iconSize?: number
+  withIcon?: boolean
   renderNetworkName?: (networkName: string) => React.ReactNode
 }
 
@@ -27,10 +28,11 @@ const NetworkBadge: FC<Props> = ({
   fontSize = 16,
   weight,
   iconSize = 32,
+  withIcon = true,
   renderNetworkName
 }) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, themeType } = useTheme()
   const { networks } = useNetworksControllerState()
 
   const network = useMemo(() => {
@@ -48,9 +50,11 @@ const NetworkBadge: FC<Props> = ({
         ...flexbox.alignCenter,
         ...spacings.pl,
         ...spacings.prTy,
-        ...spacings.pvMi,
-        borderRadius: BORDER_RADIUS_PRIMARY,
+        paddingVertical: 2,
+        borderRadius: 50,
         backgroundColor: theme.secondaryBackground,
+        borderWidth: 1,
+        borderColor: theme.tertiaryBackground,
         ...style
       }}
     >
@@ -62,12 +66,18 @@ const NetworkBadge: FC<Props> = ({
         ) : null}
         {!renderNetworkName ? networkName : renderNetworkName(networkName)}
       </Text>
-      <NetworkIcon
-        key={network?.chainId.toString() || networkName}
-        style={{ backgroundColor: 'transparent' }}
-        id={network?.chainId.toString() || networkName}
-        size={iconSize}
-      />
+      {withIcon && (
+        <NetworkIcon
+          key={network?.chainId.toString() || networkName}
+          style={{
+            backgroundColor:
+              themeType === THEME_TYPES.DARK ? theme.primaryBackgroundInverted : 'transparent',
+            ...spacings.mlTy
+          }}
+          id={network?.chainId.toString() || networkName}
+          size={themeType === THEME_TYPES.DARK ? iconSize - 2 : iconSize}
+        />
+      )}
     </View>
   )
 }

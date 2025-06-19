@@ -19,7 +19,7 @@ const { isPopup } = getUiType()
 interface Props {
   signingKeyType?: AccountOp['signingKeyType']
   feePayerKeyType?: Key['type']
-  broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
+  signAndBroadcastAccountOpStatus: MainController['statuses']['signAndBroadcastAccountOp']
   signAccountOpStatusType?: SigningStatus
   shouldSignAuth: {
     type: 'V2Deploy' | '7702'
@@ -27,16 +27,18 @@ interface Props {
   } | null
   signedTransactionsCount?: number | null
   accountOp: AccountOp
+  actionType?: 'swapAndBridge' | 'transfer'
 }
 
 const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signingKeyType,
   feePayerKeyType,
-  broadcastSignedAccountOpStatus,
+  signAndBroadcastAccountOpStatus,
   signAccountOpStatusType,
   shouldSignAuth,
   signedTransactionsCount,
-  accountOp
+  accountOp,
+  actionType
 }: Props) => {
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
@@ -48,7 +50,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
     if (signAccountOpStatusType === SigningStatus.UpdatesPaused) return false
 
     const isCurrentlyBroadcastingWithExternalKey =
-      broadcastSignedAccountOpStatus === 'LOADING' &&
+      signAndBroadcastAccountOpStatus === 'BROADCASTING' &&
       !!feePayerKeyType &&
       feePayerKeyType !== 'internal'
     const isCurrentlySigningWithExternalKey =
@@ -57,7 +59,7 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
       signingKeyType !== 'internal'
 
     return isCurrentlyBroadcastingWithExternalKey || isCurrentlySigningWithExternalKey
-  }, [broadcastSignedAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
+  }, [signAndBroadcastAccountOpStatus, feePayerKeyType, signAccountOpStatusType, signingKeyType])
 
   const currentlyInvolvedSignOrBroadcastKeyType = useMemo(
     () => (signAccountOpStatusType === SigningStatus.InProgress ? signingKeyType : feePayerKeyType),
@@ -83,15 +85,23 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   }, [accountOp?.calls.length, addToast, prevTransactionCount, signedTransactionsCount])
 
   useEffect(() => {
-    if (shouldBeVisible && isPopup && currentlyInvolvedSignOrBroadcastKeyType === 'trezor') {
+    if (
+      shouldBeVisible &&
+      isPopup &&
+      actionType &&
+      currentlyInvolvedSignOrBroadcastKeyType === 'trezor'
+    ) {
       // If the user needs to sign using a hardware wallet, we need to open the
       // screen in an action window and close the popup
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_OPEN_SIGNING_ACTION_WINDOW'
+        type: 'OPEN_SIGNING_ACTION_WINDOW',
+        params: {
+          type: actionType
+        }
       })
       window.close()
     }
-  }, [currentlyInvolvedSignOrBroadcastKeyType, dispatch, shouldBeVisible])
+  }, [actionType, currentlyInvolvedSignOrBroadcastKeyType, dispatch, shouldBeVisible])
 
   if (!currentlyInvolvedSignOrBroadcastKeyType) return null
 

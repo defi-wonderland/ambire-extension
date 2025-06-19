@@ -13,9 +13,8 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       backgroundColor: theme.tertiaryBackground,
       ...common.borderRadiusPrimary,
-      ...spacings.pt,
-      ...spacings.pbLg,
-      ...spacings.phLg
+      ...spacings.pvMd,
+      ...spacings.phMd
     }
   })
 

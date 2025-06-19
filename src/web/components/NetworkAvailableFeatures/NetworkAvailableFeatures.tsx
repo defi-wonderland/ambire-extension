@@ -85,7 +85,7 @@ const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRe
     // we need a basic account
     if (isSmartAccount(account || undefined) || !account) {
       addToast(
-        'Deploy cannot be made with a smart account. Please select a basic account and try again',
+        'Deploy cannot be made with a Smart Account. Please select an EOA account and try again',
         { type: 'error' }
       )
       return
@@ -127,7 +127,7 @@ const NetworkAvailableFeatures = ({ chainId, features, withRetryButton, handleRe
       action: txn
     }
 
-    dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: userRequest })
+    dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: { userRequest } })
   }, [addToast, dispatch, account, selectedNetwork])
 
   const shouldRenderRetryButton = useMemo(

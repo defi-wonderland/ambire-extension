@@ -172,6 +172,9 @@ const ManageDapp = ({
             text={t('Remove from App Catalog')}
             hasBottomSpacing={false}
             onPress={promptRemoveDApp}
+            innerContainerStyle={(hovered: boolean) => ({
+              backgroundColor: hovered ? theme.errorBackground : 'transparent'
+            })}
           >
             <DeleteIcon
               color={theme.errorDecorative}

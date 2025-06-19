@@ -25,7 +25,7 @@ const handleRegisterScripts = async () => {
     scripts.push({
       id: 'content-script-messenger-bridge',
       allFrames: true,
-      matches: ['http://*/*', 'https://*/*'],
+      matches: ['http://*/*', 'https://*/*', 'file://*/*'],
       excludeMatches: ['*://doInWebPack.lan/*'],
       js: ['browser-polyfill.min.js', 'content-script.js'],
       runAt: 'document_start'
@@ -46,19 +46,21 @@ const handleRegisterScripts = async () => {
     if (!registeredAmbireInpage) {
       scripts.push({
         id: 'ambire-inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        matches: ['http://*/*', 'https://*/*', 'file://*/*'],
         js: ['ambire-inpage.js'],
         runAt: 'document_start',
-        world: 'MAIN'
+        world: 'MAIN',
+        allFrames: true
       })
     }
     if (!registeredEthereumInpage) {
       scripts.push({
         id: 'ethereum-inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        matches: ['http://*/*', 'https://*/*', 'file://*/*'],
         js: ['ethereum-inpage.js'],
         runAt: 'document_start',
-        world: 'MAIN'
+        world: 'MAIN',
+        allFrames: true
       })
     }
   } else {
@@ -72,7 +74,7 @@ const handleRegisterScripts = async () => {
       scripts.push({
         id: 'content-script-ambire-injection',
         allFrames: true,
-        matches: ['http://*/*', 'https://*/*'],
+        matches: ['http://*/*', 'https://*/*', 'file://*/*'],
         excludeMatches: ['*://doInWebPack.lan/*'],
         js: ['content-script-ambire-injection.js'],
         runAt: 'document_start'
@@ -82,7 +84,7 @@ const handleRegisterScripts = async () => {
       scripts.push({
         id: 'content-script-ethereum-injection',
         allFrames: true,
-        matches: ['http://*/*', 'https://*/*'],
+        matches: ['http://*/*', 'https://*/*', 'file://*/*'],
         excludeMatches: ['*://doInWebPack.lan/*'],
         js: ['content-script-ethereum-injection.js'],
         persistAcrossSessions: false,
@@ -105,7 +107,7 @@ let executeContentScriptForTabsFromPrevSessionPromise: Promise<void> | undefined
 const executeContentScriptForTabsFromPrevSession = async (tab: chrome.tabs.Tab) => {
   if (!tab.id || !tab.url) return
 
-  if (!['http://', 'https://'].some((prefix) => tab.url!.startsWith(prefix))) return
+  if (!['http://', 'https://', 'file://'].some((prefix) => tab.url!.startsWith(prefix))) return
 
   await executeContentScriptForTabsFromPrevSessionPromise
 

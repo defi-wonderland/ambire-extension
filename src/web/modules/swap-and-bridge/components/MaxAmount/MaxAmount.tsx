@@ -45,7 +45,14 @@ const MaxAmount = ({
         {maxAmount === 0 ? 0 : formatDecimals(maxAmount, 'amount')} {selectedTokenSymbol}
       </Text>
       {!!onMaxButtonPress && !!maxAmount && (
-        <Pressable style={styles.maxButton} onPress={onMaxButtonPress} disabled={disabled}>
+        <Pressable
+          style={({ hovered }: any) => [
+            styles.maxButton,
+            hovered && { backgroundColor: theme.primary20 }
+          ]}
+          onPress={onMaxButtonPress}
+          disabled={disabled}
+        >
           <Text fontSize={12} weight="medium" appearance="primary">
             {t('Max')}
           </Text>

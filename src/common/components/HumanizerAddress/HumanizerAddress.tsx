@@ -14,12 +14,20 @@ interface Props extends TextProps {
   address: string
   // example of highestPriorityAlias: a name coming from the humanizer's metadata
   highestPriorityAlias?: string
-  explorerChainId?: bigint
   marginRight?: number
+  hideLinks?: boolean
+  chainId: bigint
 }
 const HUMANIZER_META = humanizerInfo as HumanizerMeta
 
-const HumanizerAddress: FC<Props> = ({ address, highestPriorityAlias, marginRight, ...rest }) => {
+const HumanizerAddress: FC<Props> = ({
+  address,
+  highestPriorityAlias,
+  marginRight,
+  hideLinks = false,
+  chainId,
+  ...rest
+}) => {
   const { styles } = useTheme(getStyles)
 
   const addressInfo: any = useMemo(
@@ -34,6 +42,8 @@ const HumanizerAddress: FC<Props> = ({ address, highestPriorityAlias, marginRigh
         address={address}
         humanizerInfo={addressInfo}
         highestPriorityAlias={highestPriorityAlias}
+        hideLinks={hideLinks}
+        chainId={chainId}
         {...rest}
       />
     </View>

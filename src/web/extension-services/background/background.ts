@@ -41,7 +41,7 @@ import {
   USE_SWAP_KEY,
   VELCRO_URL
 } from '@env'
-import { browser } from '@web/constants/browserapi'
+import { browser, platform } from '@web/constants/browserapi'
 import { Action } from '@web/extension-services/background/actions'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -275,6 +275,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   mainCtrl = new MainController({
+    platform,
     storageAPI: storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
@@ -310,7 +311,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
 
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const badgesCtrl = new BadgesController(mainCtrl)
+  const badgesCtrl = new BadgesController(mainCtrl, walletStateCtrl)
   const autoLockCtrl = new AutoLockController(() => {
     // Prevents sending multiple notifications if the event is triggered multiple times
     if (mainCtrl.keystore.isUnlocked) {
@@ -759,7 +760,7 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
     }
 
-    if (mainCtrl.statuses.broadcastSignedAccountOp === 'SUCCESS') {
+    if (mainCtrl.statuses.signAndBroadcastAccountOp === 'SUCCESS') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initPendingAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
       initAccountsOpsStatusesContinuousUpdate(backgroundState.activityRefreshInterval)
@@ -828,9 +829,14 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl, ctrlName)
+            const controller = (mainCtrl as any)[ctrlName]
+
+            // In case the controller was destroyed and an error was emitted
+            if (!controller) return
+
             pm.send('> ui-error', {
               method: ctrlName,
-              params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
+              params: { errors: controller.emittedErrors, controller: ctrlName }
             })
           }, 'background')
         }
@@ -1011,4 +1017,7 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
 
 // FIXME: Without attaching an event listener (synchronous) here, the other `navigator.hid`
 // listeners that attach when the user interacts with Ledger, are not getting triggered for manifest v3.
+// TODO: Found the root cause of this! Event handler of 'disconnect' event must be added on the initial
+// evaluation of worker script. More info: https://developer.chrome.com/docs/extensions/mv3/service_workers/events/
+// Would be tricky to replace this workaround with different logic, but it's doable.
 if ('hid' in navigator) navigator.hid.addEventListener('disconnect', () => {})

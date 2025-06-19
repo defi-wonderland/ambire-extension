@@ -1,0 +1,280 @@
+@import '@legends/styles/base.scss';
+
+
+.error {
+  margin-bottom: 1.5rem;
+}
+
+.overachieverWrapper {
+  @include  container;
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+  }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+  }
+}
+.overachieverBanner {
+  margin-bottom: 1.875rem;
+}
+
+.wrapper {
+  @include container;
+  display: flex;
+  position: relative;
+  margin-bottom: 3rem;
+  background: linear-gradient(147.96deg, #191B1F 43.03%, #201A47 87.21%);
+
+  border-radius: 1rem;
+  padding: 2.5rem 1.625rem 2.125rem 2.375rem;
+  margin: 0 auto;
+  margin-bottom: 4.375rem;
+  margin-top: 1.875rem;
+
+  .logoAndBalanceWrapper {
+    display: inline-block;
+    position: relative;
+  }
+
+  .logoWrapper {
+    display: flex;
+    justify-content: end;
+    position: absolute;
+    top: -12px;
+    right: 0;
+  }
+
+  .walletInfo {
+    position: relative;
+    z-index: 2;
+
+    .title {
+      font-weight: 500;
+      font-size: 2.5rem;
+      line-height: 2.75rem;
+      letter-spacing: 0;
+      vertical-align: middle;
+      text-shadow: -0.125rem .125rem 0 rgba($accent, 0.6);
+      margin-bottom: 7.25rem;
+      max-width: 31.75rem;
+
+      .dollarSign {
+        font-family: 'Roboto Flex', sans-serif;
+        font-weight: 500;
+        font-size: 2.5rem;
+        line-height: 2.75rem;
+        color: $green-500;
+      }
+    }
+
+    .walletNameWrapper {
+      margin-bottom: 3rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .walletInfoWrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.3125rem;
+
+      .infoIcon {
+        color: $secondaryText;
+        cursor: pointer;
+      }
+    }
+
+    .accountInfo {
+      margin-bottom: 6.5625rem;
+      padding: 0;
+      font-size: 1.25rem;
+    }
+
+    .accountInfoAddress {
+      color: $secondaryText;
+    }
+
+    .kicker {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: $whiteText;
+      margin-bottom: 6.5625rem;
+    }
+
+    .walletLevelInfoWrapper {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+
+      .walletItemWrapper {
+        display: flex;
+
+        .icon {
+          margin-right: 1.5625rem;
+        }
+        .iconCoin {
+          align-self: center;
+        }
+
+        .walletItem {
+          display: flex;
+          flex-direction: column;
+          font-size: 0.875rem;
+          font-weight: 300;
+          line-height: 1.5rem;
+          align-self: end;
+          color: $secondaryText;
+        }
+
+      }
+
+      .item {
+        min-width: 7.25rem;
+        padding: 0.25rem 0.5rem;
+        
+        border-radius: $secondaryBorderRadius;
+        background-color: rgba($neutral-600, 0.3);
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 2.75rem;
+        text-align: center;
+        color: $mainText;
+
+        .itemTitleRow {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .itemTitle {
+            display: block;
+            color: $secondaryText;
+            font-family: $secondaryFont;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            margin-bottom: 0.5rem;
+          }
+
+          .progressText {
+            font-size: 0.75rem;
+            color: $secondaryText;
+          }
+        }
+      }
+    }
+
+    .walletAbout {
+      font-size: 1rem;
+      color: $secondaryText;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .wallet {
+    position: absolute;
+    z-index: 0;
+    right: 0rem;
+    top: -4rem;
+
+    .walletRelativeWrapper {
+      position: relative;
+
+      .walletImage {
+        position: relative;
+        z-index: 2;
+        width: 19.9375rem;
+        height: 24.6875rem;
+        object-fit: contain;
+        right: 1.75rem;
+        bottom: -2rem;
+      }
+    }
+  }
+
+  .walletBlurEffect {
+    position: absolute;
+    width: 37.1875rem;
+    height: 19.0625rem;
+    top: 0;
+    filter: blur(13.2px);
+    background-position: 9rem -5rem;
+    opacity: 0.1;
+    background-size: 23.3125rem;
+    background-repeat: no-repeat;
+    right: 0;
+  }
+
+  @include breakpoint-down-from(medium-desktop) {
+    margin-left: 3rem;
+    margin-right: 3rem;
+    width: calc(100% - 6rem);
+  }
+
+  @include breakpoint-down-from(small-desktop) {
+    padding-top: 1rem;
+
+    .walletInfo {
+      .walletName {
+        font-size: 3rem;
+      }
+
+      .walletAbout {
+        font-size: 0.875rem;
+      }
+    }
+
+    .wallet {
+      .walletRelativeWrapper {
+        &::before {
+          width: 18.75rem;
+          height: 4.6875rem;
+        }
+      }
+
+      .walletImage {
+        width: 30rem;
+        height: 30rem;
+      }
+    }
+  }
+
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+
+       .walletInfo {
+        .walletLevelInfoWrapper {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+  }
+}
+
+.wrapper {
+  @include breakpoint-down-from(tablet) {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+
+    .walletInfo {
+      .title {
+        margin-bottom: 2rem;
+      }
+      .walletLevelInfoWrapper {
+        flex-wrap: wrap;
+      }
+    }
+
+    .wallet {
+      .walletRelativeWrapper {
+        .walletImage {
+          bottom: -4rem;
+          right: 0;
+          width: 5rem;
+          height: 6rem;
+        }
+      }
+    }
+  }
+}

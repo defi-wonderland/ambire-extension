@@ -58,7 +58,7 @@ const ActivitySection = () => {
                         {!!network && (
                           <>
                             <a
-                              href={`https://benzin.ambire.com/?chainId=${
+                              href={`https://explorer.ambire.com/?chainId=${
                                 network.chainId
                               }&txnId=${txId}${userOpHash ? `&userOpHash=${userOpHash}` : ''}`}
                               target="_blank"
