@@ -162,7 +162,7 @@ const DashboardOverview: FC<Props> = ({
                 overflow: 'hidden'
               }}
             >
-              <View>
+              <View style={{ marginTop: 'auto' }}>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!portfolio?.isAllReady ? (
                     <SkeletonLoader
