@@ -230,7 +230,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && hasGasTank ? (
+                  {/* {!portfolio?.isAllReady && hasGasTank ? (
                     <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
@@ -240,7 +240,7 @@ const DashboardOverview: FC<Props> = ({
                       account={account}
                       hasGasTank={hasGasTank}
                     />
-                  )}
+                  )} */}
                   <BalanceAffectingErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}
