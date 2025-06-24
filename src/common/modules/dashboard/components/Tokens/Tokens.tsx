@@ -28,15 +28,15 @@ import { getUiType } from '@web/utils/uiType'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import DashboardBanners from '../DashboardBanners'
 import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
-import TabsAndSearch from '../TabsAndSearch'
+// import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import TokenItem from './TokenItem'
 import Skeleton from './TokensSkeleton'
 
 interface Props {
   openTab: TabType
-  setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  sessionId: string
+  // setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  // sessionId: string
   initTab?: {
     [key: string]: boolean
   }
@@ -59,9 +59,9 @@ const { isPopup } = getUiType()
 
 const Tokens = ({
   openTab,
-  setOpenTab,
+  // setOpenTab,
   initTab,
-  sessionId,
+  // sessionId,
   onScroll,
   dashboardNetworkFilterName
 }: Props) => {
@@ -76,7 +76,7 @@ const Tokens = ({
     open: openAddTokenBottomSheet,
     close: closeAddTokenBottomSheet
   } = useModalize()
-  const { control, watch, setValue } = useForm({
+  const { watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
       search: ''
@@ -324,12 +324,12 @@ const Tokens = ({
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch
+            {/* <TabsAndSearch
               openTab={openTab}
               setOpenTab={setOpenTab}
               searchControl={control}
               sessionId={sessionId}
-            />
+            /> */}
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
@@ -441,10 +441,6 @@ const Tokens = ({
       theme.primaryBackground,
       theme.secondaryBackground,
       theme.secondaryText,
-      openTab,
-      setOpenTab,
-      control,
-      sessionId,
       t,
       searchValue,
       dashboardNetworkFilterName,
