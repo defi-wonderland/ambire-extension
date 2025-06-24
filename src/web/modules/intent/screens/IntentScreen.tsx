@@ -16,7 +16,7 @@ import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import SwapAndBridgeEstimation from '@web/modules/intent/components/Estimation'
+import TransactionEstimation from '@web/modules/intent/components/Estimation'
 import RoutesModal from '@web/modules/intent/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
@@ -47,15 +47,20 @@ const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const {
-    handleSubmitForm,
-    onFromAmountChange,
-    onRecipientAddressChange,
     fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     addressState,
-    addressInputState
+    addressInputState,
+    displayedView,
+    estimationModalRef,
+    handleSubmitForm,
+    onFromAmountChange,
+    onRecipientAddressChange,
+    setHasBroadcasted,
+    setShowAddedToBatch,
+    closeEstimationModalWrapped
   } = useTransactionForm()
 
   const {
@@ -67,13 +72,8 @@ const IntentScreen = () => {
     pendingRoutes,
     routesModalRef,
     closeRoutesModal,
-    estimationModalRef,
-    setHasBroadcasted,
-    displayedView,
-    closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
-    isBridge,
-    setShowAddedToBatch
+    isBridge
   } = useSwapAndBridgeForm()
   const { sessionIds, isHealthy, signAccountOpController, isAutoSelectRouteDisabled } =
     useSwapAndBridgeControllerState()
@@ -298,6 +298,9 @@ const IntentScreen = () => {
     )
   }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
 
+  const disableForm = false
+  const { validation } = addressInputState
+
   if (!sessionIds.includes(sessionId)) {
     if (portfolio.isReadyToVisualize) return null
 
@@ -326,9 +329,6 @@ const IntentScreen = () => {
       />
     )
   }
-
-  const disableForm = false
-  const { validation } = addressInputState
 
   return (
     <Wrapper title={t('Transfer')} handleGoBack={onBackButtonPress} buttons={buttons}>
@@ -370,7 +370,7 @@ const IntentScreen = () => {
         <RouteInfo />
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
-      <SwapAndBridgeEstimation
+      <TransactionEstimation
         closeEstimationModal={closeEstimationModalWrapped}
         estimationModalRef={estimationModalRef}
       />
