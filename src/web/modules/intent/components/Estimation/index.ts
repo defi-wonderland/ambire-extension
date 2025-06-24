@@ -1,3 +1,3 @@
-import SwapAndBridgeEstimation from './Estimation'
+import TransactionEstimation from './TransactionEstimation'
 
-export default SwapAndBridgeEstimation
+export default TransactionEstimation

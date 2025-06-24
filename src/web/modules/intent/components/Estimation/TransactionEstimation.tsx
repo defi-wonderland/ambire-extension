@@ -12,7 +12,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
@@ -26,19 +26,20 @@ type Props = {
 
 const { isActionWindow, isTab } = getUiType()
 
-const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
+const TransactionEstimation = ({ closeEstimationModal, estimationModalRef }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
   const { dispatch } = useBackgroundService()
   const { statuses: mainCtrlStatuses } = useMainControllerState()
-  const { signAccountOpController, hasProceeded, swapSignErrors } =
-    useSwapAndBridgeControllerState()
+  const state = useTransactionControllerState()
+  const { formState, signAccountOpController } = state
+  const hasProceeded = formState.hasProceeded
 
   const signingErrors = useMemo(() => {
     const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
-    return [...swapSignErrors, ...signAccountOpErrors]
-  }, [swapSignErrors, signAccountOpController])
+    return signAccountOpErrors
+  }, [signAccountOpController])
 
   /**
    * Single click broadcast
@@ -188,4 +189,4 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
   )
 }
 
-export default SwapAndBridgeEstimation
+export default TransactionEstimation
