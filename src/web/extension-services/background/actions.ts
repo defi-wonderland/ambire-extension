@@ -728,6 +728,15 @@ type TransactionControllerSetQuoteAction = {
   params: { quote: any; transactions: any[] }
 }
 
+type TransactionControllerUserProceedAction = {
+  type: 'TRANSACTION_CONTROLLER_HAS_USER_PROCEEDED'
+  params: { proceeded: boolean }
+}
+
+type TransactionControllerDestroySignAccountOp = {
+  type: 'TRANSACTION_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -862,3 +871,5 @@ export type Action =
   | TransactionControllerSwitchFromAndToTokensAction
   | TransactionControllerUnloadScreenAction
   | TransactionControllerSetQuoteAction
+  | TransactionControllerUserProceedAction
+  | TransactionControllerDestroySignAccountOp

@@ -640,6 +640,12 @@ export const handleActions = async (
         params.forceUnload
       )
 
+    case 'TRANSACTION_CONTROLLER_HAS_USER_PROCEEDED':
+      return mainCtrl.transactionManager.formState.setUserProceeded(params.proceeded)
+
+    case 'TRANSACTION_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
+      return mainCtrl?.transactionManager.intent.destroySignAccountOp()
+
     default:
       // eslint-disable-next-line no-console
       return console.error(
