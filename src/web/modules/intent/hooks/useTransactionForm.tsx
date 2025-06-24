@@ -1,6 +1,7 @@
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 import { nanoid } from 'nanoid'
+import { isEqual } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
@@ -8,16 +9,16 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
-import {
+import type {
   ExtendedAddressState,
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
-import { isEqual } from 'lodash'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
-
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
+import { useModalize } from 'react-native-modalize'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -26,6 +27,7 @@ const { isPopup, isActionWindow } = getUiType()
 const useTransactionForm = () => {
   const { addToast } = useToast()
   const { visibleActionsQueue } = useActionsControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
   const { formState, transactionType } = state
@@ -47,14 +49,17 @@ const useTransactionForm = () => {
     updateToTokenListStatus,
     recipientAddress,
     sessionIds,
-    quote
+    quote,
+    isFormEmpty
   } = formState
 
   // Temporary log
-  console.log({ state })
+  // console.log({ state })
 
   const { dispatch } = useBackgroundService()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+  const [showAddedToBatch, setShowAddedToBatch] = useState(false)
+  const [hasBroadcasted, setHasBroadcasted] = useState(false)
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
@@ -64,6 +69,12 @@ const useTransactionForm = () => {
 
     return nanoid()
   }, []) // purposely, so it is unique per hook lifetime
+
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
 
   const {
     options: fromTokenOptions,
@@ -77,20 +88,55 @@ const useTransactionForm = () => {
     supportedChainIds
   })
 
-  const handleSubmitForm = useCallback(() => {
-    if (!fromAmount || !fromSelectedToken || !recipientAddress) return
-
+  const openEstimationModalAndDispatch = useCallback(() => {
     dispatch({
-      type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+      type: 'TRANSACTION_CONTROLLER_HAS_USER_PROCEEDED', //SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED
       params: {
-        fromAmount,
-        fromSelectedToken,
-        recipientAddress,
-        toChainId,
-        toSelectedToken
+        proceeded: true
       }
     })
-  }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
+    openEstimationModal()
+  }, [openEstimationModal, dispatch])
+
+  const handleSubmitForm = useCallback(
+    (isOneClickMode: boolean) => {
+      // open the estimation modal on one click method;
+      // build/add a swap user request on batch
+      if (isOneClickMode) {
+        openEstimationModalAndDispatch()
+      } else {
+        dispatch({
+          type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
+        })
+        setShowAddedToBatch(true)
+      }
+    },
+    [
+      dispatch,
+      fromAmount,
+      fromSelectedToken,
+      recipientAddress,
+      toChainId,
+      toSelectedToken,
+      openEstimationModalAndDispatch
+    ]
+  )
+
+  // const handleSubmitForm = useCallback(() => {
+  //   if (!fromAmount || !fromSelectedToken || !recipientAddress) return
+  //
+  //   dispatch({
+  //     type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+  //     params: {
+  //       fromAmount,
+  //       fromSelectedToken,
+  //       recipientAddress,
+  //       toChainId,
+  //       toSelectedToken
+  //     }
+  //   })
+  //   setShowAddedToBatch(true)
+  // }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -169,6 +215,34 @@ const useTransactionForm = () => {
     addToast,
     handleCacheResolvedDomain
   })
+
+  const displayedView: 'estimate' | 'batch' | 'track' = useMemo(() => {
+    if (showAddedToBatch) return 'batch'
+
+    if (hasBroadcasted) return 'track'
+
+    return 'estimate'
+  }, [hasBroadcasted, showAddedToBatch])
+
+  const closeEstimationModalWrapped = useCallback(() => {
+    // Destroy the existing signAccountOp if the form was cleared
+    // Example: The user clicks on sign and is using a hardware wallet
+    // The form is cleared and the user decides to reject the txn.
+    // The signAccountOp must be destroyed
+    if (isFormEmpty) {
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP'
+      })
+    } else {
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_HAS_USER_PROCEEDED',
+        params: {
+          proceeded: false
+        }
+      })
+    }
+    closeEstimationModal()
+  }, [closeEstimationModal, dispatch, isFormEmpty])
 
   // This is a temporary fix meanwhile the intent logic is implemented
   useEffect(() => {
@@ -258,10 +332,15 @@ const useTransactionForm = () => {
     }
   }, [dispatch, sessionId])
 
+  useEffect(() => {
+    const broadcastStatus = mainCtrlStatuses.broadcastSignedAccountOp
+
+    if (broadcastStatus === 'SUCCESS') {
+      setHasBroadcasted(true)
+    }
+  }, [mainCtrlStatuses.broadcastSignedAccountOp])
+
   return {
-    handleSubmitForm,
-    onFromAmountChange,
-    onRecipientAddressChange,
     fromSelectedToken,
     toSelectedToken,
     fromAmountValue,
@@ -284,7 +363,15 @@ const useTransactionForm = () => {
     updateToTokenListStatus,
     recipientAddress,
     quote,
-    transactionType
+    displayedView,
+    transactionType,
+    estimationModalRef,
+    handleSubmitForm,
+    onFromAmountChange,
+    onRecipientAddressChange,
+    setHasBroadcasted,
+    setShowAddedToBatch,
+    closeEstimationModalWrapped
   }
 }
 
