@@ -25,6 +25,7 @@ import AddTokenBottomSheet from '@web/modules/settings/screens/ManageTokensSetti
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import DashboardBanners from '../DashboardBanners'
 import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
 import TabsAndSearch from '../TabsAndSearch'
@@ -178,25 +179,135 @@ const Tokens = ({
         return 0
       })
 
-    filteredTokens.unshift({
-      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      amount: 999989n,
-      chainId: 1n,
-      decimals: 6,
-      flags: {
-        onGasTank: false,
-        rewardsType: null,
-        canTopUpGasTank: true,
-        isFeeToken: true,
-        isCustom: false
-      },
-      latestAmount: 999989n,
-      name: 'USD Coin',
-      priceIn: [{ baseCurrency: 'usd', price: 0.999771 }],
-      symbol: 'TEST-USDC'
+    // Group tokens by symbol and aggregate balances
+    const groupedTokensMap = new Map()
+
+    filteredTokens
+      // Filter out mainnet tokens
+      .filter((token) => testnetNetworks.find((n) => n.chainId === token.chainId))
+      .forEach((token) => {
+        const key = token.symbol
+
+        if (groupedTokensMap.has(key)) {
+          const existingToken = groupedTokensMap.get(key)
+
+          // Aggregate amounts
+          const newAmount = existingToken.amount + token.amount
+          const newLatestAmount = existingToken.latestAmount + token.latestAmount
+
+          // Aggregate post-simulation amounts if they exist
+          let newAmountPostSimulation = existingToken.amountPostSimulation
+          if (token.amountPostSimulation && existingToken.amountPostSimulation) {
+            newAmountPostSimulation =
+              existingToken.amountPostSimulation + token.amountPostSimulation
+          } else if (token.amountPostSimulation) {
+            newAmountPostSimulation =
+              (existingToken.amountPostSimulation || existingToken.amount) +
+              token.amountPostSimulation
+          }
+
+          // Track amount per chain
+          const amountPerChain = {
+            ...existingToken.amountPerChain,
+            [token.chainId.toString()]:
+              (existingToken.amountPerChain[token.chainId.toString()] || 0n) + token.amount
+          }
+
+          // Aggregate price information (use weighted average based on amounts)
+          const newPendingAmount = Number(newAmountPostSimulation)
+
+          // Merge flags (prioritize certain flags)
+          const mergedFlags = {
+            ...existingToken.flags,
+            onGasTank: existingToken.flags.onGasTank || token.flags.onGasTank,
+            rewardsType: existingToken.flags.rewardsType || token.flags.rewardsType,
+            canTopUpGasTank: existingToken.flags.canTopUpGasTank || token.flags.canTopUpGasTank,
+            isFeeToken: existingToken.flags.isFeeToken || token.flags.isFeeToken,
+            isCustom: existingToken.flags.isCustom || token.flags.isCustom
+          }
+
+          // Hardcoded price for testnet tokens
+          const newPriceIn =
+            existingToken.symbol === 'ETH'
+              ? [{ baseCurrency: 'usd', price: 2300 }]
+              : [{ baseCurrency: 'usd', price: 1 }]
+
+          // Hardcoded uri for testnet tokens
+          const newUri =
+            existingToken.symbol === 'ETH'
+              ? 'https://cena.ambire.com/iconProxy/base/0x0000000000000000000000000000000000000000'
+              : 'https://cena.ambire.com/iconProxy/polygon-pos/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
+
+          groupedTokensMap.set(key, {
+            ...existingToken,
+            amount: newAmount,
+            uri: newUri,
+            latestAmount: newLatestAmount,
+            pendingAmount: newPendingAmount,
+            amountPostSimulation: newAmountPostSimulation,
+            amountPerChain,
+            priceIn: newPriceIn,
+            flags: mergedFlags,
+            // Keep the chainId of the token with the highest balance for this symbol
+            chainId:
+              getTokenBalanceInUSD(token) > getTokenBalanceInUSD(existingToken)
+                ? token.chainId
+                : existingToken.chainId
+          })
+        } else {
+          groupedTokensMap.set(key, {
+            ...token,
+            amountPerChain: {
+              [token.chainId.toString()]: token.amount
+            }
+          })
+        }
+      })
+
+    // Convert back to array and maintain the original sorting order
+    const groupedTokens = Array.from(groupedTokensMap.values()).sort((a, b) => {
+      // Apply the same sorting logic as before to maintain consistency
+      if (
+        typeof a.amountPostSimulation === 'bigint' &&
+        a.amountPostSimulation !== BigInt(a.amount)
+      ) {
+        return -1
+      }
+      if (
+        typeof b.amountPostSimulation === 'bigint' &&
+        b.amountPostSimulation !== BigInt(b.amount)
+      ) {
+        return 1
+      }
+
+      if (a.flags.rewardsType && !b.flags.rewardsType) {
+        return -1
+      }
+      if (!a.flags.rewardsType && b.flags.rewardsType) {
+        return 1
+      }
+
+      const aBalance = getTokenBalanceInUSD(a)
+      const bBalance = getTokenBalanceInUSD(b)
+
+      if (a.flags.rewardsType === b.flags.rewardsType) {
+        if (aBalance === bBalance) {
+          return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
+        }
+        return bBalance - aBalance
+      }
+
+      if (a.flags.onGasTank && !b.flags.onGasTank) {
+        return -1
+      }
+      if (!a.flags.onGasTank && b.flags.onGasTank) {
+        return 1
+      }
+
+      return 0
     })
 
-    return filteredTokens
+    return groupedTokens
   }, [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady])
 
   const hiddenTokensCount = useMemo(
@@ -296,7 +407,7 @@ const Tokens = ({
                     count: hiddenTokensCount,
                     tokensLabel: hiddenTokensCount > 1 ? t('tokens') : t('token')
                   })}{' '}
-                  {dashboardNetworkFilter && t('on this network')}
+                  {!!dashboardNetworkFilter && t('on this network')}
                 </Text>
                 <RightArrowIcon height={12} color={theme.secondaryText} />
               </Pressable>
