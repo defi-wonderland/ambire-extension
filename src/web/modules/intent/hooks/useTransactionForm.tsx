@@ -122,6 +122,7 @@ const useTransactionForm = () => {
     ]
   )
 
+  // Maybe this will be needed for a transaction type transfer
   // const handleSubmitForm = useCallback(() => {
   //   if (!fromAmount || !fromSelectedToken || !recipientAddress) return
   //
@@ -135,7 +136,7 @@ const useTransactionForm = () => {
   //       toSelectedToken
   //     }
   //   })
-  //   setShowAddedToBatch(true)
+  //   setShowAddedToBatch(true) // new
   // }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(

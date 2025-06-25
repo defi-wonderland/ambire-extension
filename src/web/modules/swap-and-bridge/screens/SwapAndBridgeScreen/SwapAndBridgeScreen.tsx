@@ -169,6 +169,7 @@ const SwapAndBridgeScreen = () => {
   }
 
   if (displayedView === 'track') {
+    console.log("displayedView === 'track'")
     return (
       <TrackProgress
         handleClose={() => {

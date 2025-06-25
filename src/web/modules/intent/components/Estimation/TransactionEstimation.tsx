@@ -36,6 +36,15 @@ const TransactionEstimation = ({ closeEstimationModal, estimationModalRef }: Pro
   const { formState, signAccountOpController } = state
   const hasProceeded = formState.hasProceeded
 
+  const controller = signAccountOpController
+  console.log('Status:', controller?.status)
+  console.log('IsInitialized:', controller?.isInitialized)
+  console.log('SigningKeyAddr:', controller?.accountOp?.signingKeyAddr)
+  console.log('SigningKeyType:', controller?.accountOp?.signingKeyType)
+  console.log('GasFeePayment:', controller?.accountOp?.gasFeePayment)
+  console.log('Estimation Error:', controller?.estimation?.error)
+  console.log('Errors:', controller?.errors)
+
   const signingErrors = useMemo(() => {
     const signAccountOpErrors = signAccountOpController ? signAccountOpController.errors : []
     return signAccountOpErrors
@@ -45,6 +54,7 @@ const TransactionEstimation = ({ closeEstimationModal, estimationModalRef }: Pro
    * Single click broadcast
    */
   const handleBroadcastAccountOp = useCallback(() => {
+    console.log('DEBUG: handleBroadcastAccountOp')
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
@@ -55,8 +65,9 @@ const TransactionEstimation = ({ closeEstimationModal, estimationModalRef }: Pro
 
   const handleUpdateStatus = useCallback(
     (status: SigningStatus) => {
+      console.log('DEBUG: handleUpdateStatus', status)
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
+        type: 'TRANSACTION_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS',
         params: {
           status
         }
@@ -66,8 +77,9 @@ const TransactionEstimation = ({ closeEstimationModal, estimationModalRef }: Pro
   )
   const updateController = useCallback(
     (params: { signingKeyAddr?: string; signingKeyType?: string }) => {
+      console.log('DEBUG: updateController', params)
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        type: 'TRANSACTION_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params
       })
     },

@@ -348,6 +348,7 @@ type MainControllerSignAccountOpUpdateAction = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+    | 'TRANSACTION_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
   params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
@@ -379,6 +380,7 @@ type MainControllerSignAccountOpUpdateStatus = {
   type:
     | 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
     | 'SWAP_AND_BRIDGE_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
+    | 'TRANSACTION_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS'
   params: {
     status: SigningStatus
   }
@@ -702,6 +704,7 @@ type TransactionControllerUpdateFormAction = {
     fromSelectedToken?: TokenResult | null
     toChainId?: bigint | number
     toSelectedToken?: SwapAndBridgeToToken | null
+    toAmount?: string
     routePriority?: 'output' | 'time'
     addressState?: ExtendedAddressState
   }

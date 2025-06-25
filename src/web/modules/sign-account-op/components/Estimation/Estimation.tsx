@@ -384,6 +384,8 @@ const Estimation = ({
     )
   }
 
+  console.log('DEBUG: payValue', payValue, signAccountOpState?.estimation?.status)
+
   if (isGaslessTransaction) {
     return (
       <Alert

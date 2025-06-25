@@ -644,7 +644,13 @@ export const handleActions = async (
       return mainCtrl.transactionManager.formState.setUserProceeded(params.proceeded)
 
     case 'TRANSACTION_CONTROLLER_DESTROY_SIGN_ACCOUNT_OP':
-      return mainCtrl?.transactionManager.intent.destroySignAccountOp()
+      return mainCtrl?.transactionManager.destroySignAccountOp()
+
+    case 'TRANSACTION_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+      return mainCtrl?.transactionManager?.signAccountOpController?.update(params)
+
+    case 'TRANSACTION_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
+      return mainCtrl?.transactionManager?.signAccountOpController?.updateStatus(params.status)
 
     default:
       // eslint-disable-next-line no-console
