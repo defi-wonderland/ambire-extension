@@ -193,18 +193,6 @@ const Tokens = ({
 
           // Aggregate amounts
           const newAmount = existingToken.amount + token.amount
-          const newLatestAmount = existingToken.latestAmount + token.latestAmount
-
-          // Aggregate post-simulation amounts if they exist
-          let newAmountPostSimulation = existingToken.amountPostSimulation
-          if (token.amountPostSimulation && existingToken.amountPostSimulation) {
-            newAmountPostSimulation =
-              existingToken.amountPostSimulation + token.amountPostSimulation
-          } else if (token.amountPostSimulation) {
-            newAmountPostSimulation =
-              (existingToken.amountPostSimulation || existingToken.amount) +
-              token.amountPostSimulation
-          }
 
           // Track amount per chain
           const amountPerChain = {
@@ -212,9 +200,6 @@ const Tokens = ({
             [token.chainId.toString()]:
               (existingToken.amountPerChain[token.chainId.toString()] || 0n) + token.amount
           }
-
-          // Aggregate price information (use weighted average based on amounts)
-          const newPendingAmount = Number(newAmountPostSimulation)
 
           // Merge flags (prioritize certain flags)
           const mergedFlags = {
@@ -238,13 +223,16 @@ const Tokens = ({
               ? 'https://cena.ambire.com/iconProxy/base/0x0000000000000000000000000000000000000000'
               : 'https://cena.ambire.com/iconProxy/polygon-pos/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
 
+          // Remove if we dont want to show the simulation amount
+          const newPostSimulationAmount = newAmount + (existingToken.simulationAmount || 0n)
+
           groupedTokensMap.set(key, {
             ...existingToken,
             amount: newAmount,
             uri: newUri,
-            latestAmount: newLatestAmount,
-            pendingAmount: newPendingAmount,
-            amountPostSimulation: newAmountPostSimulation,
+            latestAmount: newAmount,
+            pendingAmount: newAmount,
+            amountPostSimulation: newPostSimulationAmount,
             amountPerChain,
             priceIn: newPriceIn,
             flags: mergedFlags,
