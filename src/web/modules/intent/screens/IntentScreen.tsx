@@ -32,7 +32,6 @@ import useTransactionControllerState from '@web/hooks/useTransactionStatecontrol
 import { parseUnits, ZeroAddress } from 'ethers'
 import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
-import TrackProgress from '../components/Estimation/TrackProgress'
 import FromToken from '../components/FromToken'
 import PriceImpactWarningModal from '../components/PriceImpactWarningModal'
 import RouteInfo from '../components/RouteInfo'
@@ -40,6 +39,7 @@ import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
 import Recipient from '../components/Recipient'
 import { SUPPORTED_ETH_BY_CHAIN_ID } from '../utils/tokenAddresses'
+import TrackProgressTest from '../components/Estimation/TrackProgressTest'
 
 const { isTab, isActionWindow } = getUiType()
 
@@ -55,20 +55,20 @@ const IntentScreen = () => {
     addressInputState,
     displayedView,
     estimationModalRef,
+    priceImpactModalRef,
     handleSubmitForm,
     onFromAmountChange,
     onRecipientAddressChange,
     setHasBroadcasted,
     setShowAddedToBatch,
-    closeEstimationModalWrapped
+    closeEstimationModalWrapped,
+    acknowledgeHighPriceImpact
   } = useTransactionForm()
 
   const {
     sessionId,
     highPriceImpactOrSlippageWarning,
-    priceImpactModalRef,
     closePriceImpactModal,
-    acknowledgeHighPriceImpact,
     pendingRoutes,
     routesModalRef,
     closeRoutesModal,
@@ -313,7 +313,7 @@ const IntentScreen = () => {
 
   if (displayedView === 'track') {
     return (
-      <TrackProgress
+      <TrackProgressTest
         handleClose={() => {
           setHasBroadcasted(false)
         }}
@@ -378,7 +378,7 @@ const IntentScreen = () => {
         sheetRef={priceImpactModalRef}
         closeBottomSheet={closePriceImpactModal}
         acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
-        highPriceImpactOrSlippageWarning={highPriceImpactOrSlippageWarning}
+        highPriceImpactOrSlippageWarning={/* highPriceImpactOrSlippageWarning */ null}
       />
     </Wrapper>
   )
