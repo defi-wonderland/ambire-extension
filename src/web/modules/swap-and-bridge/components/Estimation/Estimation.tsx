@@ -47,7 +47,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
     dispatch({
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP',
       params: {
-        isSwapAndBridge: true
+        type: 'signAccountOpSwap'
       }
     })
   }, [dispatch])
