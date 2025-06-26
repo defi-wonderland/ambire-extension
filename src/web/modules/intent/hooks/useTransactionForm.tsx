@@ -19,6 +19,7 @@ import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 import { useModalize } from 'react-native-modalize'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -30,7 +31,7 @@ const useTransactionForm = () => {
   const { statuses: mainCtrlStatuses } = useMainControllerState()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState, transactionType } = state
+  const { formState, transactionType, signAccountOpController } = state
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -60,6 +61,8 @@ const useTransactionForm = () => {
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
+  const [isOneClickModeDuringPriceImpact, setIsOneClickModeDuringPriceImpact] =
+    useState<boolean>(false)
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
@@ -77,6 +80,12 @@ const useTransactionForm = () => {
   } = useModalize()
 
   const {
+    ref: priceImpactModalRef,
+    open: openPriceImpactModal,
+    close: closePriceImpactModal
+  } = useModalize()
+
+  const {
     options: fromTokenOptions,
     value: fromTokenValue,
     amountSelectDisabled: fromTokenAmountSelectDisabled
@@ -90,23 +99,59 @@ const useTransactionForm = () => {
 
   const openEstimationModalAndDispatch = useCallback(() => {
     dispatch({
-      type: 'TRANSACTION_CONTROLLER_HAS_USER_PROCEEDED', //SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED
+      type: 'TRANSACTION_CONTROLLER_HAS_USER_PROCEEDED',
       params: {
         proceeded: true
       }
     })
     openEstimationModal()
-  }, [openEstimationModal, dispatch])
+  }, [openEstimationModal, dispatch, acknowledgeHighPriceImpact])
+
+  const acknowledgeHighPriceImpact = useCallback(() => {
+    if (isOneClickModeDuringPriceImpact) {
+      openEstimationModalAndDispatch()
+    } else {
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+        params: {
+          fromAmount,
+          fromSelectedToken: fromSelectedToken as TokenResult,
+          recipientAddress,
+          toChainId,
+          toSelectedToken
+        }
+      })
+      setShowAddedToBatch(true)
+    }
+  }, [
+    dispatch,
+    fromAmount,
+    fromSelectedToken,
+    recipientAddress,
+    toChainId,
+    toSelectedToken,
+    isOneClickModeDuringPriceImpact,
+    openEstimationModalAndDispatch
+  ])
 
   const handleSubmitForm = useCallback(
     (isOneClickMode: boolean) => {
+      setIsOneClickModeDuringPriceImpact(isOneClickMode)
+
       // open the estimation modal on one click method;
       // build/add a swap user request on batch
       if (isOneClickMode) {
         openEstimationModalAndDispatch()
       } else {
         dispatch({
-          type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
+          type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+          params: {
+            fromAmount,
+            fromSelectedToken: fromSelectedToken as TokenResult,
+            recipientAddress,
+            toChainId,
+            toSelectedToken
+          }
         })
         setShowAddedToBatch(true)
       }
@@ -341,6 +386,12 @@ const useTransactionForm = () => {
     }
   }, [mainCtrlStatuses.broadcastSignedAccountOp])
 
+  useEffect(() => {
+    if (!signAccountOpController) {
+      closeEstimationModalWrapped()
+    }
+  }, [closeEstimationModalWrapped, signAccountOpController])
+
   return {
     fromSelectedToken,
     toSelectedToken,
@@ -367,12 +418,14 @@ const useTransactionForm = () => {
     displayedView,
     transactionType,
     estimationModalRef,
+    priceImpactModalRef,
     handleSubmitForm,
     onFromAmountChange,
     onRecipientAddressChange,
     setHasBroadcasted,
     setShowAddedToBatch,
-    closeEstimationModalWrapped
+    closeEstimationModalWrapped,
+    acknowledgeHighPriceImpact
   }
 }
 
