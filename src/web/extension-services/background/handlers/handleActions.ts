@@ -2,10 +2,6 @@
 /* eslint-disable @typescript-eslint/return-await */
 import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
-import {
-  SIGN_ACCOUNT_OP_MAIN,
-  SIGN_ACCOUNT_OP_SWAP
-} from '@ambire-common/controllers/signAccountOp/helper'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { browser } from '@web/constants/browserapi'
@@ -255,17 +251,21 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_STATUS':
       return mainCtrl?.signAccountOp?.updateStatus(params.status)
     case 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP': {
-      const signAccountOpType = params?.isSwapAndBridge
-        ? SIGN_ACCOUNT_OP_SWAP
-        : SIGN_ACCOUNT_OP_MAIN
-      return await mainCtrl.handleSignAndBroadcastAccountOp(signAccountOpType)
+      return await mainCtrl.handleSignAndBroadcastAccountOp(params?.type)
     }
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
       return mainCtrl.initSignAccOp(params.actionId)
     case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
       return mainCtrl.destroySignAccOp()
     case 'SIGN_ACCOUNT_OP_UPDATE': {
-      if (params.updateType === 'Main') return mainCtrl?.signAccountOp?.update(params)
+      if (params.updateType === 'Transaction') {
+        return mainCtrl?.transactionManager?.signAccountOpController?.update(params)
+      }
+
+      if (params.updateType === 'Main') {
+        return mainCtrl?.signAccountOp?.update(params)
+      }
+
       return mainCtrl?.swapAndBridge?.signAccountOpController?.update(params)
     }
 

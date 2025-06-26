@@ -35,6 +35,7 @@ import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/cust
 import { ExtendedAddressState } from '@ambire-common/interfaces/interop'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
+import { SignAccountOpType } from '@ambire-common/controllers/signAccountOp/helper'
 
 type UpdateNavigationUrl = {
   type: 'UPDATE_PORT_URL'
@@ -364,7 +365,7 @@ type MainControllerSignAccountOpUpdateAction = {
 type SignAccountOpUpdateAction = {
   type: 'SIGN_ACCOUNT_OP_UPDATE'
   params: {
-    updateType: 'Main' | 'Swap&Bridge'
+    updateType: 'Main' | 'Swap&Bridge' | 'Transaction'
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: FullEstimation
@@ -388,7 +389,7 @@ type MainControllerSignAccountOpUpdateStatus = {
 type MainControllerHandleSignAndBroadcastAccountOp = {
   type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
   params?: {
-    isSwapAndBridge?: boolean
+    type?: SignAccountOpType
   }
 }
 
