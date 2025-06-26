@@ -4,7 +4,7 @@ import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 
 import { getUiType } from '@web/utils/uiType'
-import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
+import SignAccountOpScreen from './SignAccountOp/screens/SignAccountOpScreen'
 
 type Props = {
   closeEstimationModal: () => void
