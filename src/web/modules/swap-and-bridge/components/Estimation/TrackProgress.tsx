@@ -48,6 +48,7 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const { activeRoutes } = useSwapAndBridgeControllerState()
+
   const lastCompletedRoute = activeRoutes[activeRoutes.length - 1]
   const steps = lastCompletedRoute?.route?.steps
   const firstStep = steps ? steps[0] : null
