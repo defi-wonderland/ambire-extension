@@ -75,8 +75,10 @@ const IntentScreen = () => {
     isBridge,
     setShowAddedToBatch
   } = useSwapAndBridgeForm()
+
   const { sessionIds, isHealthy, signAccountOpController, isAutoSelectRouteDisabled } =
     useSwapAndBridgeControllerState()
+
   const { portfolio } = useSelectedAccountControllerState()
 
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
@@ -225,6 +227,10 @@ const IntentScreen = () => {
     setOutputAmount
   ])
 
+  const handleBackButtonPress = useCallback(() => {
+    navigate(ROUTES.dashboard)
+  }, [navigate])
+
   useEffect(() => {
     if (transactionType === 'intent') {
       if (allParamsAvailable) {
@@ -232,7 +238,7 @@ const IntentScreen = () => {
         return
       }
 
-      setOutputAmount(0)
+      setOutputAmount('0')
     }
 
     dispatch({
@@ -240,7 +246,7 @@ const IntentScreen = () => {
       params: { quote: [], transactions: [] }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getQuotes, transactionType, dispatch])
+  }, [getQuotes, transactionType, dispatch, allParamsAvailable])
 
   useEffect(() => {
     if (!signAccountOpController || isAutoSelectRouteDisabled) return
@@ -250,10 +256,6 @@ const IntentScreen = () => {
       })
     }
   })
-
-  const handleBackButtonPress = useCallback(() => {
-    navigate(ROUTES.dashboard)
-  }, [navigate])
 
   useEffect(() => {
     if (!pendingRoutes || !prevPendingRoutes) return
@@ -344,14 +346,6 @@ const IntentScreen = () => {
           />
         )}
         <Form>
-          <Recipient
-            disabled={disableForm}
-            address={recipientAddress}
-            setAddress={handleRecipientAddressChange}
-            validation={validation}
-            ensAddress={addressState.ensAddress}
-            isRecipientDomainResolving={addressState.isDomainResolving}
-          />
           <FromToken
             fromTokenOptions={fromTokenOptions}
             fromTokenValue={fromTokenValue}
@@ -360,14 +354,23 @@ const IntentScreen = () => {
             onFromAmountChange={onFromAmountChange}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
           />
+
+          <Recipient
+            disabled={disableForm}
+            address={recipientAddress}
+            setAddress={handleRecipientAddressChange}
+            validation={validation}
+            ensAddress={addressState.ensAddress}
+            isRecipientDomainResolving={addressState.isDomainResolving}
+          />
+
           <ToToken
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
-            isLoading={isLoading && transactionType === 'intent'}
-            outputAmount={outputAmount}
+            isLoading={isLoading}
           />
         </Form>
 
-        <RouteInfo />
+        {/* <RouteInfo /> */}
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
