@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -22,6 +22,7 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 
 // import useHasGasTank from '@web/hooks/useHasGasTank'
 // import GasTankButton from '../DashboardHeader/GasTankButton'
+import { useTestnetPortfolio } from '@common/hooks/useTestnetPortfolio'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
@@ -60,6 +61,7 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
+  const { totalBalance } = useTestnetPortfolio()
   // const { hasGasTank } = useHasGasTank({ account })
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
@@ -75,16 +77,8 @@ const DashboardOverview: FC<Props> = ({
     networksWithErrors
   } = useBalanceAffectingErrors()
 
-  const totalPortfolioAmount = useMemo(() => {
-    if (!dashboardNetworkFilter) return portfolio?.totalBalance || 0
-
-    if (!account) return 0
-
-    return Number(portfolio?.latest?.[dashboardNetworkFilter.toString()]?.result?.total?.usd) || 0
-  }, [portfolio, dashboardNetworkFilter, account])
-
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
-    totalPortfolioAmount,
+    totalBalance,
     'value'
   ).split('.')
 
