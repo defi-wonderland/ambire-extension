@@ -18,6 +18,7 @@ import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -28,7 +29,7 @@ const useTransactionForm = () => {
   const { visibleActionsQueue } = useActionsControllerState()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState, transactionType } = state
+  const { formState, transactionType, intent } = state
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -46,9 +47,10 @@ const useTransactionForm = () => {
     switchTokensStatus,
     updateToTokenListStatus,
     recipientAddress,
-    sessionIds,
-    quote
+    sessionIds
   } = formState
+
+  const { quote } = intent
 
   // Temporary log
   console.log({ state })
@@ -100,7 +102,7 @@ const useTransactionForm = () => {
         params: { fromAmount: value }
       })
     },
-    [dispatch, setFromAmountValue]
+    [dispatch]
   )
 
   const onRecipientAddressChange = useCallback(
@@ -177,11 +179,20 @@ const useTransactionForm = () => {
     )
     if (!toToken) return
 
+    console.log('TO selectedToken', toToken)
+
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
       params: { toSelectedToken: toToken }
     })
-  }, [dispatch, fromChainId, fromSelectedToken?.symbol, toChainId])
+  }, [
+    dispatch,
+    fromChainId,
+    fromSelectedToken?.symbol,
+    toChainId,
+    addressState.fieldValue,
+    fromAmount
+  ])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
