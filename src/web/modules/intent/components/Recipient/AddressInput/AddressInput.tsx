@@ -85,7 +85,7 @@ const AddressInput: React.FC<Props> = ({
   return (
     <>
       {label && (
-        <Text appearance="secondaryText" fontSize={16} weight="medium" style={styles.label}>
+        <Text appearance="quaternaryText" fontSize={16} weight="medium" style={styles.label}>
           {label}
         </Text>
       )}
