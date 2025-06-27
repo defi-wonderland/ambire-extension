@@ -5,11 +5,8 @@ import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
 import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
-import BugIcon from '@common/assets/svg/BugIcon'
-import BulbIcon from '@common/assets/svg/BulbIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
 import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
-import HelpIcon from '@common/assets/svg/HelpIcon'
 import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
@@ -102,29 +99,6 @@ export const SETTINGS_LINKS = [
   }
 ]
 
-const OTHER_LINKS = [
-  {
-    key: 'about',
-    Icon: BulbIcon,
-    label: 'About',
-    path: ROUTES.settingsAbout
-  },
-  {
-    key: 'help-center',
-    Icon: React.memo(HelpIcon),
-    label: 'Help Center',
-    path: 'https://help.ambire.com/hc/en-us',
-    isExternal: true
-  },
-  {
-    key: 'report-issue',
-    Icon: React.memo(BugIcon),
-    label: 'Report an issue',
-    path: 'https://help.ambire.com/hc/en-us/requests/new',
-    isExternal: true
-  }
-]
-
 const Sidebar = ({ activeLink }: { activeLink?: string }) => {
   const keystoreState = useKeystoreControllerState()
   const { theme, styles } = useTheme(getStyles)
@@ -178,26 +152,6 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
               key={link.key}
               isActive={isActive}
               style={i === SETTINGS_LINKS.length - 1 ? spacings.mb0 : {}}
-            />
-          )
-        })}
-        <View
-          style={{
-            width: '100%',
-            borderBottomWidth: 1,
-            borderColor: theme.secondaryBorder,
-            ...spacings.mv
-          }}
-        />
-        {OTHER_LINKS.map((link, i) => {
-          const isActive = activeLink === link.key
-
-          return (
-            <SettingsLink
-              {...link}
-              key={link.key}
-              isActive={isActive}
-              style={i === OTHER_LINKS.length - 1 ? spacings.mb0 : {}}
             />
           )
         })}
