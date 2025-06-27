@@ -19,7 +19,6 @@ import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import { useModalize } from 'react-native-modalize'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 type SessionId = ReturnType<typeof nanoid>
 
