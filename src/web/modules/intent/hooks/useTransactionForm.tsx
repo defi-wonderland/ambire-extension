@@ -59,6 +59,8 @@ const useTransactionForm = () => {
 
   const { quote } = intent
 
+  const { quote } = intent
+
   // Temporary log
   console.log({ state })
 
