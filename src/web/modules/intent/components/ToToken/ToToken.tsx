@@ -69,8 +69,6 @@ const ToToken = ({ isLoading }: Props) => {
   //     }),
   //   [dispatch]
   // )
-  //
-  //
 
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
