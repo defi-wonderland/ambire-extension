@@ -1,18 +1,18 @@
-import { isAddress } from 'ethers'
+// import { isAddress } from 'ethers'
 import React, { FC, memo, ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, Image } from 'react-native'
+import { View } from 'react-native'
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
 // import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+// import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 // import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
-import Select from '@common/components/Select'
+// import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
-import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
+// import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -22,19 +22,15 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 // import SwitchTokensButton from '@web/modules/intent/components/SwitchTokensButton'
 // import ToTokenSelect from '@web/modules/intent/components/ToToken/ToTokenSelect'
-import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
-import { getTokenId } from '@web/utils/token'
+// import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
+// import { getTokenId } from '@web/utils/token'
 import getStyles from './styles'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
 import { getInteropAddressChainId } from '../../utils/interopSdkService'
 import Icon from '../Icon'
 
-type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
-  isLoading: boolean
-}
-
-const ToToken: FC<Props> = ({ isLoading }) => {
+const ToToken = () => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
@@ -43,19 +39,20 @@ const ToToken: FC<Props> = ({ isLoading }) => {
     supportedChainIds,
     // switchTokensStatus,
     toSelectedToken,
-    toTokenList,
+    // toTokenList,
     quote,
-    fromSelectedToken,
-    fromTokenValue,
+    // fromSelectedToken,
+    // fromTokenValue,
     transactionType,
     fromAmount,
-    addressState
+    addressState,
+    status
   } = useTransactionForm()
 
   const {
     // statuses: swapAndBridgeCtrlStatuses,
-    updateQuoteStatus,
-    updateToTokenListStatus,
+    // updateQuoteStatus,
+    // updateToTokenListStatus,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
 
@@ -276,11 +273,11 @@ const ToToken: FC<Props> = ({ isLoading }) => {
 
   const isLoadingFeeAndTotal = useMemo(() => {
     if (transactionType !== 'intent') return false
-    if (fromAmount === '0') return false
-    if (isLoading) return true
-    if (!hasQuote && !providerFee) return true
+    if (fromAmount === '') return false
+    if (status === 'LOADING') return true
+    if (!!hasQuote && !!providerFee) return false
     return false
-  }, [isLoading, hasQuote, providerFee, transactionType, fromAmount])
+  }, [hasQuote, providerFee, transactionType, fromAmount, status])
 
   useEffect(() => {
     if (addressState.interopAddress) {
@@ -351,8 +348,15 @@ const ToToken: FC<Props> = ({ isLoading }) => {
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           /> */}
           <View style={[flexbox.flex1]}>
-            {transactionType === 'intent' && fromAmount > '0' && (
-              <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbMd]}>
+            {transactionType === 'intent' && (
+              <View
+                style={[
+                  flexbox.directionRow,
+                  flexbox.justifySpaceBetween,
+                  spacings.mbMd,
+                  { height: 32 }
+                ]}
+              >
                 <Text fontSize={16} weight="medium" appearance="quaternaryText">
                   {t('Fee')}
                 </Text>
@@ -368,7 +372,7 @@ const ToToken: FC<Props> = ({ isLoading }) => {
                       style={{ ...spacings.mr, textAlign: 'right' }}
                     >
                       <Text fontSize={16} appearance="quaternaryText">
-                        {providerFee}
+                        {fromAmount === '' ? `0 ${toSelectedToken?.symbol}` : providerFee}
                       </Text>
                     </Text>
                   </View>
@@ -383,7 +387,7 @@ const ToToken: FC<Props> = ({ isLoading }) => {
               </View>
             )}
 
-            <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
+            <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, { height: 32 }]}>
               <Text fontSize={16} weight="medium" appearance="quaternaryText">
                 {t('Recipient gets')}
               </Text>
@@ -399,7 +403,7 @@ const ToToken: FC<Props> = ({ isLoading }) => {
                     style={{ ...spacings.mr, textAlign: 'right' }}
                   >
                     <Text fontSize={16} appearance="quaternaryText">
-                      {formattedToAmount}
+                      {formattedToAmount} {toSelectedToken?.symbol}
                     </Text>
                   </Text>
                 </View>
@@ -416,7 +420,7 @@ const ToToken: FC<Props> = ({ isLoading }) => {
                         style={{ ...spacings.mr, textAlign: 'right' }}
                       >
                         <Text fontSize={16} appearance="quaternaryText">
-                          {fromAmount === '0' ? `0 ${toSelectedToken?.symbol}` : formattedToAmount}
+                          {fromAmount === '' ? `0 ${toSelectedToken?.symbol}` : formattedToAmount}
                         </Text>
                       </Text>
                     </View>
@@ -425,7 +429,7 @@ const ToToken: FC<Props> = ({ isLoading }) => {
                       appearance="tertiaryBackground"
                       width={100}
                       height={32}
-                      style={{ marginLeft: 'auto', marginBottom: 2 }}
+                      style={{ marginLeft: 'auto' }}
                     />
                   )}
                 </View>
