@@ -34,7 +34,6 @@ import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
 import TrackProgress from '../components/Estimation/TrackProgress'
 import FromToken from '../components/FromToken'
-import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
 import Recipient from '../components/Recipient'
@@ -54,9 +53,9 @@ const IntentScreen = () => {
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     addressState,
-    addressInputState,
     estimationModalRef,
-    closeEstimationModal
+    closeEstimationModal,
+    addressInputState
   } = useTransactionForm()
 
   const {
@@ -355,7 +354,7 @@ const IntentScreen = () => {
             isRecipientDomainResolving={addressState.isDomainResolving}
           />
 
-          <ToToken />
+          <ToToken isLoading={isLoading} />
         </Form>
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />

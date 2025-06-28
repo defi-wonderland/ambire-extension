@@ -30,7 +30,11 @@ import useTransactionForm from '../../hooks/useTransactionForm'
 import { getInteropAddressChainId } from '../../utils/interopSdkService'
 import Icon from '../Icon'
 
-const ToToken = () => {
+interface Props {
+  isLoading?: boolean
+}
+
+const ToToken = ({ isLoading }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
@@ -45,8 +49,7 @@ const ToToken = () => {
     // fromTokenValue,
     transactionType,
     fromAmount,
-    addressState,
-    status
+    addressState
   } = useTransactionForm()
 
   const {
@@ -274,7 +277,7 @@ const ToToken = () => {
   const isLoadingFeeAndTotal = useMemo(() => {
     if (transactionType !== 'intent') return false
     if (fromAmount === '') return false
-    if (status === 'LOADING') return true
+    if (isLoading) return true
     if (!!hasQuote && !!providerFee) return false
     return false
   }, [hasQuote, providerFee, transactionType, fromAmount, status])

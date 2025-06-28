@@ -37,7 +37,6 @@ const useTransactionForm = () => {
     fromAmountInFiat,
     fromChainId,
     toChainId,
-    toAmount,
     portfolioTokenList,
     fromSelectedToken,
     toSelectedToken,
@@ -59,8 +58,6 @@ const useTransactionForm = () => {
   const [isEstimationOpen, setIsEstimationOpen] = useState(false)
 
   const { quote } = intent
-
-  const { quote, params, status } = intent
 
   // Temporary log
   console.log({ state })
