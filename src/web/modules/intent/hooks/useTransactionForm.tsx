@@ -37,6 +37,7 @@ const useTransactionForm = () => {
     fromAmountInFiat,
     fromChainId,
     toChainId,
+    toAmount,
     portfolioTokenList,
     fromSelectedToken,
     toSelectedToken,
@@ -59,7 +60,7 @@ const useTransactionForm = () => {
 
   const { quote } = intent
 
-  const { quote } = intent
+  const { quote, params, status } = intent
 
   // Temporary log
   console.log({ state })
@@ -189,25 +190,16 @@ const useTransactionForm = () => {
     )
     if (!toToken) return
 
-    console.log('TO selectedToken', toToken)
-
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
       params: { toSelectedToken: toToken }
     })
-  }, [
-    dispatch,
-    fromChainId,
-    fromSelectedToken?.symbol,
-    toChainId,
-    addressState.fieldValue,
-    fromAmount
-  ])
+  }, [dispatch, fromSelectedToken?.symbol, toChainId])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, setFromAmountValue])
+  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
 
   useEffect(() => {
     if (
