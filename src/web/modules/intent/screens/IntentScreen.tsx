@@ -81,7 +81,6 @@ const IntentScreen = () => {
   const { dispatch } = useBackgroundService()
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
-  const [outputAmount, setOutputAmount] = useState<string | undefined>(undefined)
   const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
 
   const handleRecipientAddressChange = useCallback(
@@ -202,7 +201,6 @@ const IntentScreen = () => {
         type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
         params: { quote: quotes[0], transactions }
       })
-      setOutputAmount((quotes[0] as any)?.output?.outputAmount)
       setIsError(false)
       setIsLoading(false)
     } catch (error) {
@@ -218,8 +216,7 @@ const IntentScreen = () => {
     inputAmount,
     inputChainId,
     outputChainId,
-    dispatch,
-    setOutputAmount
+    dispatch
   ])
 
   const handleBackButtonPress = useCallback(() => {
@@ -227,13 +224,12 @@ const IntentScreen = () => {
   }, [navigate])
 
   useEffect(() => {
+    // TODO: Prevent calling getQuotes while getting quotes
     if (transactionType === 'intent') {
       if (allParamsAvailable) {
         getQuotes().catch(console.error)
         return
       }
-
-      setOutputAmount('0')
     }
 
     dispatch({
@@ -359,13 +355,8 @@ const IntentScreen = () => {
             isRecipientDomainResolving={addressState.isDomainResolving}
           />
 
-          <ToToken
-            setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
-            isLoading={isLoading}
-          />
+          <ToToken />
         </Form>
-
-        {/* <RouteInfo /> */}
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
