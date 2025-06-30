@@ -1,17 +1,15 @@
 import { isAddress } from 'ethers'
-import React, { FC, memo, useCallback, useEffect, useMemo } from 'react'
+import React, { FC, memo, ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
-
+import { View, Image } from 'react-native'
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
+// import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 // import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
-import getStyles from '@common/components/SendToken/styles'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
@@ -22,27 +20,28 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 // import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import SwitchTokensButton from '@web/modules/intent/components/SwitchTokensButton'
-import ToTokenSelect from '@web/modules/intent/components/ToToken/ToTokenSelect'
+// import SwitchTokensButton from '@web/modules/intent/components/SwitchTokensButton'
+// import ToTokenSelect from '@web/modules/intent/components/ToToken/ToTokenSelect'
 import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
-
+import getStyles from './styles'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
 import { getInteropAddressChainId } from '../../utils/interopSdkService'
+import Icon from '../Icon'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
   isLoading: boolean
-  outputAmount?: string
 }
 
-const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmount }) => {
+const ToToken: FC<Props> = ({ isLoading }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
     toChainId,
+    fromChainId,
     supportedChainIds,
-    switchTokensStatus,
+    // switchTokensStatus,
     toSelectedToken,
     toTokenList,
     quote,
@@ -52,24 +51,26 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
     fromAmount,
     addressState
   } = useTransactionForm()
+
   const {
-    statuses: swapAndBridgeCtrlStatuses,
+    // statuses: swapAndBridgeCtrlStatuses,
     updateQuoteStatus,
     updateToTokenListStatus,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
-  // const { portfolio } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
-  const handleSwitchFromAndToTokens = useCallback(
-    () =>
-      dispatch({
-        type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
-      }),
-    [dispatch]
-  )
+  // const handleSwitchFromAndToTokens = useCallback(
+  //   () =>
+  //     dispatch({
+  //       type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+  //     }),
+  //   [dispatch]
+  // )
+  //
+  //
 
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
@@ -83,28 +84,44 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
     [networks, dispatch]
   )
 
-  const defaultToTokenId = useMemo(() => {
-    if (fromTokenValue.value === 'no-selection') return ''
+  // const defaultToTokenId = useMemo(() => {
+  //   if (fromTokenValue.value === 'no-selection') return ''
+  //
+  //   const tokenAddress = toTokenList.find(
+  //     (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
+  //   )?.address
+  //
+  //   return `${tokenAddress}.${fromSelectedToken?.symbol}`
+  // }, [fromSelectedToken, toChainId, toTokenList, fromTokenValue.value])
 
-    const tokenAddress = toTokenList.find(
-      (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
-    )?.address
+  // const {
+  //   options: toTokenOptions,
+  //   value: toTokenValue
+  //   // amountSelectDisabled: toTokenAmountSelectDisabled
+  // } = useGetTokenSelectProps({
+  //   tokens: toTokenList.filter((token) => token.symbol === (fromSelectedToken as any)?.symbol),
+  //   token: toSelectedToken ? getTokenId(toSelectedToken, networks) : defaultToTokenId,
+  //   networks,
+  //   supportedChainIds,
+  //   isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
+  //   isToToken: true
+  // })
 
-    return `${tokenAddress}.${fromSelectedToken?.symbol}`
-  }, [fromSelectedToken, toChainId, toTokenList, fromTokenValue.value])
+  const hasQuote = useMemo(() => {
+    return quote?.fee?.total && transactionType === 'intent'
+  }, [quote?.fee, transactionType])
 
-  const {
-    options: toTokenOptions,
-    value: toTokenValue
-    // amountSelectDisabled: toTokenAmountSelectDisabled
-  } = useGetTokenSelectProps({
-    tokens: toTokenList.filter((token) => token.symbol === (fromSelectedToken as any)?.symbol),
-    token: toSelectedToken ? getTokenId(toSelectedToken, networks) : defaultToTokenId,
-    networks,
-    supportedChainIds,
-    isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
-    isToToken: true
-  })
+  const providerFee = useMemo(() => {
+    if (!toSelectedToken?.symbol || !quote?.fee) return null
+
+    return `${quote?.fee?.total} ${toSelectedToken?.symbol}`
+  }, [toSelectedToken?.symbol, quote])
+
+  const outputAmount = useMemo(() => {
+    if (!quote?.output || !toSelectedToken) return null
+
+    return `${quote?.output.outputAmount} ${toSelectedToken?.symbol}`
+  }, [quote?.output, toSelectedToken])
 
   // const toTokenInPortfolio = useMemo(() => {
   //   const [address] = toTokenValue.value.split('.')
@@ -176,41 +193,41 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
     [networks, supportedChainIds, theme.primaryBackground]
   )
 
-  const getToNetworkSelectValue = useMemo(() => {
-    const network = networks.find((n) => Number(n.chainId) === toChainId)
-    if (!network) return toNetworksOptions[0]
+  // const getToNetworkSelectValue = useMemo(() => {
+  //   const network = networks.find((n) => Number(n.chainId) === toChainId)
+  //   if (!network) return toNetworksOptions[0]
+  //
+  //   return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
+  // }, [networks, toChainId, toNetworksOptions])
 
-    return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
-  }, [networks, toChainId, toNetworksOptions])
+  // const handleChangeToToken = useCallback(
+  //   ({ value }: SelectValue) => {
+  //     const tokenToSelect = toTokenList.find(
+  //       (tk: SwapAndBridgeToToken) => getTokenId(tk, networks) === value
+  //     )
+  //
+  //     setIsAutoSelectRouteDisabled(false)
+  //
+  //     dispatch({
+  //       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+  //       params: { toSelectedToken: tokenToSelect }
+  //     })
+  //   },
+  //   [toTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
+  // )
 
-  const handleChangeToToken = useCallback(
-    ({ value }: SelectValue) => {
-      const tokenToSelect = toTokenList.find(
-        (tk: SwapAndBridgeToToken) => getTokenId(tk, networks) === value
-      )
-
-      setIsAutoSelectRouteDisabled(false)
-
-      dispatch({
-        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
-        params: { toSelectedToken: tokenToSelect }
-      })
-    },
-    [toTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
-  )
-
-  const handleAddToTokenByAddress = useCallback(
-    (searchTerm: string) => {
-      const isValidTokenAddress = isAddress(searchTerm)
-      if (!isValidTokenAddress) return
-
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
-        params: { address: searchTerm }
-      })
-    },
-    [dispatch]
-  )
+  // const handleAddToTokenByAddress = useCallback(
+  //   (searchTerm: string) => {
+  //     const isValidTokenAddress = isAddress(searchTerm)
+  //     if (!isValidTokenAddress) return
+  //
+  //     dispatch({
+  //       type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
+  //       params: { address: searchTerm }
+  //     })
+  //   },
+  //   [dispatch]
+  // )
 
   const formattedToAmount = useMemo(() => {
     if (transactionType === 'transfer') {
@@ -240,6 +257,30 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
     // )}`
     return quote.selectedRoute.toAmount
   }, [transactionType, quote, signAccountOpController?.estimation.status, fromAmount, outputAmount])
+
+  const toChain = useMemo(() => {
+    if (toChainId && networks) {
+      return networks?.find((n) => Number(n.chainId) === toChainId)
+    }
+
+    return null
+  }, [toChainId, networks])
+
+  const fromChain = useMemo(() => {
+    if (fromChainId && networks) {
+      return networks?.find((n) => Number(n.chainId) === fromChainId)
+    }
+
+    return null
+  }, [fromChainId, networks])
+
+  const isLoadingFeeAndTotal = useMemo(() => {
+    if (transactionType !== 'intent') return false
+    if (fromAmount === '0') return false
+    if (isLoading) return true
+    if (!hasQuote && !providerFee) return true
+    return false
+  }, [isLoading, hasQuote, providerFee, transactionType, fromAmount])
 
   useEffect(() => {
     if (addressState.interopAddress) {
@@ -273,15 +314,15 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
           spacings.mbTy
         ]}
       >
-        <SwitchTokensButton
+        {/* <SwitchTokensButton
           onPress={handleSwitchFromAndToTokens}
           disabled={
             switchTokensStatus === 'LOADING' ||
             updateQuoteStatus === 'LOADING' ||
             updateToTokenListStatus === 'LOADING'
           }
-        />
-        <Text appearance="secondaryText" fontSize={16} weight="medium">
+        /> */}
+        {/* <Text appearance="quaternaryText" fontSize={16} weight="medium">
           {t('Receive')}
         </Text>
         <Select
@@ -297,45 +338,99 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
           }}
           mode="bottomSheet"
           bottomSheetTitle={t('Receive token network')}
-        />
+        /> */}
       </View>
       <View style={[styles.container, spacings.ph0]}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm]}>
-          <ToTokenSelect
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          {/* <ToTokenSelect
             toTokenOptions={toTokenOptions}
             toTokenValue={toTokenValue}
             handleChangeToToken={handleChangeToToken}
             // toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
             addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
             handleAddToTokenByAddress={handleAddToTokenByAddress}
-          />
+          /> */}
           <View style={[flexbox.flex1]}>
-            {!isLoading ? (
-              <Text
-                fontSize={20}
-                weight="medium"
-                numberOfLines={1}
-                appearance={
-                  formattedToAmount && formattedToAmount !== '0' ? 'primaryText' : 'secondaryText'
-                }
-                style={{ ...spacings.mr, textAlign: 'right' }}
-              >
-                {formattedToAmount}
-                {!!formattedToAmount && formattedToAmount !== '0' && !!quote?.selectedRoute && (
-                  <Text fontSize={20} appearance="secondaryText">{` (${formatDecimals(
-                    quote.selectedRoute.outputValueInUsd,
-                    'value'
-                  )})`}</Text>
+            {transactionType === 'intent' && fromAmount > '0' && (
+              <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbMd]}>
+                <Text fontSize={16} weight="medium" appearance="quaternaryText">
+                  {t('Fee')}
+                </Text>
+
+                {!isLoadingFeeAndTotal ? (
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Icon token={toSelectedToken} network={fromChain} />
+                    <Text
+                      fontSize={16}
+                      weight="medium"
+                      numberOfLines={1}
+                      appearance="quaternaryText"
+                      style={{ ...spacings.mr, textAlign: 'right' }}
+                    >
+                      <Text fontSize={16} appearance="quaternaryText">
+                        {providerFee}
+                      </Text>
+                    </Text>
+                  </View>
+                ) : (
+                  <SkeletonLoader
+                    appearance="tertiaryBackground"
+                    width={100}
+                    height={32}
+                    style={{ marginLeft: 'auto' }}
+                  />
                 )}
-              </Text>
-            ) : (
-              <SkeletonLoader
-                appearance="tertiaryBackground"
-                width={100}
-                height={32}
-                style={{ marginLeft: 'auto' }}
-              />
+              </View>
             )}
+
+            <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
+              <Text fontSize={16} weight="medium" appearance="quaternaryText">
+                {t('Recipient gets')}
+              </Text>
+
+              {transactionType !== 'intent' ? (
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <Icon token={toSelectedToken} network={toChain} />
+                  <Text
+                    fontSize={16}
+                    weight="medium"
+                    numberOfLines={1}
+                    appearance="quaternaryText"
+                    style={{ ...spacings.mr, textAlign: 'right' }}
+                  >
+                    <Text fontSize={16} appearance="quaternaryText">
+                      {formattedToAmount}
+                    </Text>
+                  </Text>
+                </View>
+              ) : (
+                <View>
+                  {!isLoadingFeeAndTotal ? (
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                      <Icon token={toSelectedToken} network={toChain} />
+                      <Text
+                        fontSize={16}
+                        weight="medium"
+                        numberOfLines={1}
+                        appearance="quaternaryText"
+                        style={{ ...spacings.mr, textAlign: 'right' }}
+                      >
+                        <Text fontSize={16} appearance="quaternaryText">
+                          {fromAmount === '0' ? `0 ${toSelectedToken?.symbol}` : formattedToAmount}
+                        </Text>
+                      </Text>
+                    </View>
+                  ) : (
+                    <SkeletonLoader
+                      appearance="tertiaryBackground"
+                      width={100}
+                      height={32}
+                      style={{ marginLeft: 'auto', marginBottom: 2 }}
+                    />
+                  )}
+                </View>
+              )}
+            </View>
           </View>
         </View>
         {/* Temporarily disabled */}
