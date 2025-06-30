@@ -19,7 +19,6 @@ import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import { useModalize } from 'react-native-modalize'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -187,25 +186,16 @@ const useTransactionForm = () => {
     )
     if (!toToken) return
 
-    console.log('TO selectedToken', toToken)
-
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
       params: { toSelectedToken: toToken }
     })
-  }, [
-    dispatch,
-    fromChainId,
-    fromSelectedToken?.symbol,
-    toChainId,
-    addressState.fieldValue,
-    fromAmount
-  ])
+  }, [dispatch, fromSelectedToken?.symbol, toChainId])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, setFromAmountValue])
+  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
 
   useEffect(() => {
     if (
