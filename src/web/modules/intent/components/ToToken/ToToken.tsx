@@ -280,7 +280,7 @@ const ToToken = ({ isLoading }: Props) => {
     if (isLoading) return true
     if (!!hasQuote && !!providerFee) return false
     return false
-  }, [hasQuote, providerFee, transactionType, fromAmount, status])
+  }, [hasQuote, providerFee, transactionType, fromAmount, isLoading])
 
   useEffect(() => {
     if (addressState.interopAddress) {
