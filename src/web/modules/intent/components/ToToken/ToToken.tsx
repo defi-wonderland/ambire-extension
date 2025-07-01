@@ -28,7 +28,7 @@ import getStyles from './styles'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
 import { getInteropAddressChainId } from '../../utils/interopSdkService'
-import Icon from '../Icon'
+import ChainTokenIcon from '../ChainTokenIcon'
 
 interface Props {
   isLoading?: boolean
@@ -366,7 +366,7 @@ const ToToken = ({ isLoading }: Props) => {
 
                 {!isLoadingFeeAndTotal ? (
                   <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                    <Icon token={toSelectedToken} network={fromChain} />
+                    <ChainTokenIcon token={toSelectedToken} network={fromChain} />
                     <Text
                       fontSize={16}
                       weight="medium"
@@ -397,7 +397,7 @@ const ToToken = ({ isLoading }: Props) => {
 
               {transactionType !== 'intent' ? (
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Icon token={toSelectedToken} network={toChain} />
+                  <ChainTokenIcon token={toSelectedToken} network={toChain} />
                   <Text
                     fontSize={16}
                     weight="medium"
@@ -414,7 +414,7 @@ const ToToken = ({ isLoading }: Props) => {
                 <View>
                   {!isLoadingFeeAndTotal ? (
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Icon token={toSelectedToken} network={toChain} />
+                      <ChainTokenIcon token={toSelectedToken} network={toChain} />
                       <Text
                         fontSize={16}
                         weight="medium"
