@@ -30,17 +30,21 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import LedgerConnectModal from '@web/modules/hardware-wallet/components/LedgerConnectModal'
-import Estimation from '@web/modules/sign-account-op/components/Estimation'
-import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import SafetyChecksOverlay from '@web/modules/sign-account-op/components/SafetyChecksOverlay'
 import SignAccountOpHardwareWalletSigningModal from '@web/modules/sign-account-op/components/SignAccountOpHardwareWalletSigningModal'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
+import Estimation from '../../components/Estimation'
+import Footer from '../../components/Footer'
 
 import getStyles from './styles'
 
-const SignAccountOpScreen = () => {
+interface Props {
+  closeEstimationModal: () => void
+}
+
+const SignAccountOpScreen = ({ closeEstimationModal }: Props) => {
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
@@ -141,7 +145,9 @@ const SignAccountOpScreen = () => {
         shouldOpenNextAction: true
       }
     })
-  }, [dispatch, accountOpAction])
+
+    closeEstimationModal()
+  }, [dispatch, accountOpAction, closeEstimationModal])
 
   const handleAddToCart = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -233,8 +239,8 @@ const SignAccountOpScreen = () => {
         width="full"
         backgroundColor="#F7F8FC"
         withHorizontalPadding={false}
-        style={spacings.phLg}
-        header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
+        // style={spacings.phLg}
+        // header={<HeaderAccountAndNetworkInfo backgroundColor={theme.primaryBackground as string} />}
         renderDirectChildren={() => (
           <View style={styles.footer}>
             {!estimationFailed ? (
@@ -263,7 +269,7 @@ const SignAccountOpScreen = () => {
             <Footer
               onReject={handleRejectAccountOp}
               onAddToCart={handleAddToCart}
-              isAddToCartDisplayed={!!signAccountOpState && !!network}
+              isAddToCartDisplayed={/* !!signAccountOpState && !!network */ false}
               isSignLoading={isSignLoading}
               isSignDisabled={isSignDisabled}
               // Allow view only accounts or if no funds for gas to add to cart even if the txn is not ready to sign
@@ -290,10 +296,15 @@ const SignAccountOpScreen = () => {
             account={signAccountOpState.account}
           />
         ) : null}
-        <TabLayoutWrapperMainContent>
-          <PendingTransactions network={network} />
+
+        <TabLayoutWrapperMainContent
+          contentContainerStyle={{
+            ...spacings.pv0
+          }}
+        >
+          {/* <PendingTransactions network={network} /> */}
           {/* Display errors only if the user is not in view-only mode */}
-          {signAccountOpState?.errors?.length && !isViewOnly ? (
+          {/* signAccountOpState?.errors?.length && !isViewOnly ? (
             <AlertVertical
               type="warning"
               title={signAccountOpState.errors[0].title}
@@ -333,7 +344,8 @@ const SignAccountOpScreen = () => {
               isViewOnly={isViewOnly}
               isEstimationComplete={!!signAccountOpState?.isInitialized && !!network}
             />
-          )}
+          ) */}
+
           {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
 
           {renderedButNotNecessarilyVisibleModal === 'hw-sign' && signAccountOpState && (

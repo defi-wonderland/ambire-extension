@@ -28,16 +28,7 @@ const SwapAndBridgeEstimation = ({ closeEstimationModal, estimationModalRef }: P
       shouldBeClosableOnDrag={false}
       // isScrollEnabled={false}
     >
-      {/* TODO: remove this button */}
-      <Button
-        testID="swap-button-back"
-        type="secondary"
-        text={t('Back')}
-        onPress={closeEstimationModal}
-        hasBottomSpacing={false}
-        style={{ width: 98 }}
-      />
-      <SignAccountOpScreen />
+      <SignAccountOpScreen closeEstimationModal={closeEstimationModal} />
     </BottomSheet>
   )
 }

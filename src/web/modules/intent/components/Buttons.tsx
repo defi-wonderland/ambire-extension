@@ -96,7 +96,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button
-          text={t('Proceed')}
+          text={t('Send')}
           // TODO: remove the disabled once the intent is implemented
           // disabled={isNotReadyToProceed || !!oneClickDisabledReason}
           disabled={disabled}
