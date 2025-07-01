@@ -185,9 +185,32 @@ const createFullScreenWindow = async (
   })
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const create = async (url: string, customSize?: CustomSize): Promise<WindowProps> => {
-  const windowProps = await createFullScreenWindow(url, customSize)
-  return windowProps
+  // const windowProps = await createFullScreenWindow(url, customSize)
+  // return windowProps
+  return new Promise((resolve) => {
+    chrome.tabs.create(
+      {
+        url,
+        active: true
+      },
+      (tab) => {
+        resolve(
+          tab?.id
+            ? {
+                id: tab.id,
+                width: 0, // Not applicable for tabs
+                height: 0, // Not applicable for tabs
+                left: 0, // Not applicable for tabs
+                top: 0, // Not applicable for tabs
+                focused: true
+              }
+            : null
+        )
+      }
+    )
+  })
 }
 
 const remove = async (winId: number, pm: PortMessenger) => {
