@@ -30,6 +30,8 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
     const calls = state?.stepsState?.calls
     if (!calls || !state.network?.chainId) return []
 
+    console.log('DEBUG: summary calls', calls)
+
     return calls.map((call, i) => (
       <TransactionSummary
         key={call.data + randomBytes(6)}
