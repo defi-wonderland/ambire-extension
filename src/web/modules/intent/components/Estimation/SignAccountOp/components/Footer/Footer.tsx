@@ -51,7 +51,7 @@ const Footer = ({
         <Button
           testID="transaction-button-reject"
           type="danger"
-          text={t('Reject')}
+          text={t('Back')}
           onPress={onReject}
           hasBottomSpacing={false}
           size="large"
