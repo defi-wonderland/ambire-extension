@@ -15,9 +15,9 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...common.borderRadiusPrimary,
-      ...spacings.ptMd,
+      ...spacings.ptMi,
       ...spacings.prMd,
-      ...spacings.pbSm,
+      ...spacings.pb0,
       ...spacings.pl
     },
     containerWarning: {
