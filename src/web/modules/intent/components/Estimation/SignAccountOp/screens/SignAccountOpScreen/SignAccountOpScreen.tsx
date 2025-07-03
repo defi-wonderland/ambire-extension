@@ -71,6 +71,7 @@ const SignAccountOpScreen = ({ closeEstimationModal }: Props) => {
       type: 'MAIN_CONTROLLER_HANDLE_SIGN_AND_BROADCAST_ACCOUNT_OP'
     })
   }, [dispatch])
+
   const {
     renderedButNotNecessarilyVisibleModal,
     isViewOnly,
