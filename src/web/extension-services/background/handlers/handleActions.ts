@@ -610,7 +610,6 @@ export const handleActions = async (
         await mainCtrl.buildTransferUserRequest(fromAmount, recipientAddress, fromSelectedToken)
       }
 
-      mainCtrl.transactionManager.formState.resetForm()
       mainCtrl.transactionManager.intent.setQuoteAndTransaction([], [])
 
       break
