@@ -41,18 +41,18 @@ export const SETTINGS_LINKS = [
     label: 'Accounts',
     path: ROUTES.accountsSettings
   },
-  {
-    key: 'address-book',
-    Icon: React.memo(AddressBookIcon),
-    label: 'Address Book',
-    path: ROUTES.addressBook
-  },
-  {
-    key: 'networks',
-    Icon: React.memo(NetworksIcon),
-    label: 'Networks',
-    path: ROUTES.networksSettings
-  },
+  // {
+  //   key: 'address-book',
+  //   Icon: React.memo(AddressBookIcon),
+  //   label: 'Address Book',
+  //   path: ROUTES.addressBook
+  // },
+  // {
+  //   key: 'networks',
+  //   Icon: React.memo(NetworksIcon),
+  //   label: 'Networks',
+  //   path: ROUTES.networksSettings
+  // },
   {
     key: 'transactions',
     Icon: React.memo(TransactionHistoryIcon),
@@ -76,27 +76,27 @@ export const SETTINGS_LINKS = [
     Icon: React.memo(KeyStoreSettingsIcon),
     label: 'Extension password',
     path: ROUTES.devicePasswordChange
-  },
-  {
-    key: 'device-password-recovery',
-    Icon: React.memo(PasswordRecoverySettingsIcon),
-    label: 'Password recovery',
-    path: ROUTES.devicePasswordRecovery
-  },
-  {
-    key: 'email-vault',
-    Icon: React.memo(({ color }: SvgProps) => (
-      <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
-    )),
-    label: 'Email Vault',
-    path: '/settings/email-vault'
-  },
-  {
-    key: 'manage-tokens',
-    Icon: React.memo(CustomTokensIcon),
-    label: 'Custom tokens',
-    path: ROUTES.manageTokens
   }
+  // {
+  //   key: 'device-password-recovery',
+  //   Icon: React.memo(PasswordRecoverySettingsIcon),
+  //   label: 'Password recovery',
+  //   path: ROUTES.devicePasswordRecovery
+  // },
+  // {
+  //   key: 'email-vault',
+  //   Icon: React.memo(({ color }: SvgProps) => (
+  //     <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
+  //   )),
+  //   label: 'Email Vault',
+  //   path: '/settings/email-vault'
+  // },
+  // {
+  //   key: 'manage-tokens',
+  //   Icon: React.memo(CustomTokensIcon),
+  //   label: 'Custom tokens',
+  //   path: ROUTES.manageTokens
+  // }
 ]
 
 const Sidebar = ({ activeLink }: { activeLink?: string }) => {
