@@ -53,6 +53,7 @@ const IntentScreen = () => {
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     addressState,
+    fromSelectedToken,
     estimationModalRef,
     closeEstimationModal,
     addressInputState
@@ -81,6 +82,7 @@ const IntentScreen = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
+  const recipientRef = useRef(recipientAddress)
 
   const state = useTransactionControllerState()
   const { transactionType, intent } = state
@@ -213,6 +215,7 @@ const IntentScreen = () => {
   const handleRecipientAddressChange = useCallback(
     (address: string) => {
       setRecipientAddress(address)
+      recipientRef.current = address
 
       const timeout = setTimeout(() => {
         onRecipientAddressChange(address)
@@ -223,14 +226,6 @@ const IntentScreen = () => {
     [onRecipientAddressChange]
   )
 
-  const handleBackButtonPress = useCallback(() => {
-    dispatch({
-      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
-      params: { sessionId, forceUnload: true }
-    })
-    navigate(ROUTES.dashboard)
-  }, [navigate, dispatch, sessionId])
-
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
@@ -238,6 +233,15 @@ const IntentScreen = () => {
   const onBatchAddedSecondaryButtonPress = useCallback(() => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
+
+  const handleBackButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
+      params: { sessionId, forceUnload: true }
+    })
+
+    navigate(ROUTES.dashboard)
+  }, [navigate, dispatch, sessionId])
 
   const onBackButtonPress = useCallback(() => {
     dispatch({
@@ -268,7 +272,8 @@ const IntentScreen = () => {
   }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
 
   useEffect(() => {
-    if (addressState.fieldValue === '') {
+    if (addressState.fieldValue === '' && recipientRef.current !== '') {
+      console.log('DEBUG: cleaning the recipient addre')
       setRecipientAddress('')
     }
   }, [addressState.fieldValue])
@@ -370,7 +375,7 @@ const IntentScreen = () => {
             isRecipientDomainResolving={addressState.isDomainResolving}
           />
 
-          <ToToken isLoading={isLoading} />
+          {fromSelectedToken && <ToToken isLoading={isLoading} />}
         </Form>
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
