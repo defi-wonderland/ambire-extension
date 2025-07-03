@@ -306,14 +306,7 @@ const ToToken = ({ isLoading }: Props) => {
 
   return (
     <View>
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          flexbox.justifySpaceBetween,
-          spacings.mbTy
-        ]}
-      >
+      <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
         {/* <SwitchTokensButton
           onPress={handleSwitchFromAndToTokens}
           disabled={
@@ -356,7 +349,7 @@ const ToToken = ({ isLoading }: Props) => {
                 style={[
                   flexbox.directionRow,
                   flexbox.justifySpaceBetween,
-                  spacings.mbMd,
+                  spacings.mbSm,
                   { height: 32 }
                 ]}
               >
