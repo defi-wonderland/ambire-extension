@@ -82,14 +82,6 @@ const IntentScreen = () => {
   const [isError, setIsError] = useState(false)
   const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
 
-  const handleRecipientAddressChange = useCallback(
-    (address: string) => {
-      setRecipientAddress(address)
-      onRecipientAddressChange(address)
-    },
-    [onRecipientAddressChange]
-  )
-
   const state = useTransactionControllerState()
   const { transactionType, intent } = state
   const {
@@ -218,9 +210,68 @@ const IntentScreen = () => {
     dispatch
   ])
 
+  const handleRecipientAddressChange = useCallback(
+    (address: string) => {
+      setRecipientAddress(address)
+
+      const timeout = setTimeout(() => {
+        onRecipientAddressChange(address)
+      }, 100)
+
+      return () => clearTimeout(timeout)
+    },
+    [onRecipientAddressChange]
+  )
+
   const handleBackButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
+      params: { sessionId, forceUnload: true }
+    })
     navigate(ROUTES.dashboard)
+  }, [navigate, dispatch, sessionId])
+
+  const onBatchAddedPrimaryButtonPress = useCallback(() => {
+    navigate(WEB_ROUTES.dashboard)
   }, [navigate])
+
+  const onBatchAddedSecondaryButtonPress = useCallback(() => {
+    setShowAddedToBatch(false)
+  }, [setShowAddedToBatch])
+
+  const onBackButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
+      params: { sessionId, forceUnload: true }
+    })
+
+    if (isActionWindow) {
+      dispatch({
+        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+      })
+    } else {
+      navigate(ROUTES.dashboard)
+    }
+  }, [dispatch, navigate, sessionId])
+
+  const buttons = useMemo(() => {
+    return (
+      <>
+        {isTab && <BackButton onPress={handleBackButtonPress} />}
+        <Buttons
+          isNotReadyToProceed={isLoading || (isError && transactionType === 'intent')}
+          handleSubmitForm={handleSubmitForm}
+          isBridge={isBridge}
+        />
+      </>
+    )
+  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
+
+  useEffect(() => {
+    if (addressState.fieldValue === '') {
+      setRecipientAddress('')
+    }
+  }, [addressState.fieldValue])
 
   useEffect(() => {
     // TODO: Prevent calling getQuotes while getting quotes
@@ -254,41 +305,6 @@ const IntentScreen = () => {
       scrollViewRef.current?.scrollTo({ y: 0 })
     }
   }, [pendingRoutes, prevPendingRoutes])
-
-  const onBatchAddedPrimaryButtonPress = useCallback(() => {
-    navigate(WEB_ROUTES.dashboard)
-  }, [navigate])
-
-  const onBatchAddedSecondaryButtonPress = useCallback(() => {
-    setShowAddedToBatch(false)
-  }, [setShowAddedToBatch])
-
-  const onBackButtonPress = useCallback(() => {
-    dispatch({
-      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
-      params: { sessionId, forceUnload: true }
-    })
-    if (isActionWindow) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-      })
-    } else {
-      navigate(ROUTES.dashboard)
-    }
-  }, [dispatch, navigate, sessionId])
-
-  const buttons = useMemo(() => {
-    return (
-      <>
-        {isTab && <BackButton onPress={handleBackButtonPress} />}
-        <Buttons
-          isNotReadyToProceed={isLoading || (isError && transactionType === 'intent')}
-          handleSubmitForm={handleSubmitForm}
-          isBridge={isBridge}
-        />
-      </>
-    )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
 
   if (!sessionIds.includes(sessionId)) {
     if (portfolio.isReadyToVisualize) return null
