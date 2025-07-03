@@ -60,10 +60,10 @@ const SelectedMenuOption: React.FC<{
       value={address}
       onChangeText={setAddress}
       disabled={disabled}
-      onFocus={toggleMenu}
-      buttonProps={{
-        onPress: toggleMenu
-      }}
+      // onFocus={toggleMenu}
+      // buttonProps={{
+      //   onPress: toggleMenu
+      // }}
       buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
     />
   )
