@@ -34,61 +34,48 @@ import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
 import TrackProgress from '../components/Estimation/TrackProgress'
 import FromToken from '../components/FromToken'
-import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
 import Recipient from '../components/Recipient'
 import { SUPPORTED_ETH_BY_CHAIN_ID } from '../utils/tokenAddresses'
 
-const { isTab, isActionWindow } = getUiType()
+const { isTab } = getUiType()
 
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const {
-    handleSubmitForm,
-    onFromAmountChange,
-    onRecipientAddressChange,
+    sessionId,
     fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     addressState,
-    addressInputState,
+    fromSelectedToken,
     estimationModalRef,
-    closeEstimationModal
+    addressInputState,
+    displayedView,
+    isBridge,
+    handleSubmitForm,
+    onFromAmountChange,
+    onRecipientAddressChange,
+    closeEstimationModal,
+    setHasBroadcasted,
+    setShowAddedToBatch
   } = useTransactionForm()
 
   const {
-    sessionId,
-    pendingRoutes,
-    routesModalRef,
-    closeRoutesModal,
-    setHasBroadcasted,
-    displayedView,
-    setIsAutoSelectRouteDisabled,
-    isBridge,
-    setShowAddedToBatch
-  } = useSwapAndBridgeForm()
-  const { sessionIds, isHealthy, signAccountOpController, isAutoSelectRouteDisabled } =
-    useSwapAndBridgeControllerState()
+    formState: { sessionIds }
+  } = useTransactionControllerState()
+
   const { portfolio } = useSelectedAccountControllerState()
 
-  const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
-  const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
-  const [outputAmount, setOutputAmount] = useState<string | undefined>(undefined)
   const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
-
-  const handleRecipientAddressChange = useCallback(
-    (address: string) => {
-      setRecipientAddress(address)
-      onRecipientAddressChange(address)
-    },
-    [onRecipientAddressChange]
-  )
+  const recipientRef = useRef(recipientAddress)
+  const scrollViewRef: any = useRef(null)
 
   const state = useTransactionControllerState()
   const { transactionType, intent } = state
@@ -109,6 +96,9 @@ const IntentScreen = () => {
     inputChainId?: number
     outputChainId?: number
   }
+
+  const disableForm = false
+  const { validation } = addressInputState
 
   const allParamsAvailable =
     sender &&
@@ -200,7 +190,6 @@ const IntentScreen = () => {
         type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
         params: { quote: quotes[0], transactions }
       })
-      setOutputAmount((quotes[0] as any)?.output?.outputAmount)
       setIsError(false)
       setIsLoading(false)
     } catch (error) {
@@ -216,47 +205,22 @@ const IntentScreen = () => {
     inputAmount,
     inputChainId,
     outputChainId,
-    dispatch,
-    setOutputAmount
+    dispatch
   ])
 
-  useEffect(() => {
-    if (transactionType === 'intent') {
-      if (allParamsAvailable) {
-        getQuotes().catch(console.error)
-        return
-      }
+  const handleRecipientAddressChange = useCallback(
+    (address: string) => {
+      setRecipientAddress(address)
+      recipientRef.current = address
 
-      setOutputAmount(0)
-    }
+      const timeout = setTimeout(() => {
+        onRecipientAddressChange(address)
+      }, 100)
 
-    dispatch({
-      type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
-      params: { quote: [], transactions: [] }
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getQuotes, transactionType, dispatch])
-
-  useEffect(() => {
-    if (!signAccountOpController || isAutoSelectRouteDisabled) return
-    if (signAccountOpController.estimation.status === EstimationStatus.Error) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-      })
-    }
-  })
-
-  const handleBackButtonPress = useCallback(() => {
-    navigate(ROUTES.dashboard)
-  }, [navigate])
-
-  useEffect(() => {
-    if (!pendingRoutes || !prevPendingRoutes) return
-    if (!pendingRoutes.length) return
-    if (prevPendingRoutes.length < pendingRoutes.length) {
-      scrollViewRef.current?.scrollTo({ y: 0 })
-    }
-  }, [pendingRoutes, prevPendingRoutes])
+      return () => clearTimeout(timeout)
+    },
+    [onRecipientAddressChange]
+  )
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
@@ -266,18 +230,28 @@ const IntentScreen = () => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
 
+  const handleBackButtonPress = useCallback(() => {
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
+      params: { sessionId, forceUnload: true }
+    })
+
+    navigate(ROUTES.dashboard)
+  }, [navigate, dispatch, sessionId])
+
   const onBackButtonPress = useCallback(() => {
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
       params: { sessionId, forceUnload: true }
     })
-    if (isActionWindow) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-      })
-    } else {
-      navigate(ROUTES.dashboard)
-    }
+
+    // if (isActionWindow) {
+    //   dispatch({
+    //     type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+    //   })
+    // } else {
+    navigate(ROUTES.dashboard)
+    // }
   }, [dispatch, navigate, sessionId])
 
   const buttons = useMemo(() => {
@@ -285,13 +259,62 @@ const IntentScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          isNotReadyToProceed={isLoading || (isError && transactionType === 'intent')}
+          isNotReadyToProceed={
+            isLoading || (isError && transactionType === 'intent') || validation.isError
+          }
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
+  }, [
+    handleBackButtonPress,
+    handleSubmitForm,
+    isBridge,
+    isLoading,
+    isError,
+    transactionType,
+    validation
+  ])
+
+  useEffect(() => {
+    if (addressState.fieldValue === '' && recipientRef.current !== '') {
+      setRecipientAddress('')
+    }
+  }, [addressState.fieldValue])
+
+  useEffect(() => {
+    // TODO: Prevent calling getQuotes while getting quotes
+    if (transactionType === 'intent') {
+      if (allParamsAvailable) {
+        getQuotes().catch(console.error)
+        return
+      }
+    }
+
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+      params: { quote: [], transactions: [] }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getQuotes, transactionType, dispatch, allParamsAvailable])
+
+  // useEffect(() => {
+  //   if (!signAccountOpController || isAutoSelectRouteDisabled) return
+  //   if (signAccountOpController.estimation.status === EstimationStatus.Error) {
+  //     dispatch({
+  //       type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
+  //     })
+  //   }
+  // })
+
+  // useEffect(() => {
+  //   if (!pendingRoutes || !prevPendingRoutes) return
+  //   if (!pendingRoutes.length) return
+  //   if (prevPendingRoutes.length < pendingRoutes.length) {
+  //     scrollViewRef.current?.scrollTo({ y: 0 })
+  //   }
+  // }, [pendingRoutes, prevPendingRoutes])
 
   if (!sessionIds.includes(sessionId)) {
     if (portfolio.isReadyToVisualize) return null
@@ -322,13 +345,10 @@ const IntentScreen = () => {
     )
   }
 
-  const disableForm = false
-  const { validation } = addressInputState
-
   return (
     <Wrapper title={t('Transfer')} handleGoBack={onBackButtonPress} buttons={buttons}>
       <Content scrollViewRef={scrollViewRef} buttons={buttons}>
-        {isHealthy === false && (
+        {/* isHealthy === false && (
           <Alert
             type="error"
             title={t('Temporarily unavailable.')}
@@ -337,8 +357,17 @@ const IntentScreen = () => {
             )}
             style={spacings.mb}
           />
-        )}
+        ) */}
         <Form>
+          <FromToken
+            fromTokenOptions={fromTokenOptions}
+            fromTokenValue={fromTokenValue}
+            fromAmountValue={fromAmountValue}
+            fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
+            onFromAmountChange={onFromAmountChange}
+            // setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+          />
+
           <Recipient
             disabled={disableForm}
             address={recipientAddress}
@@ -347,24 +376,11 @@ const IntentScreen = () => {
             ensAddress={addressState.ensAddress}
             isRecipientDomainResolving={addressState.isDomainResolving}
           />
-          <FromToken
-            fromTokenOptions={fromTokenOptions}
-            fromTokenValue={fromTokenValue}
-            fromAmountValue={fromAmountValue}
-            fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
-            onFromAmountChange={onFromAmountChange}
-            setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
-          />
-          <ToToken
-            setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
-            isLoading={isLoading && transactionType === 'intent'}
-            outputAmount={outputAmount}
-          />
-        </Form>
 
-        <RouteInfo />
+          {fromSelectedToken && <ToToken isLoading={isLoading} />}
+        </Form>
       </Content>
-      <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
+      {/* <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} /> */}
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModal}
         estimationModalRef={estimationModalRef}

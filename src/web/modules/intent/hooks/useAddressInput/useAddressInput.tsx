@@ -45,24 +45,24 @@ const useAddressInput = ({
   })
 
   useEffect(() => {
-    const validateAddress = async () => {
+    const timeout = setTimeout(async () => {
       const result = await getAddressInputValidation({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
-        isValidEns: !!addressState.ensAddress,
+        // isValidEns: !!addressState.ensAddress,
         isInteropAddress: !!addressState.interopAddress,
         overwriteError,
         overwriteValidLabel
       })
 
       setValidation(result)
-    }
+    })
 
-    validateAddress()
+    return () => clearTimeout(timeout)
   }, [
     addressState.fieldValue,
     addressState.isDomainResolving,
-    addressState.ensAddress,
+    // addressState.ensAddress,
     addressState.interopAddress,
     overwriteError,
     overwriteValidLabel
@@ -78,7 +78,7 @@ const useAddressInput = ({
       // Both validations are errors
       isError === debouncedIsError &&
       // There is no ENS or Interop address
-      !addressState.ensAddress &&
+      // !addressState.ensAddress &&
       !addressState.interopAddress &&
       // The message is not empty
       latestMessage
@@ -97,7 +97,7 @@ const useAddressInput = ({
       clearTimeout(timeout)
     }
   }, [
-    addressState.ensAddress,
+    // addressState.ensAddress,
     addressState.interopAddress,
     debouncedValidation,
     debouncedValidation.isError,
@@ -110,7 +110,7 @@ const useAddressInput = ({
 
     if (!trimmedAddress) {
       setAddressState({
-        ensAddress: '',
+        // ensAddress: '',
         interopAddress: '',
         isDomainResolving: false
       })
@@ -140,12 +140,12 @@ const useAddressInput = ({
     if (!handleRevalidate) return
 
     handleRevalidate()
-  }, [handleRevalidate, debouncedValidation])
+  }, [handleRevalidate])
 
   const reset = useCallback(() => {
     setAddressState({
       fieldValue: '',
-      ensAddress: '',
+      // ensAddress: '',
       interopAddress: '',
       isDomainResolving: false
     })
@@ -172,7 +172,7 @@ const useAddressInput = ({
     validation: debouncedValidation,
     RHFValidate,
     resetAddressInput: reset,
-    address: addressState.ensAddress || addressState.interopAddress || fieldValue
+    address: /* addressState.ensAddress || */ addressState.interopAddress || fieldValue
   }
 }
 
