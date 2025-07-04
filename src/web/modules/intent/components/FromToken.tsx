@@ -30,8 +30,7 @@ const FromToken: FC<Props> = ({
 }) => {
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-  const { fromAmount, fromAmountInFiat, fromSelectedToken, toSelectedToken, maxFromAmount } =
-    useTransactionForm()
+  const { fromAmount, fromAmountInFiat, fromSelectedToken, maxFromAmount } = useTransactionForm()
   const { portfolioTokenList, fromAmountFieldMode, validateFromAmount } =
     useSwapAndBridgeControllerState()
 
@@ -43,25 +42,12 @@ const FromToken: FC<Props> = ({
 
       setIsAutoSelectRouteDisabled(false)
 
-      // Switch the tokens if the selected token is the same as the "to" token
-      if (
-        tokenToSelect &&
-        toSelectedToken &&
-        tokenToSelect.address === toSelectedToken.address &&
-        tokenToSelect.chainId === BigInt(toSelectedToken.chainId || 0)
-      ) {
-        dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
-        })
-        return
-      }
-
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
       })
     },
-    [portfolioTokenList, setIsAutoSelectRouteDisabled, toSelectedToken, dispatch, networks]
+    [portfolioTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
   )
 
   const handleSetMaxFromAmount = useCallback(() => {
