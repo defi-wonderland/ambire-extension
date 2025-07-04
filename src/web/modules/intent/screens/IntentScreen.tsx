@@ -273,7 +273,6 @@ const IntentScreen = () => {
 
   useEffect(() => {
     if (addressState.fieldValue === '' && recipientRef.current !== '') {
-      console.log('DEBUG: cleaning the recipient addre')
       setRecipientAddress('')
     }
   }, [addressState.fieldValue])
