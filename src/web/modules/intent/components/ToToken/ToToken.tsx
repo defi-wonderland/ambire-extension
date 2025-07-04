@@ -41,36 +41,17 @@ const ToToken = ({ isLoading }: Props) => {
     toChainId,
     fromChainId,
     supportedChainIds,
-    // switchTokensStatus,
     toSelectedToken,
-    // toTokenList,
     quote,
-    // fromSelectedToken,
-    // fromTokenValue,
     transactionType,
     fromAmount,
     addressState
   } = useTransactionForm()
 
-  const {
-    // statuses: swapAndBridgeCtrlStatuses,
-    // updateQuoteStatus,
-    // updateToTokenListStatus,
-    signAccountOpController
-  } = useSwapAndBridgeControllerState()
+  const { signAccountOpController } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-
-  // const handleSwitchFromAndToTokens = useCallback(
-  //   () =>
-  //     dispatch({
-  //       type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
-  //     }),
-  //   [dispatch]
-  // )
-  //
-  //
 
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
@@ -84,35 +65,8 @@ const ToToken = ({ isLoading }: Props) => {
     [networks, dispatch]
   )
 
-  // const defaultToTokenId = useMemo(() => {
-  //   if (fromTokenValue.value === 'no-selection') return ''
-  //
-  //   const tokenAddress = toTokenList.find(
-  //     (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
-  //   )?.address
-  //
-  //   return `${tokenAddress}.${fromSelectedToken?.symbol}`
-  // }, [fromSelectedToken, toChainId, toTokenList, fromTokenValue.value])
-
-  // const {
-  //   options: toTokenOptions,
-  //   value: toTokenValue
-  //   // amountSelectDisabled: toTokenAmountSelectDisabled
-  // } = useGetTokenSelectProps({
-  //   tokens: toTokenList.filter((token) => token.symbol === (fromSelectedToken as any)?.symbol),
-  //   token: toSelectedToken ? getTokenId(toSelectedToken, networks) : defaultToTokenId,
-  //   networks,
-  //   supportedChainIds,
-  //   isLoading: !toTokenList.length && updateToTokenListStatus !== 'INITIAL',
-  //   isToToken: true
-  // })
-
-  const hasQuote = useMemo(() => {
-    return quote?.fee?.total && transactionType === 'intent'
-  }, [quote?.fee, transactionType])
-
   const providerFee = useMemo(() => {
-    if (!toSelectedToken?.symbol || !quote?.fee) return null
+    if (!toSelectedToken?.symbol || !quote?.fee?.total) return null
 
     return `${quote?.fee?.total} ${toSelectedToken?.symbol}`
   }, [toSelectedToken?.symbol, quote])
@@ -122,34 +76,6 @@ const ToToken = ({ isLoading }: Props) => {
 
     return `${quote?.output.outputAmount} ${toSelectedToken?.symbol}`
   }, [quote?.output, toSelectedToken])
-
-  // const toTokenInPortfolio = useMemo(() => {
-  //   const [address] = toTokenValue.value.split('.')
-
-  //   if (!address || !toChainId) return null
-
-  //   const bigintChainId = BigInt(toChainId)
-
-  //   const tokenInPortfolio = portfolio?.tokens.find(
-  //     (token) =>
-  //       token.address === address &&
-  //       token.chainId === bigintChainId &&
-  //       !token.flags.onGasTank &&
-  //       !token.flags.rewardsType
-  //   )
-
-  //   if (!tokenInPortfolio) return null
-
-  //   const amountFormatted = formatDecimals(
-  //     parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
-  //     'amount'
-  //   )
-
-  //   return {
-  //     ...tokenInPortfolio,
-  //     amountFormatted
-  //   }
-  // }, [portfolio?.tokens, toChainId, toTokenValue.value])
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
@@ -192,42 +118,6 @@ const ToToken = ({ isLoading }: Props) => {
         }),
     [networks, supportedChainIds, theme.primaryBackground]
   )
-
-  // const getToNetworkSelectValue = useMemo(() => {
-  //   const network = networks.find((n) => Number(n.chainId) === toChainId)
-  //   if (!network) return toNetworksOptions[0]
-  //
-  //   return toNetworksOptions.filter((opt) => opt.value === String(network.chainId))[0]
-  // }, [networks, toChainId, toNetworksOptions])
-
-  // const handleChangeToToken = useCallback(
-  //   ({ value }: SelectValue) => {
-  //     const tokenToSelect = toTokenList.find(
-  //       (tk: SwapAndBridgeToToken) => getTokenId(tk, networks) === value
-  //     )
-  //
-  //     setIsAutoSelectRouteDisabled(false)
-  //
-  //     dispatch({
-  //       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
-  //       params: { toSelectedToken: tokenToSelect }
-  //     })
-  //   },
-  //   [toTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
-  // )
-
-  // const handleAddToTokenByAddress = useCallback(
-  //   (searchTerm: string) => {
-  //     const isValidTokenAddress = isAddress(searchTerm)
-  //     if (!isValidTokenAddress) return
-  //
-  //     dispatch({
-  //       type: 'SWAP_AND_BRIDGE_CONTROLLER_ADD_TO_TOKEN_BY_ADDRESS',
-  //       params: { address: searchTerm }
-  //     })
-  //   },
-  //   [dispatch]
-  // )
 
   const formattedToAmount = useMemo(() => {
     if (transactionType === 'transfer') {
@@ -275,12 +165,12 @@ const ToToken = ({ isLoading }: Props) => {
   }, [fromChainId, networks])
 
   const isLoadingFeeAndTotal = useMemo(() => {
-    if (transactionType !== 'intent') return false
-    if (fromAmount === '') return false
-    if (isLoading) return true
-    if (!!hasQuote && !!providerFee) return false
+    // only should load if transaction is intent
+    // and fromAmount is greater than zero
+    // and there is no provider fee
+    if (transactionType === 'intent' && fromAmount !== '' && !providerFee && isLoading) return true
     return false
-  }, [hasQuote, providerFee, transactionType, fromAmount, isLoading])
+  }, [providerFee, transactionType, fromAmount, isLoading])
 
   useEffect(() => {
     if (addressState.interopAddress) {
@@ -306,43 +196,8 @@ const ToToken = ({ isLoading }: Props) => {
 
   return (
     <View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-        {/* <SwitchTokensButton
-          onPress={handleSwitchFromAndToTokens}
-          disabled={
-            switchTokensStatus === 'LOADING' ||
-            updateQuoteStatus === 'LOADING' ||
-            updateToTokenListStatus === 'LOADING'
-          }
-        /> */}
-        {/* <Text appearance="quaternaryText" fontSize={16} weight="medium">
-          {t('Receive')}
-        </Text>
-        <Select
-          disabled={!!addressState.interopAddress}
-          setValue={handleSetToNetworkValue}
-          containerStyle={{ ...spacings.mb0, width: 220 }}
-          options={toNetworksOptions}
-          size="sm"
-          value={getToNetworkSelectValue}
-          selectStyle={{
-            backgroundColor: '#54597A14',
-            borderWidth: 0
-          }}
-          mode="bottomSheet"
-          bottomSheetTitle={t('Receive token network')}
-        /> */}
-      </View>
       <View style={[styles.container, spacings.ph0]}>
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          {/* <ToTokenSelect
-            toTokenOptions={toTokenOptions}
-            toTokenValue={toTokenValue}
-            handleChangeToToken={handleChangeToToken}
-            // toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
-            addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
-            handleAddToTokenByAddress={handleAddToTokenByAddress}
-          /> */}
           <View style={[flexbox.flex1]}>
             {transactionType === 'intent' && (
               <View
@@ -433,35 +288,6 @@ const ToToken = ({ isLoading }: Props) => {
             </View>
           </View>
         </View>
-        {/* Temporarily disabled */}
-        {/* <View
-          style={[
-            flexbox.directionRow,
-            spacings.ptSm,
-            spacings.pl,
-            flexbox.alignCenter,
-            {
-              height: 32 // Prevents layout shifts
-            }
-          ]}
-        >
-            {toTokenInPortfolio && (
-              <>
-                <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
-                <Text
-                  testID="max-available-amount"
-                  numberOfLines={1}
-                  fontSize={12}
-                  style={spacings.mlMi}
-                  weight="medium"
-                  appearance="tertiaryText"
-                  ellipsizeMode="tail"
-                >
-                  {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
-                </Text>
-              </>
-            )}
-        </View> */}
       </View>
     </View>
   )
