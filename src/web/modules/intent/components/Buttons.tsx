@@ -24,7 +24,7 @@ type Props = {
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
   const {
-    formState: { fromAmount, fromSelectedToken, recipientAddress, maxFromAmount }
+    formState: { fromAmount, fromSelectedToken, recipientAddress, maxFromAmount, addressState }
   } = useTransactionControllerState()
 
   const { swapSignErrors } = useSwapAndBridgeControllerState()
@@ -38,7 +38,8 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
     !fromSelectedToken ||
     !recipientAddress ||
     !Number(fromAmount) ||
-    Number(fromAmount) > Number(maxFromAmount)
+    Number(fromAmount) > Number(maxFromAmount) ||
+    !addressState.interopAddress
 
   const networkUserRequests = fromChainId
     ? userRequests?.filter(
