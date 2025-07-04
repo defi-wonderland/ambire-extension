@@ -26,6 +26,7 @@ const { isPopup, isActionWindow } = getUiType()
 
 const useTransactionForm = () => {
   const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
   const { visibleActionsQueue } = useActionsControllerState()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
@@ -60,8 +61,8 @@ const useTransactionForm = () => {
 
   // Temporary log
   console.log({ state })
-
-  const { dispatch } = useBackgroundService()
+  const [hasBroadcasted, setHasBroadcasted] = useState(false)
+  const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
@@ -179,6 +180,19 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
+  const displayedView: 'estimate' | 'batch' | 'track' = useMemo(() => {
+    if (showAddedToBatch) return 'batch'
+
+    if (hasBroadcasted) return 'track'
+
+    return 'estimate'
+  }, [hasBroadcasted, showAddedToBatch])
+
+  const isBridge = useMemo(() => {
+    if (!fromSelectedToken || !toSelectedToken) return false
+    return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
+  }, [fromSelectedToken, toSelectedToken])
+
   // This is a temporary fix meanwhile the intent logic is implemented
   useEffect(() => {
     const toToken = toTokenList.find(
@@ -277,9 +291,6 @@ const useTransactionForm = () => {
   }, [isEstimationOpen, openEstimationModal, closeEstimationModal])
 
   return {
-    handleSubmitForm,
-    onFromAmountChange,
-    onRecipientAddressChange,
     fromSelectedToken,
     toSelectedToken,
     fromAmountValue,
@@ -292,6 +303,7 @@ const useTransactionForm = () => {
     fromTokenOptions,
     fromTokenValue,
     addressState,
+    sessionId,
     isRecipientAddressUnknown,
     isRecipientAddressUnknownAgreed,
     addressInputState,
@@ -302,10 +314,17 @@ const useTransactionForm = () => {
     updateToTokenListStatus,
     recipientAddress,
     quote,
+    isBridge,
     transactionType,
     estimationModalRef,
+    displayedView,
     openEstimationModal,
-    closeEstimationModal
+    closeEstimationModal,
+    handleSubmitForm,
+    onFromAmountChange,
+    onRecipientAddressChange,
+    setHasBroadcasted,
+    setShowAddedToBatch
   }
 }
 
