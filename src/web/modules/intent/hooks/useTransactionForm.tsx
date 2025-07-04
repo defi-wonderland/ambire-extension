@@ -198,6 +198,7 @@ const useTransactionForm = () => {
     const toToken = toTokenList.find(
       (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
     )
+
     if (!toToken) return
 
     dispatch({

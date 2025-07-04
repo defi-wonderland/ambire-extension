@@ -8,6 +8,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useTransactionForm from '../hooks/useTransactionForm'
 
 type Props = Pick<
@@ -30,15 +31,16 @@ const FromToken: FC<Props> = ({
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { fromAmount, fromAmountInFiat, fromSelectedToken, maxFromAmount } = useTransactionForm()
-  const { portfolioTokenList, fromAmountFieldMode, validateFromAmount } =
-    useSwapAndBridgeControllerState()
+  const {
+    formState: { portfolioTokenList }
+  } = useTransactionControllerState()
+  const { fromAmountFieldMode, validateFromAmount } = useSwapAndBridgeControllerState()
 
   const handleChangeFromToken = useCallback(
     ({ value }: SelectValue) => {
       const tokenToSelect = portfolioTokenList.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
-
       // setIsAutoSelectRouteDisabled(false)
 
       dispatch({
