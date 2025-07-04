@@ -17,7 +17,6 @@ type Props = Pick<
   | 'fromAmountValue'
   | 'fromTokenAmountSelectDisabled'
   | 'onFromAmountChange'
-  | 'setIsAutoSelectRouteDisabled'
 >
 
 const FromToken: FC<Props> = ({
@@ -25,7 +24,7 @@ const FromToken: FC<Props> = ({
   fromTokenValue,
   fromAmountValue,
   fromTokenAmountSelectDisabled,
-  setIsAutoSelectRouteDisabled,
+  // setIsAutoSelectRouteDisabled,
   onFromAmountChange
 }) => {
   const { networks } = useNetworksControllerState()
@@ -40,14 +39,14 @@ const FromToken: FC<Props> = ({
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
 
-      setIsAutoSelectRouteDisabled(false)
+      // setIsAutoSelectRouteDisabled(false)
 
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
       })
     },
-    [portfolioTokenList, setIsAutoSelectRouteDisabled, dispatch, networks]
+    [portfolioTokenList, dispatch, networks]
   )
 
   const handleSetMaxFromAmount = useCallback(() => {

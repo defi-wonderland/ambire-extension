@@ -39,15 +39,13 @@ import useTransactionForm from '../hooks/useTransactionForm'
 import Recipient from '../components/Recipient'
 import { SUPPORTED_ETH_BY_CHAIN_ID } from '../utils/tokenAddresses'
 
-const { isTab, isActionWindow } = getUiType()
+const { isTab } = getUiType()
 
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const {
-    handleSubmitForm,
-    onFromAmountChange,
-    onRecipientAddressChange,
+    sessionId,
     fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
@@ -55,34 +53,29 @@ const IntentScreen = () => {
     addressState,
     fromSelectedToken,
     estimationModalRef,
+    addressInputState,
+    displayedView,
+    isBridge,
+    handleSubmitForm,
+    onFromAmountChange,
+    onRecipientAddressChange,
     closeEstimationModal,
-    addressInputState
+    setHasBroadcasted,
+    setShowAddedToBatch
   } = useTransactionForm()
 
   const {
-    sessionId,
-    pendingRoutes,
-    routesModalRef,
-    closeRoutesModal,
-    setHasBroadcasted,
-    displayedView,
-    setIsAutoSelectRouteDisabled,
-    isBridge,
-    setShowAddedToBatch
-  } = useSwapAndBridgeForm()
-
-  const { sessionIds, isHealthy, signAccountOpController, isAutoSelectRouteDisabled } =
-    useSwapAndBridgeControllerState()
+    formState: { sessionIds }
+  } = useTransactionControllerState()
 
   const { portfolio } = useSelectedAccountControllerState()
 
-  const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
-  const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
   const recipientRef = useRef(recipientAddress)
+  const scrollViewRef: any = useRef(null)
 
   const state = useTransactionControllerState()
   const { transactionType, intent } = state
@@ -249,13 +242,13 @@ const IntentScreen = () => {
       params: { sessionId, forceUnload: true }
     })
 
-    if (isActionWindow) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
-      })
-    } else {
-      navigate(ROUTES.dashboard)
-    }
+    // if (isActionWindow) {
+    //   dispatch({
+    //     type: 'SWAP_AND_BRIDGE_CONTROLLER_CLOSE_SIGNING_ACTION_WINDOW'
+    //   })
+    // } else {
+    navigate(ROUTES.dashboard)
+    // }
   }, [dispatch, navigate, sessionId])
 
   const buttons = useMemo(() => {
@@ -293,22 +286,22 @@ const IntentScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getQuotes, transactionType, dispatch, allParamsAvailable])
 
-  useEffect(() => {
-    if (!signAccountOpController || isAutoSelectRouteDisabled) return
-    if (signAccountOpController.estimation.status === EstimationStatus.Error) {
-      dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
-      })
-    }
-  })
+  // useEffect(() => {
+  //   if (!signAccountOpController || isAutoSelectRouteDisabled) return
+  //   if (signAccountOpController.estimation.status === EstimationStatus.Error) {
+  //     dispatch({
+  //       type: 'SWAP_AND_BRIDGE_CONTROLLER_ON_ESTIMATION_FAILURE'
+  //     })
+  //   }
+  // })
 
-  useEffect(() => {
-    if (!pendingRoutes || !prevPendingRoutes) return
-    if (!pendingRoutes.length) return
-    if (prevPendingRoutes.length < pendingRoutes.length) {
-      scrollViewRef.current?.scrollTo({ y: 0 })
-    }
-  }, [pendingRoutes, prevPendingRoutes])
+  // useEffect(() => {
+  //   if (!pendingRoutes || !prevPendingRoutes) return
+  //   if (!pendingRoutes.length) return
+  //   if (prevPendingRoutes.length < pendingRoutes.length) {
+  //     scrollViewRef.current?.scrollTo({ y: 0 })
+  //   }
+  // }, [pendingRoutes, prevPendingRoutes])
 
   if (!sessionIds.includes(sessionId)) {
     if (portfolio.isReadyToVisualize) return null
@@ -345,7 +338,7 @@ const IntentScreen = () => {
   return (
     <Wrapper title={t('Transfer')} handleGoBack={onBackButtonPress} buttons={buttons}>
       <Content scrollViewRef={scrollViewRef} buttons={buttons}>
-        {isHealthy === false && (
+        {/* isHealthy === false && (
           <Alert
             type="error"
             title={t('Temporarily unavailable.')}
@@ -354,7 +347,7 @@ const IntentScreen = () => {
             )}
             style={spacings.mb}
           />
-        )}
+        ) */}
         <Form>
           <FromToken
             fromTokenOptions={fromTokenOptions}
@@ -362,7 +355,7 @@ const IntentScreen = () => {
             fromAmountValue={fromAmountValue}
             fromTokenAmountSelectDisabled={fromTokenAmountSelectDisabled}
             onFromAmountChange={onFromAmountChange}
-            setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            // setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
           />
 
           <Recipient
@@ -377,7 +370,7 @@ const IntentScreen = () => {
           {fromSelectedToken && <ToToken isLoading={isLoading} />}
         </Form>
       </Content>
-      <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
+      {/* <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} /> */}
       <SwapAndBridgeEstimation
         closeEstimationModal={closeEstimationModal}
         estimationModalRef={estimationModalRef}
