@@ -97,6 +97,9 @@ const IntentScreen = () => {
     outputChainId?: number
   }
 
+  const disableForm = false
+  const { validation } = addressInputState
+
   const allParamsAvailable =
     sender &&
     recipient &&
@@ -256,13 +259,23 @@ const IntentScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          isNotReadyToProceed={isLoading || (isError && transactionType === 'intent')}
+          isNotReadyToProceed={
+            isLoading || (isError && transactionType === 'intent') || validation.isError
+          }
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
+  }, [
+    handleBackButtonPress,
+    handleSubmitForm,
+    isBridge,
+    isLoading,
+    isError,
+    transactionType,
+    validation
+  ])
 
   useEffect(() => {
     if (addressState.fieldValue === '' && recipientRef.current !== '') {
@@ -331,9 +344,6 @@ const IntentScreen = () => {
       />
     )
   }
-
-  const disableForm = false
-  const { validation } = addressInputState
 
   return (
     <Wrapper title={t('Transfer')} handleGoBack={onBackButtonPress} buttons={buttons}>
