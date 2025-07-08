@@ -1,5 +1,5 @@
 // import { isAddress } from 'ethers'
-import React, { FC, memo, ReactNode, useCallback, useEffect, useMemo } from 'react'
+import React, { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
