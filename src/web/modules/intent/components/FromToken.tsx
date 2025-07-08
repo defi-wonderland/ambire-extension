@@ -2,7 +2,6 @@ import React, { FC, memo, useCallback } from 'react'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { SelectValue } from '@common/components/Select/types'
-import SendToken from '@common/components/SendToken'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
@@ -10,6 +9,7 @@ import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm
 import { getTokenId } from '@web/utils/token'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useTransactionForm from '../hooks/useTransactionForm'
+import SendToken from './SendToken'
 
 type Props = Pick<
   ReturnType<typeof useSwapAndBridgeForm>,
