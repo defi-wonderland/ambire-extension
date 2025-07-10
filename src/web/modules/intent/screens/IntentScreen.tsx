@@ -64,21 +64,22 @@ const IntentScreen = () => {
     setShowAddedToBatch
   } = useTransactionForm()
 
-  const {
-    formState: { sessionIds }
-  } = useTransactionControllerState()
-
   const { portfolio } = useSelectedAccountControllerState()
-
   const { dispatch } = useBackgroundService()
+  const state = useTransactionControllerState()
+
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
   const recipientRef = useRef(recipientAddress)
   const scrollViewRef: any = useRef(null)
 
-  const state = useTransactionControllerState()
-  const { transactionType, intent } = state
+  const {
+    transactionType,
+    intent,
+    formState: { sessionIds }
+  } = state
+
   const {
     sender,
     recipient,

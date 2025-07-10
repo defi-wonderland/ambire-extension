@@ -28,8 +28,8 @@ const useTransactionForm = () => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const { visibleActionsQueue } = useActionsControllerState()
-  const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
+  const state = useTransactionControllerState()
   const { formState, transactionType, intent } = state
   const {
     fromAmount,
@@ -50,23 +50,28 @@ const useTransactionForm = () => {
     recipientAddress,
     sessionIds
   } = formState
+
   const {
     ref: estimationModalRef,
     open: openEstimationModal,
     close: closeEstimationModal
   } = useModalize()
+
   const [isEstimationOpen, setIsEstimationOpen] = useState(false)
 
   const { quote } = intent
 
   // Temporary log
   console.log({ state })
+
   const [hasBroadcasted, setHasBroadcasted] = useState(false)
   const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
+
   const sessionId = useMemo(() => {
     if (isPopup) return 'popup'
     if (isActionWindow) return 'action-window'
