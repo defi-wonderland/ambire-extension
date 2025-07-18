@@ -1,7 +1,7 @@
 // import { getAddress } from 'ethers'
 // import { isValidAddress } from '@ambire-common/services/address'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
-import { getInteropAddressChainId } from '@web/modules/intent/utils/interopSdkService'
+import { getInteropAddressChainId } from '@ambire-common/services/interop'
 
 type AddressInputValidation = {
   address: string

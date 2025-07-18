@@ -4,7 +4,7 @@ import {
   ExtendedAddressState,
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
-import { resolveInteropAddress } from './interopSdkService'
+import { resolveInteropAddress } from '@ambire-common/services/interop'
 
 export interface Resolver {
   name: string
