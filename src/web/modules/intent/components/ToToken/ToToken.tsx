@@ -10,6 +10,7 @@ import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAnd
 import NetworkIcon from '@common/components/NetworkIcon'
 // import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
+import { getInteropAddressChainId } from '@ambire-common/services/interop'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 // import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
@@ -27,7 +28,6 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 import getStyles from './styles'
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
-import { getInteropAddressChainId } from '../../utils/interopSdkService'
 import ChainTokenIcon from '../ChainTokenIcon'
 
 interface Props {
