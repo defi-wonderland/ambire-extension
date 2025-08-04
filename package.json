@@ -238,6 +238,7 @@
     "util": "~0.10.3",
     "uuid": "9.0.0",
     "validator": "^13.7.0",
+    "viem": "^2.33.2",
     "vm-browserify": "0.0.4",
     "webextension-polyfill": "^0.10.0"
   },
