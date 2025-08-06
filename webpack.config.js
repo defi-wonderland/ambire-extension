@@ -287,7 +287,10 @@ module.exports = async function (env, argv) {
   if (config.mode === 'production') {
     config.output.assetModuleFilename = '[name].[ext]'
     config.output.filename = '[name].js'
-    config.output.chunkFilename = '[id].js'
+    config.output.chunkFilename = 'c[id].js'
+  } else {
+    // For development, use the same pattern to prevent "_" prefix issues
+    config.output.chunkFilename = 'c[id].js'
   }
 
   // Environment specific configurations
