@@ -45,12 +45,18 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
   )
 
   const buttonState = useMemo(() => {
+    if (totalBalanceGasTankDetails.token === null) return 'error'
     if (!hasGasTank && isViewOnly && totalBalanceGasTankDetails.balanceFormatted) return 'balance'
     if (hasGasTank && totalBalanceGasTankDetails.balanceFormatted) return 'balance'
     if (hasGasTank && !totalBalanceGasTankDetails.balanceFormatted) return 'topup'
 
     return 'soon'
-  }, [hasGasTank, isViewOnly, totalBalanceGasTankDetails.balanceFormatted])
+  }, [
+    hasGasTank,
+    isViewOnly,
+    totalBalanceGasTankDetails.balanceFormatted,
+    totalBalanceGasTankDetails.token
+  ])
 
   useEffect(() => {
     const measureButton = () => {
@@ -170,6 +176,20 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account }: Props) => {
               {isViewOnly ? t('') : t('Gas Tank Soon')}
             </Text>
           </View>
+        )}
+        {buttonState === 'error' && (
+          <Text
+            style={[spacings.mhTy]}
+            color={
+              themeType === THEME_TYPES.DARK
+                ? theme.primaryBackgroundInverted
+                : theme.primaryBackground
+            }
+            weight="number_bold"
+            fontSize={12}
+          >
+            {t('Gas Tank Error')}
+          </Text>
         )}
       </AnimatedPressable>
       {buttonState === 'soon' && (

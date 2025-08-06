@@ -2,6 +2,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { ONBOARDING_WEB_ROUTES } from '@common/modules/router/constants/common'
 import { IS_FIREFOX } from '@web/constants/common'
 import { Port } from '@web/extension-services/messengers'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 
 export const handleCleanUpOnPortDisconnect = async ({
   port,
@@ -48,12 +49,26 @@ export const handleCleanUpOnPortDisconnect = async ({
 
   if (url.pathname.includes('transfer') || url.pathname.includes('top-up-gas-tank')) {
     // Always unload the screen when the action window is closed
-    const forceUnload = port.name === 'action-window'
+    const isActionWindow = port.name === 'action-window'
 
-    if (forceUnload) {
+    if (isActionWindow) {
       mainCtrl.onOneClickTransferClose()
     } else {
       mainCtrl.transfer.unloadScreen()
+    }
+
+    // If the Transfer popup is closed during signing or broadcasting, we don't want to show the tracking screen next time.
+    // Previously, the last account op was kept and shown, even after closing mid-process (mainCtrl.#broadcastSignedAccountOp).
+    // With `shouldTrackLatestBroadcastedAccountOp`, we can now prevent this and show a fresh form instead.
+    const shouldTrack =
+      mainCtrl.transfer.signAccountOpController?.status?.type === SigningStatus.ReadyToSign
+    // eslint-disable-next-line no-param-reassign
+    mainCtrl.transfer.shouldTrackLatestBroadcastedAccountOp = shouldTrack
+
+    // We reset the form state without destroying the signAccountOp,
+    // since it's still needed for broadcasting. Once broadcasting completes, we destroy the signAccountOp.
+    if (!shouldTrack) {
+      mainCtrl.transfer.resetForm(false)
     }
 
     mainCtrl.activity.resetAccountsOpsFilters('transfer')

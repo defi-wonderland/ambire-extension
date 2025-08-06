@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect } from 'react'
 
-import { ActionsController } from '@ambire-common/controllers/actions/actions'
+import { RequestsController } from '@ambire-common/controllers/requests/requests'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
@@ -9,10 +9,10 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-const ActionsControllerStateContext = createContext<ActionsController>({} as ActionsController)
+const RequestsControllerStateContext = createContext<RequestsController>({} as RequestsController)
 
-const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
-  const controller = 'actions'
+const RequestsControllerStateProvider: React.FC<any> = ({ children }) => {
+  const controller = 'requests'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
@@ -26,19 +26,22 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const memoizedState = useDeepMemo(state, controller)
 
-  const prevCurrentActionId = usePrevious(memoizedState.currentAction?.id)
+  const prevCurrentActionId = usePrevious(memoizedState?.actions?.currentAction?.id)
 
   useEffect(() => {
-    if (getUiType().isActionWindow && prevCurrentActionId !== memoizedState.currentAction?.id) {
+    if (
+      getUiType().isActionWindow &&
+      prevCurrentActionId !== memoizedState?.actions?.currentAction?.id
+    ) {
       setTimeout(() => navigate('/'))
     }
-  }, [prevCurrentActionId, memoizedState.currentAction?.id, navigate])
+  }, [prevCurrentActionId, memoizedState?.actions?.currentAction?.id, navigate])
 
   return (
-    <ActionsControllerStateContext.Provider value={memoizedState}>
+    <RequestsControllerStateContext.Provider value={memoizedState}>
       {children}
-    </ActionsControllerStateContext.Provider>
+    </RequestsControllerStateContext.Provider>
   )
 }
 
-export { ActionsControllerStateProvider, ActionsControllerStateContext }
+export { RequestsControllerStateProvider, RequestsControllerStateContext }

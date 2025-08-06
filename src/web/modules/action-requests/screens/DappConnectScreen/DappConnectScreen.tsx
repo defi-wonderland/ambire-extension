@@ -78,7 +78,7 @@ const DappConnectScreen = () => {
     if (!dappAction) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dappAction.id }
     })
   }, [dappAction, t, dispatch])
@@ -88,7 +88,7 @@ const DappConnectScreen = () => {
 
     setIsAuthorizing(true)
     dispatch({
-      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dappAction.id }
     })
   }, [dappAction, dispatch])

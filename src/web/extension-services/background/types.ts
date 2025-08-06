@@ -1,8 +1,8 @@
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
 import { AccountsController } from '@ambire-common/controllers/accounts/accounts'
-import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
+import { BannerController } from '@ambire-common/controllers/banner/banner'
 import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { DefiPositionsController } from '@ambire-common/controllers/defiPositions/defiPositions'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
@@ -15,6 +15,7 @@ import { NetworksController } from '@ambire-common/controllers/networks/networks
 import { PhishingController } from '@ambire-common/controllers/phishing/phishing'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { ProvidersController } from '@ambire-common/controllers/providers/providers'
+import { RequestsController } from '@ambire-common/controllers/requests/requests'
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
@@ -41,13 +42,14 @@ export const controllersNestedInMainMapping = {
   transfer: TransferController,
   phishing: PhishingController,
   dapps: DappsController,
-  actions: ActionsController,
+  requests: RequestsController,
   addressBook: AddressBookController,
   domains: DomainsController,
   invite: InviteController,
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
-  defiPositions: DefiPositionsController
+  defiPositions: DefiPositionsController,
+  banner: BannerController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller

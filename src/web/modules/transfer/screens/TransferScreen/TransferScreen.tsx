@@ -33,7 +33,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHasGasTank from '@web/hooks/useHasGasTank'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSyncedState from '@web/hooks/useSyncedState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
@@ -80,7 +80,7 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
   const { account, portfolio } = useSelectedAccountControllerState()
   const isSmartAccount = account ? getIsSmartAccount(account) : false
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { userRequests } = useMainControllerState()
+  const { userRequests } = useRequestsControllerState()
   const {
     ref: gasTankSheetRef,
     open: openGasTankInfoBottomSheet,
@@ -261,10 +261,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
     [dispatch]
   )
 
-  const doesUserMeetMinimumBalanceForGasTank = useMemo(() => {
-    return portfolio.totalBalance >= 10
-  }, [portfolio.totalBalance])
-
   // Used to resolve ENS, not to update the field value
   const setAddressState = useCallback(
     (newPartialAddressState: AddressStateOptional) => {
@@ -376,14 +372,17 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
           // one click mode opens signAccountOp if more than 1 req in batch
           if (networkUserRequests.length > 0) {
             dispatch({
-              type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
+              type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
               params: {
-                amount: state.amount,
-                selectedToken: state.selectedToken,
-                recipientAddress: isTopUp
-                  ? FEE_COLLECTOR
-                  : getAddressFromAddressState(addressState),
-                actionExecutionType
+                type: 'transferRequest',
+                params: {
+                  amount: state.amount,
+                  selectedToken: state.selectedToken,
+                  recipientAddress: isTopUp
+                    ? FEE_COLLECTOR
+                    : getAddressFromAddressState(addressState),
+                  actionExecutionType
+                }
               }
             })
             window.close()
@@ -395,12 +394,15 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
 
         // Batch
         dispatch({
-          type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            amount: state.amount,
-            selectedToken: state.selectedToken,
-            recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
-            actionExecutionType
+            type: 'transferRequest',
+            params: {
+              amount: state.amount,
+              selectedToken: state.selectedToken,
+              recipientAddress: isTopUp ? FEE_COLLECTOR : getAddressFromAddressState(addressState),
+              actionExecutionType
+            }
           }
         })
 
@@ -648,13 +650,6 @@ const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
                 <Alert
                   type="warning"
                   title={t('Gas Tank deposits cannot be withdrawn')}
-                  text={
-                    !doesUserMeetMinimumBalanceForGasTank
-                      ? t(
-                          'Note: A minimum overall balance of $10 is required to pay for gas via the Gas Tank'
-                        )
-                      : false
-                  }
                   isTypeLabelHidden
                 />
               </View>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { isPlainTextMessage } from '@ambire-common/libs/transfer/userRequest'
 import { isValidAddress } from '@ambire-common/services/address'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import HumanizerAddress from '@common/components/HumanizerAddress'
@@ -116,7 +117,7 @@ const FallbackVisualization: FC<{
             })}
           {content.kind === 'authorization-7702' && getMessageAsText(content.message)}
 
-          {content.kind === 'message' &&
+          {isPlainTextMessage(content) &&
             (getMessageAsText(content.message) || t('(Empty message)'))}
         </Text>
       </ScrollView>

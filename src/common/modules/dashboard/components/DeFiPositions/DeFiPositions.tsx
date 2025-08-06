@@ -49,8 +49,7 @@ const DeFiPositions: FC<Props> = ({
   const { theme, themeType } = useTheme()
   const searchValue = watch('search')
   const { networks } = useNetworksControllerState()
-  const { defiPositions, areDefiPositionsLoading, dashboardNetworkFilter } =
-    useSelectedAccountControllerState()
+  const { defiPositions, portfolio, dashboardNetworkFilter } = useSelectedAccountControllerState()
   const { setSearchParams } = useNavigation()
 
   const { dispatch } = useBackgroundService()
@@ -188,11 +187,9 @@ const DeFiPositions: FC<Props> = ({
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
-        areDefiPositionsLoading && !defiPositions?.length
-          ? 'skeleton'
-          : 'keep-this-to-avoid-key-warning',
-        ...(initTab?.defi ? filteredPositions : []),
-        !areDefiPositionsLoading && !filteredPositions.length ? 'empty' : ''
+        !portfolio.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        ...(initTab?.defi && portfolio.isAllReady ? filteredPositions : []),
+        portfolio.isAllReady && !filteredPositions.length ? 'empty' : ''
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

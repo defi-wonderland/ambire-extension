@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { CRASH_ANALYTICS_ENABLED_DEFAULT } from '@common/config/analytics/CrashAnalytics.web'
 import { DEFAULT_THEME, ThemeType } from '@common/styles/themeConfig'
 import { browser, isSafari } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -18,7 +19,7 @@ export class WalletStateController extends EventEmitter {
 
   logLevel: LOG_LEVELS = DEFAULT_LOG_LEVEL
 
-  crashAnalyticsEnabled: boolean = false
+  crashAnalyticsEnabled: boolean = CRASH_ANALYTICS_ENABLED_DEFAULT
 
   // Holds the initial load promise, so that one can wait until it completes
   initialLoadPromise: Promise<void>
@@ -55,7 +56,15 @@ export class WalletStateController extends EventEmitter {
     this.logLevel = await storage.get('logLevel', this.logLevel)
     if (this.logLevel !== DEFAULT_LOG_LEVEL) setLoggerInstanceLogLevel(this.logLevel)
 
-    this.crashAnalyticsEnabled = await storage.get('crashAnalyticsEnabled', false)
+    /**
+     * Since v5.15.0, we enable anonymous crash reporting by default. To avoid respecting
+     * outdated user preferences from v5.11.x–v5.14.x (where users may have manually disabled it),
+     * we ignore stored values and always use the new default.
+     */
+    // this.crashAnalyticsEnabled = await storage.get(
+    //   'crashAnalyticsEnabled',
+    //   this.crashAnalyticsEnabled
+    // )
 
     this.isReady = true
     this.emitUpdate()

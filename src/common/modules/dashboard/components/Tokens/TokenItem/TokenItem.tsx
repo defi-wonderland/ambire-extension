@@ -84,15 +84,15 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
   const sendClaimTransaction = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST',
-      params: { token }
+      type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
+      params: { type: 'claimWalletRequest', params: { token } }
     })
   }, [token, dispatch])
 
   const sendVestingTransaction = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_MINT_VESTING_USER_REQUEST',
-      params: { token }
+      type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
+      params: { type: 'mintVestingRequest', params: { token } }
     })
   }, [token, dispatch])
 
@@ -103,10 +103,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
       dispatch({
         type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
-        params: {
-          network,
-          forceUpdate: true
-        }
+        params: { networks: [network], forceUpdate: true }
       })
     }
     closeBottomSheet()
@@ -190,7 +187,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
                 </View>
                 {isRewards && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"
@@ -201,7 +198,7 @@ const TokenItem = ({ token }: { token: TokenResult }) => {
 
                 {isVesting && (
                   <Button
-                    style={spacings.ml}
+                    style={spacings.mlMi}
                     size="small"
                     hasBottomSpacing={false}
                     type="secondary"

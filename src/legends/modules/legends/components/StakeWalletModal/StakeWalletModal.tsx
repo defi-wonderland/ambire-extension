@@ -16,7 +16,6 @@ import { createPortal } from 'react-dom'
 
 import { STK_WALLET, WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import InfoIcon from '@common/assets/svg/InfoIcon/InfoIcon'
 import { RELAYER_URL } from '@env'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import CloseIcon from '@legends/components/CloseIcon'
@@ -53,10 +52,6 @@ const xWalletIface = new Interface([
   'function withdraw(uint shares, uint unlocksAt, bool skipMint) external',
   'event LogLeave(address indexed owner, uint256 shares, uint256 unlocksAt, uint256 maxTokens)'
 ])
-
-function goToStakingInfo() {
-  window.open('https://help.ambire.com/hc/en-us/sections/4421155466130-Staking/', '_blank')
-}
 
 const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> = ({
   isOpen,
@@ -184,7 +179,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         const firstUncollected = uncollected[0]
         if (!firstUncollected) return
         const { maxTokens, unlocksAt, shares } = firstUncollected
-        setFirstToCollect({ unlocksAt: unlocksAt, maxTokens, shares })
+        setFirstToCollect({ unlocksAt, maxTokens, shares })
       })
       .catch(() => addToast('Error getting pending withdraw data', { type: 'error' }))
       .finally(() => setIsLoadingLogs(false))
@@ -438,6 +433,16 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
         </button>
         <div className={styles.contentWrapper}>
           <h2 className={styles.title}>Stake $WALLET</h2>
+          <p className={styles.learnMore}>
+            Learn more about{' '}
+            <a
+              target="_blank"
+              href="https://help.ambire.com/hc/en-us/sections/4421155466130-Staking/"
+              rel="noreferrer"
+            >
+              how staking works
+            </a>
+          </p>
           <div className={styles.tabs}>
             <button
               type="button"
@@ -505,16 +510,7 @@ const StakeWalletModal: React.FC<{ isOpen: boolean; handleClose: () => void }> =
                 </div>
               ))}
             <div className={`${styles.infoRow} ${styles.apyInfo}`}>
-              APY
-              <InfoIcon
-                onClick={goToStakingInfo}
-                width={12}
-                height={12}
-                color="currentColor"
-                className={styles.infoIcon}
-                data-tooltip-id="weight-info"
-              />
-              {walletTokenInfo?.apy.toFixed(2)}%
+              <div style={{ marginRight: '1rem' }}>APY</div> {walletTokenInfo?.apy.toFixed(2)}%
             </div>
             <div
               className={`${activeTab === 'unstake' && onchainData?.lockedShares && styles.blur}`}

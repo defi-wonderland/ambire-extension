@@ -8,7 +8,11 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { humanizeMessage } from '@ambire-common/libs/humanizer'
-import { EIP_1271_NOT_SUPPORTED_BY } from '@ambire-common/libs/signMessage/signMessage'
+import {
+  EIP_1271_NOT_SUPPORTED_BY,
+  toPersonalSignHex
+} from '@ambire-common/libs/signMessage/signMessage'
+import { isPlainTextMessage } from '@ambire-common/libs/transfer/userRequest'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
@@ -116,6 +120,11 @@ const SignMessageScreen = () => {
 
     if (!userRequest || !signMessageAction || isAlreadyInit) return
 
+    // Similarly to other wallets, attempt to normalize the input to a hex string,
+    // because some dapps not always pass hex strings, but plain text or Uint8Array.
+    if (isPlainTextMessage(userRequest.action))
+      userRequest.action.message = toPersonalSignHex(userRequest.action.message)
+
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
       params: {
@@ -144,7 +153,7 @@ const SignMessageScreen = () => {
     if (!signMessageAction || !userRequest) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: {
         err: t('User rejected the request.'),
         id: userRequest.id

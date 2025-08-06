@@ -18,6 +18,7 @@ import {
   INACTIVE_EXTENSION_PORTFOLIO_UPDATE_INTERVAL,
   UPDATE_SWAP_AND_BRIDGE_QUOTE_INTERVAL
 } from '@ambire-common/consts/intervals'
+import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { Fetch } from '@ambire-common/interfaces/fetch'
@@ -723,9 +724,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           if (!failedChainIds.includes(chainId)) {
             delete retriedFastAccountStateReFetchForNetworks[index]
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            mainCtrl.updateSelectedAccountPortfolio({
-              network: mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
-            })
+
+            const network = mainCtrl.networks.networks.find((n) => n.chainId.toString() === chainId)
+            mainCtrl.updateSelectedAccountPortfolio({ networks: network ? [network] : undefined })
           }
         })
       }
@@ -920,34 +921,47 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
           }, 'background')
         }
       }
-
-      if (Array.isArray(controller?.onErrorIds)) {
-        const hasOnErrorInitialized = controller.onErrorIds.includes('background')
-
-        if (!hasOnErrorInitialized) {
-          ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            stateDebug(walletStateCtrl.logLevel, mainCtrl, ctrlName, 'error')
-            const controller = (mainCtrl as any)[ctrlName]
-
-            // In case the controller was destroyed and an error was emitted
-            if (!controller) return
-
-            pm.send('> ui-error', {
-              method: ctrlName,
-              params: { errors: controller.emittedErrors, controller: ctrlName }
-            })
-          }, 'background')
-        }
-      }
     })
   }, 'background')
-  mainCtrl.onError(() => {
-    stateDebug(walletStateCtrl.logLevel, mainCtrl, 'main', 'error')
-    pm.send('> ui-error', {
-      method: 'main',
-      params: { errors: mainCtrl.emittedErrors, controller: 'main' }
-    })
-  })
+
+  function setupMainControllerErrorListeners(ctrl: any, ctrlNamePath: any[] = []) {
+    if (!ctrl || typeof ctrl !== 'object') return
+
+    if (ctrl instanceof EventEmitter) {
+      const ctrlName = ctrlNamePath.join(' -> ')
+      const hasOnErrorInitialized = ctrl.onErrorIds.includes('background')
+
+      if (!hasOnErrorInitialized) {
+        ctrl.onError(() => {
+          stateDebug(walletStateCtrl.logLevel, ctrl, ctrlName, 'error')
+          pm.send('> ui-error', {
+            method: ctrlName,
+            params: { errors: ctrl.emittedErrors, controller: ctrlName }
+          })
+        }, 'background')
+      }
+    }
+
+    function hasEvents(prop: any) {
+      return prop && typeof prop === 'object' && prop instanceof EventEmitter
+    }
+
+    function hasChildControllers(prop: any) {
+      return (
+        prop &&
+        typeof prop === 'object' &&
+        Object.values(prop).some((p) => p && typeof p === 'object' && p instanceof EventEmitter)
+      )
+    }
+
+    for (const key of Object.keys(ctrl)) {
+      if (hasEvents(ctrl[key]) || hasChildControllers(ctrl[key])) {
+        setupMainControllerErrorListeners(ctrl[key], [...ctrlNamePath, key])
+      }
+    }
+  }
+
+  setupMainControllerErrorListeners(mainCtrl, ['main'])
 
   // Broadcast onUpdate for the wallet state controller
   walletStateCtrl.onUpdate((forceEmit) => {

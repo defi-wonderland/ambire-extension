@@ -49,7 +49,8 @@ const X_WALLET_TOKEN = '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935'
 const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   isOpen,
   handleClose,
-  action
+  action,
+  meta
 }) => {
   const { xWalletClaimableBalance } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
@@ -181,6 +182,12 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
             <p className={styles.noWalletTitle}>No xWALLET found</p>
           )}
 
+          {meta?.hasAlreadyMigrated && (
+            <div className={styles.alreadyMigratedWarning}>
+              You will not receive XP from this action as you already migrated some of your $xWALLET
+              tokens!
+            </div>
+          )}
           <CardActionButton
             onButtonClick={onButtonClick}
             buttonText={

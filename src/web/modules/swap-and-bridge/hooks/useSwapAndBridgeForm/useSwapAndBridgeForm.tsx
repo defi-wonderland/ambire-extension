@@ -15,6 +15,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useSyncedState from '@web/hooks/useSyncedState'
@@ -44,7 +45,8 @@ const useSwapAndBridgeForm = () => {
     toSelectedToken
   } = useSwapAndBridgeControllerState()
   const { dispatch } = useBackgroundService()
-  const { statuses: mainCtrlStatuses, userRequests } = useMainControllerState()
+  const { statuses: mainCtrlStatuses } = useMainControllerState()
+  const { userRequests } = useRequestsControllerState()
   const { account, portfolio } = useSelectedAccountControllerState()
   const controllerAmountFieldValue = fromAmountFieldMode === 'token' ? fromAmount : fromAmountInFiat
   const [fromAmountValue, setFromAmountValue] = useSyncedState<string>({
@@ -321,9 +323,12 @@ const useSwapAndBridgeForm = () => {
     if (isOneClickModeDuringPriceImpact) {
       if (networkUserRequests.length > 0) {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            openActionWindow: true
+            type: 'swapAndBridgeRequest',
+            params: {
+              openActionWindow: true
+            }
           }
         })
         window.close()
@@ -332,9 +337,12 @@ const useSwapAndBridgeForm = () => {
       }
     } else {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+        type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
         params: {
-          openActionWindow: false
+          type: 'swapAndBridgeRequest',
+          params: {
+            openActionWindow: false
+          }
         }
       })
       setShowAddedToBatch(true)
@@ -362,9 +370,12 @@ const useSwapAndBridgeForm = () => {
       if (isOneClickMode) {
         if (networkUserRequests.length > 0) {
           dispatch({
-            type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
             params: {
-              openActionWindow: true
+              type: 'swapAndBridgeRequest',
+              params: {
+                openActionWindow: true
+              }
             }
           })
           window.close()
@@ -373,9 +384,12 @@ const useSwapAndBridgeForm = () => {
         }
       } else {
         dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_BUILD_USER_REQUEST',
+          type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
           params: {
-            openActionWindow: false
+            type: 'swapAndBridgeRequest',
+            params: {
+              openActionWindow: false
+            }
           }
         })
         setShowAddedToBatch(true)

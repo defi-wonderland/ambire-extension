@@ -65,7 +65,7 @@ const SwitchAccountScreen = () => {
     if (!dAppAction) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dAppAction.id }
     })
   }, [dAppAction, t, dispatch])
@@ -105,7 +105,7 @@ const SwitchAccountScreen = () => {
     if (account?.addr !== nextAccount || !userRequest) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dAppAction.id }
     })
   }, [account?.addr, dAppAction.id, dispatch, nextAccount, userRequest])

@@ -12,9 +12,7 @@ name: Build ARM64 gecko 🦊 production browser extension
 on:
   workflow_dispatch: # Manual trigger
   release:
-    types: [published] # Triggers on new releases
-    branches:
-      - v2 # Only trigger on releases from main branch
+    types: [published] # Triggers on new releases (from any branch)
 
 jobs:
   build:

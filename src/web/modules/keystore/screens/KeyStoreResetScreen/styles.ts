@@ -4,7 +4,7 @@ import spacings from '@common/styles/spacings'
 
 interface Styles {
   logo: ViewStyle
-  text: TextStyle
+  title: TextStyle
   currentEmailContainer: ViewStyle
   currentEmailLabel: TextStyle
   button: ViewStyle
@@ -14,9 +14,9 @@ const styles = StyleSheet.create<Styles>({
   logo: {
     ...spacings.mbXl
   },
-  text: {
-    ...spacings.mbMd,
-    textAlign: 'center'
+  title: {
+    fontSize: 20,
+    fontWeight: '900'
   },
   currentEmailContainer: {
     ...spacings.pvSm,

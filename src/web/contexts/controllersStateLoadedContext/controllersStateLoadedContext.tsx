@@ -2,10 +2,10 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountPickerControllerState from '@web/hooks/useAccountPickerControllerState'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useBannersControllerState from '@web/hooks/useBannersControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
@@ -18,6 +18,7 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePhishingControllerState from '@web/hooks/usePhishingControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
+import useRequestsControllerState from '@web/hooks/useRequestsControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useStorageControllerState from '@web/hooks/useStorageControllerState'
@@ -52,7 +53,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const selectedAccountState = useSelectedAccountControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
-  const actionsState = useActionsControllerState()
+  const requestsState = useRequestsControllerState()
   const activityState = useActivityControllerState()
   const portfolioState = usePortfolioControllerState()
   const emailVaultState = useEmailVaultControllerState()
@@ -61,6 +62,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const addressBookState = useAddressBookControllerState()
   const domainsControllerState = useDomainsControllerState()
   const inviteControllerState = useInviteControllerState()
+  const bannersState = useBannersControllerState()
+
   const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
   const extensionUpdateControllerState = useExtensionUpdateControllerState()
   const featureFlagsControllerState = useFeatureFlagsControllerState()
@@ -102,7 +105,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(signMessageState).length,
     [signMessageState]
   )
-  const hasActionsState: boolean = useMemo(() => !!Object.keys(actionsState).length, [actionsState])
+  const hasRequestsState: boolean = useMemo(
+    () => !!Object.keys(requestsState).length,
+    [requestsState]
+  )
   const hasPortfolioState: boolean = useMemo(
     () => !!Object.keys(portfolioState).length,
     [portfolioState]
@@ -147,6 +153,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(featureFlagsControllerState).length,
     [featureFlagsControllerState]
   )
+  const hasBannersState: boolean = useMemo(() => !!Object.keys(bannersState).length, [bannersState])
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -167,7 +174,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasAccountPickerState &&
       hasKeystoreState &&
       hasSignMessageState &&
-      hasActionsState &&
+      hasRequestsState &&
       hasPortfolioState &&
       hasActivityState &&
       hasEmailVaultState &&
@@ -178,7 +185,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasInviteState &&
       hasSwapAndBridgeState &&
       hasExtensionUpdateState &&
-      hasFeatureFlagsControllerState
+      hasFeatureFlagsControllerState &&
+      hasBannersState
     ) {
       clearTimeout(timeout)
       if (isPopup) {
@@ -207,7 +215,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasAccountPickerState,
     hasKeystoreState,
     hasSignMessageState,
-    hasActionsState,
+    hasRequestsState,
     hasPortfolioState,
     hasActivityState,
     hasEmailVaultState,
@@ -220,6 +228,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasSwapAndBridgeState,
     hasExtensionUpdateState,
     hasFeatureFlagsControllerState,
+    hasBannersState,
     dispatch,
     startTime
   ])

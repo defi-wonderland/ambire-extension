@@ -53,10 +53,13 @@ const flowContext = flow
         try {
           if (lockedOrigins[origin] === undefined) {
             lockedOrigins[origin] = await new Promise((resolve: (value: any) => void, reject) => {
-              mainCtrl.buildUserRequestFromDAppRequest(
-                { ...request, method: 'unlock', params: {} },
-                { resolve, reject, session: request.session }
-              )
+              mainCtrl.requests.build({
+                type: 'dappRequest',
+                params: {
+                  request: { ...request, method: 'unlock', params: {} },
+                  dappPromise: { resolve, reject, session: request.session }
+                }
+              })
             })
           }
           await lockedOrigins[origin]
@@ -79,13 +82,16 @@ const flowContext = flow
         try {
           if (connectOrigins[origin] === undefined) {
             connectOrigins[origin] = new Promise((resolve: (value: any) => void, reject) => {
-              mainCtrl.buildUserRequestFromDAppRequest(
-                { ...request, method: 'dapp_connect', params: {} },
-                { resolve, reject, session: request.session }
-              )
+              mainCtrl.requests.build({
+                type: 'dappRequest',
+                params: {
+                  request: { ...request, method: 'dapp_connect', params: {} },
+                  dappPromise: { resolve, reject, session: request.session }
+                }
+              })
             })
-          } else if (mainCtrl.actions.currentAction) {
-            await mainCtrl.actions.focusActionWindow()
+          } else if (mainCtrl.requests.actions.currentAction) {
+            await mainCtrl.requests.actions.focusActionWindow()
           }
           await connectOrigins[origin]
 
@@ -124,11 +130,13 @@ const flowContext = flow
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {
-        mainCtrl
-          .buildUserRequestFromDAppRequest(request, {
-            resolve,
-            reject,
-            session: request.session
+        mainCtrl.requests
+          .build({
+            type: 'dappRequest',
+            params: {
+              request,
+              dappPromise: { resolve, reject, session: request.session }
+            }
           })
           .catch((error) => reject(error))
       })

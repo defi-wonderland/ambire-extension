@@ -100,7 +100,7 @@ const WatchTokenRequestScreen = () => {
     if (!dappAction) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dappAction.id }
     })
   }, [dappAction, t, dispatch])
@@ -226,7 +226,7 @@ const WatchTokenRequestScreen = () => {
     })
 
     dispatch({
-      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dappAction.id }
     })
   }, [dispatch, dappAction, tokenData, tokenNetwork])

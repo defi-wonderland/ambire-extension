@@ -24,13 +24,11 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'dapps'
   const state = useControllerState(controller, async (newState: DappsController) => {
     const tab = await getCurrentTab()
-    if (!tab.id || !tab.url) return
+    if (!tab || !tab.id || !tab.url) return
+
     const origin = getOriginFromUrl(tab.url)
     const dappId = getDappIdFromUrl(tab.url)
-
-    // @ts-ignore
     const currentSession = newState.dappSessions?.[`${tab.id}-${origin}`] || {}
-
     const dapp = newState.dapps.find((d) => d.id === currentSession.id || d.id === dappId)
 
     if (dapp) {

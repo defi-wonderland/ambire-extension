@@ -141,15 +141,19 @@ const KeyStoreResetScreen = () => {
         <>
           <KeyStoreLogo width={120} height={120} style={styles.logo} />
           {!ev.hasConfirmedRecoveryEmail ? (
-            <Text style={styles.text} weight="regular" fontSize={14}>
-              At Ambire Wallet, we take your security seriously.{'\n'}
-              To ensure that your extension password remains private, we do not keep a copy of it.
-              Your extension password recovery is activated by email. To change your extension
-              password, simply click on the &apos;recover by email&apos; option and enter the
-              one-time code that you receive. Then, fill out the password and confirm password
-              fields to reset your extension password. This ensures that only you have access to
-              your wallet. Thanks for trusting Ambire Wallet with your crypto!
-            </Text>
+            <>
+              <Text style={styles.title} weight="regular" fontSize={14}>
+                We don&apos;t store your device password.
+              </Text>
+              <Text>
+                {'\n'}
+                To reset it, insert your email, enter the code you receive, and set a new password.
+                {'\n'}
+                This keeps your wallet secure and accessible only to you.{'\n'}
+                {'\n'}
+                *Recovery works only if you have already enabled it in settings.
+              </Text>
+            </>
           ) : (
             <>
               <Text style={styles.text} weight="regular" fontSize={14}>
@@ -167,7 +171,7 @@ const KeyStoreResetScreen = () => {
             <View
               style={[
                 {
-                  marginVertical: SPACING_LG * 2
+                  marginVertical: SPACING_LG
                 }
               ]}
             >

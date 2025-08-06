@@ -1,6 +1,6 @@
 name: Legends 👾
 env:
-  APP_ENV: production
+  APP_ENV: staging
 
 on:
   push:

@@ -31,7 +31,7 @@ const useCurrentActionSideEffects = () => {
       if (actionsState.currentAction.type === 'dappRequest') {
         if (actionsState.currentAction.userRequest.action.kind === 'unlock') {
           dispatch({
-            type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+            type: 'REQUESTS_CONTROLLER_RESOLVE_USER_REQUEST',
             params: { data: null, id: actionsState.currentAction.id }
           })
         }

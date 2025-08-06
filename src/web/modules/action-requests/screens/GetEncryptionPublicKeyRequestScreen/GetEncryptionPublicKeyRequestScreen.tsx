@@ -35,7 +35,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
 
   const handleDeny = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      type: 'REQUESTS_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dappAction.id }
     })
   }, [dappAction.id, t, dispatch])
