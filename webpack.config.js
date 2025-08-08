@@ -199,7 +199,7 @@ module.exports = async function (env, argv) {
   config.resolve.fallback = {
     stream: require.resolve('stream-browserify'),
     crypto: require.resolve('crypto-browserify'),
-    // Fallback for fetching artifacts (privacy-pools-core-sdk)
+
     fs: false,
     // Add fallbacks for all missing viem test action files
     '../../actions/test/dumpState.js': false,
@@ -287,10 +287,10 @@ module.exports = async function (env, argv) {
   if (config.mode === 'production') {
     config.output.assetModuleFilename = '[name].[ext]'
     config.output.filename = '[name].js'
-    config.output.chunkFilename = 'c[id].js'
+    config.output.chunkFilename = 'd[id].js'
   } else {
     // For development, use the same pattern to prevent "_" prefix issues
-    config.output.chunkFilename = 'c[id].js'
+    config.output.chunkFilename = 'd[id].js'
   }
 
   // Environment specific configurations
