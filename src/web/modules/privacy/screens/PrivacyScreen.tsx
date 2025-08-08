@@ -1,9 +1,14 @@
 import React, { useCallback } from 'react'
-
-import BackButton from '@common/components/BackButton'
-import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
-
+import { View } from 'react-native'
+import { Wrapper } from '@web/components/TransactionsScreen'
+import useNavigation from '@common/hooks/useNavigation'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import DepositManager from '../components/DepositManager'
+import SeedPhraseManager from '../components/SeedPhraseManager'
+import WithdrawalManager from '../components/WithdrawalManager'
+import AccountOverview from '../components/AccountOverview'
 import usePrivacyForm from '../hooks'
 
 const PrivacyScreen = () => {
@@ -15,10 +20,19 @@ const PrivacyScreen = () => {
   }, [navigate])
 
   return (
-    <div>
-      <BackButton onPress={onBack} />
-      <h1>Privacy</h1>
-    </div>
+    <Wrapper title="Privacy" handleGoBack={onBack} buttons={[]}>
+      <View style={[spacings.p16, flexbox.flex1, { overflow: 'scroll', padding: '16px' }]}>
+        <View style={[flexbox.flex1, spacings.mt16]}>
+          <SeedPhraseManager />
+
+          <DepositManager />
+
+          <WithdrawalManager />
+
+          <AccountOverview />
+        </View>
+      </View>
+    </Wrapper>
   )
 }
 
