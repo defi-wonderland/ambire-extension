@@ -13,7 +13,7 @@ import usePrivacyForm from '../hooks'
 
 const PrivacyScreen = () => {
   const { navigate } = useNavigation()
-  const { sdkState } = usePrivacyForm()
+  const { amount, targetAddress } = usePrivacyForm()
 
   const onBack = useCallback(() => {
     navigate(ROUTES.dashboard)

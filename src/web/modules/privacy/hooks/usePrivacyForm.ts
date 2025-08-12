@@ -1,15 +1,26 @@
+import { useEffect } from 'react'
 import usePrivacyControllerState from '@web/hooks/usePrivacyControllerState'
-import usePrivacySDK from './usePrivacySDK'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 const usePrivacyForm = () => {
-  const { sdkState } = usePrivacySDK()
-  const { selectedPool, amount, targetAddress } = usePrivacyControllerState()
+  const { amount, targetAddress, isInitialized, initialPromiseLoaded } = usePrivacyControllerState()
+  const { dispatch } = useBackgroundService()
 
-  // TODO: implement form logic here
+  useEffect(() => {
+    if (!isInitialized && initialPromiseLoaded) {
+      dispatch({
+        type: 'PRIVACY_CONTROLLER_INITIALIZE_SDK',
+        params: {
+          baseUrl: typeof window !== 'undefined' ? window.location.origin : ''
+        }
+      })
+    }
+  }, [isInitialized, initialPromiseLoaded, dispatch])
+
+  console.log('Ambire privacy: initialPromiseLoaded', initialPromiseLoaded)
+  console.log('Ambire privacy: initialized', isInitialized)
 
   return {
-    sdkState,
-    selectedPool,
     amount,
     targetAddress
   }
