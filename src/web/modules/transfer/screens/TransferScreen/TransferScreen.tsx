@@ -48,10 +48,12 @@ import useTrackAccountOp from '@web/modules/sign-account-op/hooks/OneClick/useTr
 import GasTankInfoModal from '@web/modules/transfer/components/GasTankInfoModal'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import { getUiType } from '@web/utils/uiType'
+import usePrivacyForm from '@web/modules/privacy/hooks'
 
 const { isPopup, isTab, isActionWindow } = getUiType()
 
 const TransferScreen = ({ isTopUpScreen }: { isTopUpScreen?: boolean }) => {
+  const privacyForm = usePrivacyForm()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { state } = useTransferControllerState()
