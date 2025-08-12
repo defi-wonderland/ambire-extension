@@ -398,6 +398,8 @@ export const handleActions = async (
     case 'MAIN_CONTROLLER_REMOVE_ACTIVE_ROUTE':
       return mainCtrl.removeActiveRoute(params.activeRouteId)
 
+    case 'PRIVACY_CONTROLLER_INITIALIZE_SDK':
+      return mainCtrl.privacy.initSDK(params.baseUrl)
     case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
       return mainCtrl.requests.actions.removeActions([params.id], params.shouldOpenNextAction)
     case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
