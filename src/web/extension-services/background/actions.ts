@@ -740,6 +740,13 @@ type DismissBanner = {
   }
 }
 
+type PrivacyControllerInitializeSdkAction = {
+  type: 'PRIVACY_CONTROLLER_INITIALIZE_SDK'
+  params: {
+    baseUrl: string
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -879,3 +886,4 @@ export type Action =
   | SetLogLevelTypeAction
   | SetCrashAnalyticsAction
   | DismissBanner
+  | PrivacyControllerInitializeSdkAction
