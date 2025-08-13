@@ -1,6 +1,8 @@
-import { parseEther, getAddress } from 'viem'
+import { parseEther, getAddress, encodeFunctionData } from 'viem'
 import type { Hash, Secret } from '@0xbow/privacy-pools-core-sdk'
-import type { PublicClient, WalletClient, Address } from 'viem'
+import type { PublicClient, Address } from 'viem'
+import { sepolia } from 'viem/chains'
+import { chainData } from '@ambire-common/controllers/privacy/config'
 import { entrypointAbi } from './abi'
 
 export type DepositSecrets = {
@@ -15,13 +17,13 @@ type DepositTransactionParams = {
   entryPointAddress: string
   userAddress: Address
   publicClient: PublicClient
-  walletClient: WalletClient
 }
 
 type DepositResult = {
-  success: boolean
-  hash?: `0x${string}`
-  error?: string
+  from: Address
+  to: Address
+  data: `0x${string}`
+  value: bigint
 }
 
 /**
@@ -33,10 +35,8 @@ export async function prepareDepositTransaction({
   entryPointAddress,
   userAddress,
   publicClient
-}: Omit<DepositTransactionParams, 'walletClient'>): Promise<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: DepositTransactionParams): Promise<{
   request: any
-  error?: string
 }> {
   try {
     const { request } = await publicClient
@@ -57,9 +57,9 @@ export async function prepareDepositTransaction({
 
     return { request }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Failed to prepare deposit transaction'
-    return { request: null, error: errorMessage }
+    // eslint-disable-next-line no-console
+    console.error(error)
+    return { request: null }
   }
 }
 
@@ -69,29 +69,15 @@ export async function prepareDepositTransaction({
 export async function executeDepositTransaction({
   amount,
   depositSecrets,
-  entryPointAddress,
-  userAddress,
-  publicClient,
-  walletClient
+  userAddress
 }: DepositTransactionParams): Promise<DepositResult> {
-  try {
-    const { request, error } = await prepareDepositTransaction({
-      amount,
-      depositSecrets,
-      entryPointAddress,
-      userAddress,
-      publicClient
-    })
+  const entryPointAddress = chainData[sepolia.id].poolInfo[0].entryPointAddress
 
-    if (error || !request) {
-      return { success: false, error: error || 'Failed to prepare transaction' }
-    }
+  const data = encodeFunctionData({
+    abi: entrypointAbi,
+    functionName: 'deposit',
+    args: [depositSecrets.precommitment]
+  })
 
-    const hash = await walletClient.writeContract(request)
-    return { success: true, hash }
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Failed to execute deposit transaction'
-    return { success: false, error: errorMessage }
-  }
+  return { from: userAddress, to: getAddress(entryPointAddress), data, value: parseEther(amount) }
 }
