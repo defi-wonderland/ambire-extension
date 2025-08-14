@@ -96,7 +96,7 @@ export const usePP = () => {
   ) => {
     dispatch({
       type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
-      params: { type, params: { txList } }
+      params: { type, params: { txList, actionExecutionType: 'open-action-window' } }
     })
   }
 
