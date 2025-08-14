@@ -15,11 +15,9 @@ type DepositTransactionParams = {
   amount: string
   depositSecrets: DepositSecrets
   entryPointAddress: string
-  userAddress: Address
 }
 
 type DepositResult = {
-  from: Address
   to: Address
   data: `0x${string}`
   value: bigint
@@ -30,8 +28,7 @@ type DepositResult = {
  */
 export async function prepareDepositTransaction({
   amount,
-  depositSecrets,
-  userAddress
+  depositSecrets
 }: DepositTransactionParams): Promise<DepositResult> {
   const entryPointAddress = chainData[sepolia.id].poolInfo[0].entryPointAddress
 
@@ -41,5 +38,5 @@ export async function prepareDepositTransaction({
     args: [depositSecrets.precommitment]
   })
 
-  return { from: userAddress, to: getAddress(entryPointAddress), data, value: parseEther(amount) }
+  return { to: getAddress(entryPointAddress), data, value: parseEther(amount) }
 }

@@ -21,8 +21,6 @@ export const usePP = () => {
   // const [mtRoots, setMtRoots] = useState<MtRootResponse | undefined>(undefined)
   // const [mtLeaves, setMtLeaves] = useState<MtLeavesResponse | undefined>(undefined)
 
-  const actionExecutionType = 'open-action-window'
-
   const handleGenerateSeedPhrase = async () => {
     try {
       setIsGenerating(true)
@@ -92,10 +90,13 @@ export const usePP = () => {
     // setPoolAccounts(newPoolAccounts)
   }
 
-  const handlePrivateRequest = (type: PrivateRequestType) => {
+  const handlePrivateRequest = (
+    type: PrivateRequestType,
+    txList: { to: string; value: bigint; data: string }[]
+  ) => {
     dispatch({
       type: 'REQUESTS_CONTROLLER_BUILD_REQUEST',
-      params: { type, params: { actionExecutionType } }
+      params: { type, params: { txList } }
     })
   }
 

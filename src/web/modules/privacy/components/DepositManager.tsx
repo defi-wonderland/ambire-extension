@@ -8,7 +8,7 @@ import Heading from '@common/components/Heading'
 import Panel from '@common/components/Panel'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { Address, Hash } from '@0xbow/privacy-pools-core-sdk'
+import { Hash } from '@0xbow/privacy-pools-core-sdk'
 import { chainData } from '../config/chainData'
 import { createDepositSecrets } from '../utils/privacy/sdk'
 import { prepareDepositTransaction } from '../utils/privacy/deposit'
@@ -19,7 +19,7 @@ type DepositManagerProps = {
 }
 
 const DepositManager = ({ ppData }: DepositManagerProps) => {
-  const { loadedAccount, userAddress } = ppData
+  const { loadedAccount, handlePrivateRequest } = ppData
   const [amount, setAmount] = useState('')
   const [message, setMessage] = useState<{
     type: 'success' | 'error' | 'info'
@@ -41,18 +41,19 @@ const DepositManager = ({ ppData }: DepositManagerProps) => {
   }
 
   const handleDeposit = async () => {
-    if (!loadedAccount || !userAddress) return
+    if (!loadedAccount) return
 
     const secrets = createDepositSecrets(loadedAccount, poolInfo.scope as Hash)
     const result = await prepareDepositTransaction({
       amount,
       depositSecrets: secrets,
-      entryPointAddress: poolInfo.entryPointAddress,
-      userAddress: userAddress as Address
+      entryPointAddress: poolInfo.entryPointAddress
     })
 
     // eslint-disable-next-line no-console
     console.log('result', result)
+
+    handlePrivateRequest('privateDepositRequest', [result])
   }
 
   const handleSetMaxAmount = () => {
