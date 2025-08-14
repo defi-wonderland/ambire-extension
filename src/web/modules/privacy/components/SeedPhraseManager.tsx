@@ -9,7 +9,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { usePP } from '../hooks/usePP'
 import { generateSeedPhrase } from '../utils/seedPhrase'
-import usePrivacyForm from '../hooks'
+import usePrivacyForm from '../hooks/usePrivacyForm'
 
 type SeedPhraseManagerProps = {
   ppData: ReturnType<typeof usePP>

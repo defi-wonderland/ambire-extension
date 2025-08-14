@@ -15,7 +15,7 @@ import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { prepareDepositTransaction } from '../utils/privacy/deposit'
 import { createDepositSecrets } from '../utils/privacy/sdk'
 import { usePP } from '../hooks/usePP'
-import usePrivacyForm from '../hooks'
+import usePrivacyForm from '../hooks/usePrivacyForm'
 
 type DepositManagerProps = {
   ppData: ReturnType<typeof usePP>
