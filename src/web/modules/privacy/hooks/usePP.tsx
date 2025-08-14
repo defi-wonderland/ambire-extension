@@ -1,13 +1,16 @@
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useState } from 'react'
 import { AccountService, PoolAccount } from '@0xbow/privacy-pools-core-sdk'
+import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { generateSeedPhrase } from '../utils/seedPhrase'
 import { getPoolAccountsFromAccount, loadAccount } from '../utils/privacy/sdk'
 
 type PrivateRequestType = 'privateDepositRequest' | 'privateSendRequest' | 'privateRagequitRequest'
 
 export const usePP = () => {
+  const selectedAccount = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
+
   const [seedPhrase, setSeedPhrase] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -107,6 +110,7 @@ export const usePP = () => {
     isGenerating,
     isLoading,
     loadedAccount,
-    poolAccounts
+    poolAccounts,
+    userAddress: selectedAccount.account?.addr
   }
 }

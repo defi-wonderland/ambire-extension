@@ -9,21 +9,25 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { usePP } from '../hooks/usePP'
 
-const SeedPhraseManager = () => {
+type SeedPhraseManagerProps = {
+  ppData: ReturnType<typeof usePP>
+}
+
+const SeedPhraseManager = ({ ppData }: SeedPhraseManagerProps) => {
   const {
     handleGenerateSeedPhrase,
     handleLoadAccount,
-    setSeedPhrase,
+    isGenerating,
+    isLoading,
+    message,
     setMessage,
     seedPhrase,
-    message,
-    isGenerating,
-    isLoading
-  } = usePP()
+    setSeedPhrase
+  } = ppData
 
   const handleSeedPhraseChange = (event: any) => {
     setSeedPhrase(event.target.value)
-    if (message) setMessage(null) // Clear messages when user starts typing
+    if (message) setMessage(null)
   }
 
   return (
