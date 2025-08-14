@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { View } from 'react-native'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -7,22 +7,23 @@ import Alert from '@common/components/Alert'
 import Heading from '@common/components/Heading'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { usePP } from '../hooks/usePP'
 import { generateSeedPhrase } from '../utils/seedPhrase'
 import usePrivacyForm from '../hooks'
 
-const SeedPhraseManager = () => {
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isLoading] = useState(false)
+type SeedPhraseManagerProps = {
+  ppData: ReturnType<typeof usePP>
+}
+
+const SeedPhraseManager = ({ ppData }: SeedPhraseManagerProps) => {
+  const { isGenerating, isLoading, message, setMessage } = ppData
 
   const { loadAccount, seedPhrase, handleUpdateForm } = usePrivacyForm()
 
   const handleGenerateSeedPhrase = async () => {
-    setIsGenerating(true)
     const newSeedPhrase = generateSeedPhrase()
     handleUpdateForm({ seedPhrase: newSeedPhrase })
     setMessage({ type: 'success', text: 'Seed phrase generated successfully' })
-    setIsGenerating(false)
   }
 
   const handleSeedPhraseChange = (event: any) => {

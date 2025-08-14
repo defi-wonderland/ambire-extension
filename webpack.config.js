@@ -199,7 +199,6 @@ module.exports = async function (env, argv) {
   config.resolve.fallback = {
     stream: require.resolve('stream-browserify'),
     crypto: require.resolve('crypto-browserify'),
-
     fs: false,
     // Add fallbacks for all missing viem test action files
     '../../actions/test/dumpState.js': false,
