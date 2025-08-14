@@ -3,10 +3,12 @@ import usePrivacyControllerState from '@web/hooks/usePrivacyControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 const usePrivacyForm = () => {
-  const { amount, targetAddress, isInitialized, initialPromiseLoaded } = usePrivacyControllerState()
   const { dispatch } = useBackgroundService()
+  const { amount, seedPhrase, targetAddress, isInitialized, initialPromiseLoaded, chainData } =
+    usePrivacyControllerState()
 
   useEffect(() => {
+    // TODO: initialPromiseLoaded is probably not needed
     if (!isInitialized && initialPromiseLoaded) {
       dispatch({
         type: 'PRIVACY_CONTROLLER_INITIALIZE_SDK',
@@ -17,12 +19,29 @@ const usePrivacyForm = () => {
     }
   }, [isInitialized, initialPromiseLoaded, dispatch])
 
-  console.log('Ambire privacy: initialPromiseLoaded', initialPromiseLoaded)
-  console.log('Ambire privacy: initialized', isInitialized)
+  const loadAccount = () => {
+    dispatch({
+      type: 'PRIVACY_CONTROLLER_LOAD_ACCOUNT',
+      params: {
+        seedPhrase
+      }
+    })
+  }
+
+  const handleUpdateForm = (params: { [key: string]: any }) => {
+    dispatch({
+      type: 'PRIVACY_CONTROLLER_UPDATE_FORM',
+      params: { ...params }
+    })
+  }
 
   return {
     amount,
-    targetAddress
+    targetAddress,
+    seedPhrase,
+    chainData,
+    loadAccount,
+    handleUpdateForm
   }
 }
 

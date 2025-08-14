@@ -9,11 +9,9 @@ import DepositManager from '../components/DepositManager'
 import SeedPhraseManager from '../components/SeedPhraseManager'
 import WithdrawalManager from '../components/WithdrawalManager'
 import AccountOverview from '../components/AccountOverview'
-import usePrivacyForm from '../hooks'
 
 const PrivacyScreen = () => {
   const { navigate } = useNavigation()
-  const { amount, targetAddress } = usePrivacyForm()
 
   const onBack = useCallback(() => {
     navigate(ROUTES.dashboard)

@@ -747,6 +747,22 @@ type PrivacyControllerInitializeSdkAction = {
   }
 }
 
+type PrivacyControllerLoadAccountAction = {
+  type: 'PRIVACY_CONTROLLER_LOAD_ACCOUNT'
+  params: {
+    seedPhrase: string
+  }
+}
+
+type PrivacyControllerUpdateFormAction = {
+  type: 'PRIVACY_CONTROLLER_UPDATE_FORM'
+  params: {
+    amount?: string
+    seedPhrase?: string
+    targetAddress?: string
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -887,3 +903,5 @@ export type Action =
   | SetCrashAnalyticsAction
   | DismissBanner
   | PrivacyControllerInitializeSdkAction
+  | PrivacyControllerLoadAccountAction
+  | PrivacyControllerUpdateFormAction
