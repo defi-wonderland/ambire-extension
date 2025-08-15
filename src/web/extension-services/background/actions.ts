@@ -39,6 +39,12 @@ import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/cust
 import { THEME_TYPES } from '@common/styles/themeConfig'
 import { LOG_LEVELS } from '@web/utils/logger'
 
+import type {
+  PrivacyPoolSDK as PrivacyPoolSDKType,
+  DataService as DataServiceType,
+  AccountService as AccountServiceType
+} from '@0xbow/privacy-pools-core-sdk'
+
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
@@ -741,17 +747,7 @@ type DismissBanner = {
 }
 
 type PrivacyControllerInitializeSdkAction = {
-  type: 'PRIVACY_CONTROLLER_INITIALIZE_SDK'
-  params: {
-    baseUrl: string
-  }
-}
-
-type PrivacyControllerLoadAccountAction = {
-  type: 'PRIVACY_CONTROLLER_LOAD_ACCOUNT'
-  params: {
-    seedPhrase: string
-  }
+  type: 'PRIVACY_CONTROLLER_SDK_LOADED'
 }
 
 type PrivacyControllerUpdateFormAction = {
@@ -903,5 +899,4 @@ export type Action =
   | SetCrashAnalyticsAction
   | DismissBanner
   | PrivacyControllerInitializeSdkAction
-  | PrivacyControllerLoadAccountAction
   | PrivacyControllerUpdateFormAction
