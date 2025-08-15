@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { formatEther, zeroAddress } from 'viem'
 import { View } from 'react-native'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -9,26 +8,19 @@ import Heading from '@common/components/Heading'
 import Panel from '@common/components/Panel'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { Hash } from '@0xbow/privacy-pools-core-sdk'
-import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
-import { prepareDepositTransaction } from '../utils/privacy/deposit'
+import { chainData } from '../config/chainData'
 import { createDepositSecrets } from '../utils/privacy/sdk'
+import { prepareDepositTransaction } from '../utils/privacy/deposit'
 import { usePP } from '../hooks/usePP'
-import usePrivacyForm from '../hooks/usePrivacyForm'
 
 type DepositManagerProps = {
   ppData: ReturnType<typeof usePP>
 }
 
 const DepositManager = ({ ppData }: DepositManagerProps) => {
-  const { portfolio } = useSelectedAccountControllerState()
-  const sepoliaEth = portfolio.tokens?.find(
-    (token) => token.chainId === 11155111n && token.address === zeroAddress
-  )
-
-  const { amount, chainData, handleUpdateForm } = usePrivacyForm()
   const { loadedAccount, handlePrivateRequest } = ppData
+  const [amount, setAmount] = useState('')
   const [message, setMessage] = useState<{
     type: 'success' | 'error' | 'info'
     text: string
@@ -36,15 +28,15 @@ const DepositManager = ({ ppData }: DepositManagerProps) => {
 
   const isSending = false
   const isConfirming = false
+  const balance = { value: 1n }
 
   // Get pool info for current chain
-  const poolInfo = chainData?.[11155111]?.poolInfo?.[0]
+  const poolInfo = chainData[11155111]?.poolInfo?.[0]
   const maxDeposit = poolInfo ? /* formatEther(poolInfo.maxDeposit) */ '1' : '1'
-  const balanceValue = sepoliaEth ? getTokenAmount(sepoliaEth) : 0n
 
   const handleAmountChange = (event: any) => {
-    const value = event.target.value ?? 0
-    handleUpdateForm({ amount: value })
+    const value = event.target.value
+    setAmount(value)
     if (message) setMessage(null)
   }
 
@@ -65,8 +57,8 @@ const DepositManager = ({ ppData }: DepositManagerProps) => {
   }
 
   const handleSetMaxAmount = () => {
-    const maxValueFormatted = balanceValue ? formatEther(balanceValue) : 0
-    handleUpdateForm({ amount: maxValueFormatted.toString() })
+    // eslint-disable-next-line no-console
+    console.log('handleSetMaxAmount')
   }
 
   if (!poolInfo) {
@@ -92,7 +84,7 @@ const DepositManager = ({ ppData }: DepositManagerProps) => {
       {/* Balance Display */}
       <Panel style={[spacings.mb24]}>
         <Text appearance="secondaryText">
-          Your Balance: {balanceValue ? `${formatEther(balanceValue)} ETH` : 'Loading...'}
+          Your Balance: {balance ? `${/* formatEther(balance.value) */ '1'} ETH` : 'Loading...'}
         </Text>
       </Panel>
 
@@ -105,7 +97,7 @@ const DepositManager = ({ ppData }: DepositManagerProps) => {
           placeholder="0.1"
           button="MAX"
           onButtonPress={handleSetMaxAmount}
-          buttonProps={{ disabled: !balanceValue }}
+          buttonProps={{ disabled: !balance }}
         />
       </View>
 

@@ -8,27 +8,26 @@ import Heading from '@common/components/Heading'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { usePP } from '../hooks/usePP'
-import { generateSeedPhrase } from '../utils/seedPhrase'
-import usePrivacyForm from '../hooks/usePrivacyForm'
 
 type SeedPhraseManagerProps = {
   ppData: ReturnType<typeof usePP>
 }
 
 const SeedPhraseManager = ({ ppData }: SeedPhraseManagerProps) => {
-  const { isGenerating, isLoading, message, setMessage } = ppData
-
-  const { loadAccount, seedPhrase, handleUpdateForm } = usePrivacyForm()
-
-  const handleGenerateSeedPhrase = async () => {
-    const newSeedPhrase = generateSeedPhrase()
-    handleUpdateForm({ seedPhrase: newSeedPhrase })
-    setMessage({ type: 'success', text: 'Seed phrase generated successfully' })
-  }
+  const {
+    handleGenerateSeedPhrase,
+    handleLoadAccount,
+    isGenerating,
+    isLoading,
+    message,
+    setMessage,
+    seedPhrase,
+    setSeedPhrase
+  } = ppData
 
   const handleSeedPhraseChange = (event: any) => {
-    handleUpdateForm({ seedPhrase: event.target.value })
-    if (message) setMessage(null) // Clear messages when user starts typing
+    setSeedPhrase(event.target.value)
+    if (message) setMessage(null)
   }
 
   return (
@@ -61,7 +60,7 @@ const SeedPhraseManager = ({ ppData }: SeedPhraseManagerProps) => {
 
         <Button
           type="secondary"
-          onPress={loadAccount}
+          onPress={handleLoadAccount}
           disabled={!seedPhrase?.trim() || isGenerating || isLoading}
           text={isLoading ? 'Loading Account...' : 'Load Existing Account'}
         />
