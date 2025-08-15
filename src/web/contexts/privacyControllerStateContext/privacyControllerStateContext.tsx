@@ -71,46 +71,46 @@ const PrivacyControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const memoizedState = useDeepMemo(state, controller)
 
-  useEffect(() => {
-    // TODO: initialPromiseLoaded is probably not needed
-    if (
-      !memoizedState.isInitialized &&
-      memoizedState.initialPromiseLoaded &&
-      memoizedState.chainData
-    ) {
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-
-      const circuits = new Circuits({ baseUrl })
-
-      const dataServiceConfig: ChainConfig[] = memoizedState.poolsByChain.map((pool) => {
-        return {
-          chainId: pool.chainId,
-          privacyPoolAddress: pool.address,
-          startBlock: pool.deploymentBlock,
-          rpcUrl: memoizedState.chainData?.[pool.chainId]?.sdkRpcUrl || '',
-          apiKey: 'sdk'
-        }
-      })
-
-      const sdkModule = new PrivacyPoolSDK(circuits)
-      const ds = new DataService(dataServiceConfig)
-
-      setDataService(ds)
-      setSdk(sdkModule)
-
-      console.log('DEBUG: Privacy controller SDK initialized')
-
-      dispatch({
-        type: 'PRIVACY_CONTROLLER_SDK_LOADED'
-      })
-    }
-  }, [
-    memoizedState.isInitialized,
-    memoizedState.initialPromiseLoaded,
-    memoizedState.chainData,
-    memoizedState.poolsByChain,
-    dispatch
-  ])
+  // useEffect(() => {
+  //   // TODO: initialPromiseLoaded is probably not needed
+  //   if (
+  //     !memoizedState.isInitialized &&
+  //     memoizedState.initialPromiseLoaded &&
+  //     memoizedState.chainData
+  //   ) {
+  //     const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  //
+  //     const circuits = new Circuits({ baseUrl })
+  //
+  //     const dataServiceConfig: ChainConfig[] = memoizedState.poolsByChain.map((pool) => {
+  //       return {
+  //         chainId: pool.chainId,
+  //         privacyPoolAddress: pool.address,
+  //         startBlock: pool.deploymentBlock,
+  //         rpcUrl: memoizedState.chainData?.[pool.chainId]?.sdkRpcUrl || '',
+  //         apiKey: 'sdk'
+  //       }
+  //     })
+  //
+  //     const sdkModule = new PrivacyPoolSDK(circuits)
+  //     const ds = new DataService(dataServiceConfig)
+  //
+  //     setDataService(ds)
+  //     setSdk(sdkModule)
+  //
+  //     console.log('DEBUG: Privacy controller SDK initialized')
+  //
+  //     dispatch({
+  //       type: 'PRIVACY_CONTROLLER_SDK_LOADED'
+  //     })
+  //   }
+  // }, [
+  //   memoizedState.isInitialized,
+  //   memoizedState.initialPromiseLoaded,
+  //   memoizedState.chainData,
+  //   memoizedState.poolsByChain,
+  //   dispatch
+  // ])
 
   const loadAccount = useCallback(async () => {
     if (!dataService) {
